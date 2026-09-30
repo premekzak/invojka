@@ -1,0 +1,12 @@
+node_modules/
+dist/
+*.tsbuildinfo
+
+# Real client data (the owner's CSV export) - never commit
+customers.csv
+invoices.csv
+
+.DS_Store
+Thumbs.db
+desktop.ini
+.claude/settings.local.json

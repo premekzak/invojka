@@ -6,11 +6,13 @@ import type { Customer } from '@/domain/schema'
 import { cn } from '@/ui/primitives'
 
 /** Searchable customer select, keyboard-friendly (↑ ↓ Enter Esc). */
-export function CustomerPicker({ customers, value, onChange, onCreate, autoFocus }: {
+export function CustomerPicker({ customers, value, onChange, onCreate, autoFocus, ...aria }: {
   customers: Customer[]; value: string | null; onChange: (c: Customer) => void
   /** Create a customer with the typed name (offered when nothing matches exactly). */
   onCreate?: (name: string) => void
   autoFocus?: boolean
+  /** Passed on to the text input by `Labeled`. */
+  id?: string; required?: boolean; 'aria-describedby'?: string; 'aria-invalid'?: boolean
 }) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
@@ -41,8 +43,9 @@ export function CustomerPicker({ customers, value, onChange, onCreate, autoFocus
 
   return (
     <div ref={ref} className="relative">
-      <div className={cn('flex h-10 items-center rounded-lg border bg-surface px-3 transition-colors', open ? 'border-accent ring-3 ring-accent/20' : 'border-line')}>
+      <div className="control flex h-10 items-center px-3">
         <input
+          {...aria}
           className="h-full flex-1 bg-transparent text-sm outline-none placeholder:text-fg-subtle"
           placeholder={selected ? selected.name : t('editor.pickCustomer')}
           value={open ? q : selected?.name ?? ''}

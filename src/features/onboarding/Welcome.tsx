@@ -24,7 +24,7 @@ export function Welcome({ remembered }: { remembered?: FsAccessAdapter }) {
     <div className="grid min-h-screen place-items-center p-6">
       <Card className="animate-rise w-full max-w-md p-8">
         <div className="mb-6 flex items-center gap-3">
-          <div className="grid size-10 place-items-center rounded-xl bg-accent font-serif text-xl font-semibold text-accent-fg">I</div>
+          <div className="grid size-10 place-items-center rounded-xl bg-brand font-serif text-lg font-semibold text-surface">I</div>
           <div>
             <h1 className="font-serif text-4xl leading-[1.2] font-semibold">{t('app.name')}</h1>
             <p className="text-sm text-fg-muted">{t('app.tagline')}</p>
@@ -32,7 +32,7 @@ export function Welcome({ remembered }: { remembered?: FsAccessAdapter }) {
         </div>
 
         {!isSupported() ? (
-          <p className="rounded-lg bg-warning/10 p-4 text-sm text-warning">{t('welcome.unsupported')}</p>
+          <p className="rounded-lg bg-surface-2 p-4 text-sm text-warning">{t('welcome.unsupported')}</p>
         ) : remembered ? (
           <div className="space-y-3">
             <Button size="lg" className="w-full" onClick={reconnect} autoFocus>

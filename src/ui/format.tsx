@@ -17,11 +17,11 @@ export function useFormat() {
 }
 
 const statusCls: Record<DisplayStatus, string> = {
-  draft: 'text-fg-muted ring-1 ring-inset ring-fg-subtle/40',
+  draft: 'text-fg-muted ring-1 ring-inset ring-line',
   issued: 'text-accent ring-1 ring-inset ring-accent',
-  overdue: 'bg-danger/10 text-danger',
-  paid: 'bg-surface-3 text-fg-muted',
-  cancelled: 'bg-surface-3 text-fg-subtle line-through',
+  overdue: 'bg-warning-chip text-warning-chip-fg',
+  paid: 'px-0 text-fg-muted',
+  cancelled: 'px-0 text-fg-subtle line-through',
 }
 
 export function StatusBadge({ status }: { status: DisplayStatus }) {

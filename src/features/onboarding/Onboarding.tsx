@@ -71,6 +71,18 @@ export function Onboarding() {
 
   const steps = [t('onboarding.supplier'), t('onboarding.vat'), t('onboarding.import')]
 
+  // The name is the one required field: Continue shows the error instead of being disabled.
+  const [showErrors, setShowErrors] = useState(false)
+  const nameError = supplier.name.trim() ? undefined : t('validation.name')
+  function next() {
+    if (step === 0 && nameError) {
+      setShowErrors(true)
+      document.getElementById('supplier-name')?.focus()
+      return
+    }
+    setStep(step + 1)
+  }
+
   return (
     <div className="grid min-h-screen place-items-center p-6">
       <Card className="animate-rise w-full max-w-2xl p-8">
@@ -91,23 +103,24 @@ export function Onboarding() {
             <div className="space-y-6">
               <p className="max-w-prose text-sm text-fg-muted">{t('onboarding.supplierHint')}</p>
               <div className="grid grid-cols-6 gap-4">
-                <Field className="col-span-6" label={t('fields.name')} value={supplier.name} onChange={(e) => set({ name: e.target.value })} autoFocus />
+                <Field className="col-span-6" id="supplier-name" label={t('fields.name')} required error={showErrors ? nameError : undefined}
+                  value={supplier.name} onChange={(e) => set({ name: e.target.value })} onBlur={() => setShowErrors(true)} autoFocus />
                 <Field className="col-span-3" label={t('fields.ic')} value={supplier.ic} onChange={(e) => set({ ic: e.target.value })} />
-                <Field className="col-span-3" label={t('fields.dic')} hint={t('common.optional')} value={supplier.dic} onChange={(e) => set({ dic: e.target.value })} />
+                <Field className="col-span-3" label={t('fields.dic')} value={supplier.dic} onChange={(e) => set({ dic: e.target.value })} />
                 <Field className="col-span-6" label={t('fields.street')} value={supplier.address.street} onChange={(e) => setAddr({ street: e.target.value })} />
                 <Field className="col-span-2" label={t('fields.zip')} value={supplier.address.zip} onChange={(e) => setAddr({ zip: e.target.value })} />
                 <Field className="col-span-4" label={t('fields.city')} value={supplier.address.city} onChange={(e) => setAddr({ city: e.target.value })} />
                 <Field className="col-span-3" label={t('fields.email')} type="email" value={supplier.email} onChange={(e) => set({ email: e.target.value })} />
-                <Field className="col-span-3" label={t('fields.phone')} hint={t('common.optional')} value={supplier.phone} onChange={(e) => set({ phone: e.target.value })} />
+                <Field className="col-span-3" label={t('fields.phone')} value={supplier.phone} onChange={(e) => set({ phone: e.target.value })} />
                 <Field className="col-span-4" label={t('fields.account')} placeholder="123456789" value={supplier.bank.account} onChange={(e) => setBank({ account: e.target.value })} />
                 <Field className="col-span-2" label={t('fields.bankCode')} placeholder="0800" value={supplier.bank.bankCode} onChange={(e) => setBank({ bankCode: e.target.value })} />
-                <Field className="col-span-6" label={t('fields.registration')} hint={t('common.optional')} value={supplier.registration} onChange={(e) => set({ registration: e.target.value })} />
+                <Field className="col-span-6" label={t('fields.registration')} value={supplier.registration} onChange={(e) => set({ registration: e.target.value })} />
               </div>
             </div>
           )}
 
           {step === 1 && (
-            <div className="space-y-3">
+            <div role="radiogroup" aria-label={t('onboarding.vat')} className="space-y-3">
               {(['nonPayer', 'payer', 'identifiedPerson'] as const).map((m) => (
                 <Choice key={m} selected={vatMode === m} onClick={() => setVatMode(m)} title={t(`vatMode.${m}`)} hint={t(`vatMode.${m}Hint`)} />
               ))}
@@ -121,7 +134,7 @@ export function Onboarding() {
                 {(['customers', 'invoices'] as const).map((kind) => (
                   <label key={kind} className={cn(
                     'flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed p-6 text-center text-sm transition-colors',
-                    files[kind] ? 'border-success/50 bg-success/5' : 'border-line hover:border-accent',
+                    files[kind] ? 'border-line-strong bg-surface-2' : 'border-line hover:border-accent',
                   )}>
                     {files[kind] ? <Check className="size-6 text-success" /> : <FileUp className="size-6 text-fg-subtle" />}
                     <span className="font-medium">{t(kind === 'customers' ? 'onboarding.customersCsv' : 'onboarding.invoicesCsv')}</span>
@@ -129,7 +142,7 @@ export function Onboarding() {
                   </label>
                 ))}
               </div>
-              {importError && <p className="rounded-lg bg-danger/10 p-3 text-sm text-danger">{importError}</p>}
+              {importError && <p className="rounded-lg bg-surface-2 p-3 text-sm text-danger">{importError}</p>}
               {result && (
                 <div className="animate-rise space-y-2 rounded-xl bg-surface-2 p-4 text-sm">
                   <p className="font-medium">{t('onboarding.importSummary', { invoices: result.invoices.length, customers: result.customers.length })}</p>
@@ -148,14 +161,14 @@ export function Onboarding() {
           )}
         </div>
 
-        {saveError && <p className="mt-6 rounded-lg bg-danger/10 p-3 text-sm text-danger">{t('save.error')}: {saveError}</p>}
+        {saveError && <p className="mt-6 rounded-lg bg-surface-2 p-3 text-sm text-danger">{t('save.error')}: {saveError}</p>}
 
         <div className="mt-8 flex items-center justify-between border-t border-line pt-6">
           <span className="text-xs text-fg-subtle">{adapter?.name}</span>
           <div className="flex gap-2">
             {step > 0 && <Button variant="ghost" onClick={() => setStep(step - 1)}>{t('common.back')}</Button>}
             {step < steps.length - 1
-              ? <Button onClick={() => setStep(step + 1)} disabled={step === 0 && !supplier.name.trim()}>{t('common.continue')}</Button>
+              ? <Button onClick={next}>{t('common.continue')}</Button>
               : <Button onClick={() => void finish()} disabled={saving}>{saving ? t('save.saving') : t('onboarding.finish')}</Button>}
           </div>
         </div>

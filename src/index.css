@@ -16,58 +16,110 @@
   --radius-xl: 5px;
   --radius-2xl: 6px;
 
-  /* Paper and one colour: cream content, kraft sidebar, warm ink greys, plain CSS blue.
-     Titles are blue; red is reserved for overdue and errors. */
-  --color-bg: #faf6ea;
-  --color-surface: #fffdf7;
-  --color-surface-2: #f4eee0;
-  --color-surface-3: #eae2cf;
-  --color-line: #e8dfcb;
-  --color-sidebar: #efe4cf;
-  --color-sidebar-active: #e3d5b8;
-  --color-fg: #1f1c18;
-  --color-fg-muted: #5c554c;
-  --color-fg-subtle: #6b6150;
-  --color-title: #0000ff;
-  --color-accent: #0000ff;
-  --color-accent-fg: #fbf7ec;
-  --color-danger: #a8322b;
-  --color-success: #37703a;
-  --color-warning: #9a5c0c;
-  /* Chart series: this year in blue, last year as a pale tint of it (focus style: lightness, not hue,
-     separates them, so it is colourblind-safe; the pale bars sit at ~1.8:1 and the Table view has exact values). */
-  --color-series-1: #0000ff;
-  --color-series-2: #b3b8ff;
+  /* Ledger theme, mild grey version (the owner's choice, 2026-10-01): a very light grey page, white cards, near-neutral greys,
+     blue for actions, black (ink) for identity, red for warnings and errors, green for success.
+     The palette is defined below (--paper … --green), light and dark. Code uses only these role names. */
+  --color-bg: var(--paper);
+  --color-sidebar: var(--paper);
+  --color-surface: var(--card);
+  --color-surface-2: var(--fill);
+  --color-sidebar-active: var(--fill);
+  --color-surface-3: var(--line);
+  --color-line: var(--line);
+  /* Mid grey: secondary text and captions (4.5:1 on paper, card, fill and line), input borders, icons. */
+  --color-line-strong: var(--mid);
+  /* The bottom edge of fields ("ledger line", the owner's choice 2026-10-11): 3:1 on card and paper. */
+  --color-input: var(--edge);
+  --color-fg-faint: var(--mid);
+  --color-fg-subtle: var(--mid);
+  --color-fg-muted: var(--mid);
+  --color-fg: var(--ink);
+  /* One accent again: blue = everything you can click; ink = identity, never clickable (titles, logo,
+     next-step icons). Navy was tried as a second interface colour (#0f2a5f, dark #7489b4) and replaced. */
+  --color-accent: var(--blue);
+  --color-accent-fg: var(--on-blue);
+  --color-brand: var(--ink);
+  --color-title: var(--ink);
+  /* Red covers warnings (common: pale chips with red text) and errors (rare: solid red, white text). */
+  --color-danger: var(--red);
+  --color-danger-fg: var(--on-red);
+  --color-warning: var(--red);
+  --color-warning-chip: var(--red-chip);
+  --color-warning-chip-fg: var(--red);
+  /* Green only for short confirmations: saved, rates filled, file loaded. "Paid" stays grey. */
+  --color-success: var(--green);
+  /* Behind modals: ink (light) or the paper tone (dark), at 50%. */
+  --color-scrim: var(--ink);
+  /* Chart series: this year blue, last year pale blue (lightness, not hue, separates them, so it is
+     colourblind-safe; the pale bars sit at ~1.6:1 and the Table view has exact values). */
+  --color-series-1: var(--blue);
+  --color-series-2: var(--blue-pale);
 }
 
 @layer base {
+  /* Ledger palette, mild grey. Greys are near-neutral with a faint cool tint (OKLCH h 255, C <= 0.006). Every text colour reaches 4.5:1
+     on paper, card and fill in both modes. */
+  :root {
+    --paper: #f6f7f8; --card: #ffffff; --fill: #ecedef; --line: #d4d6d8; --edge: #86898d; --mid: #595b5e; --ink: #181a1c;
+    --blue: #0000ff; --on-blue: #ffffff; --blue-pale: #b3b8ff;
+    --red: #be2323; --on-red: #ffffff; --red-chip: #ffd5d1; --green: #1e7729;
+  }
+  /* Dark: a near-neutral dark grey page, lighter cards, softer accents so they don't vibrate. */
   .dark {
-    --color-bg: #171511;
-    --color-surface: #1f1c17;
-    --color-surface-2: #28241e;
-    --color-surface-3: #332e26;
-    --color-line: #353027;
-    --color-sidebar: #25211b;
-    --color-sidebar-active: #332e26;
-    --color-fg: #f3eee2;
-    --color-fg-muted: #b5ab98;
-    --color-fg-subtle: #958b7a;
-    --color-title: #a3a3ff;
-    --color-accent: #9a9aff;
-    --color-accent-fg: #171511;
-    --color-danger: #e0675c;
-    --color-success: #7cb772;
-    --color-warning: #e0a04a;
-    --color-series-1: #8f8fff;
-    --color-series-2: #44449e;
+    --paper: #101112; --card: #161719; --fill: #1f2122; --line: #343538; --edge: #6b6e72; --mid: #a2a5a8; --ink: #eaebed;
+    --blue: #9a9aff; --on-blue: #101112; --blue-pale: #44449e;
+    --red: #d16c5d; --on-red: #101112; --red-chip: #3b1514; --green: #4e9a5b;
+    /* Native controls (date pickers, select arrows, scrollbars) follow the theme. */
+    color-scheme: dark;
+    --color-scrim: var(--paper);
   }
   body {
-    @apply bg-bg text-fg antialiased;
+    /* Body (14 px) is the default, so text without a size class never falls back to the browser's 16 px. */
+    @apply bg-bg text-fg text-sm antialiased;
     font-feature-settings: "ss01";
   }
   h1, h2, h3 {
     color: var(--color-title);
     font-feature-settings: normal;
+  }
+}
+
+/* Form controls (design system: Forms). One box for text fields, selects, text areas, affix groups and the
+   customer picker: a pale line on the top and sides, the 3:1 input edge at the bottom, a 2 px accent edge on focus.
+   Rule order matters: error beats hover, focus beats error, disabled beats everything. */
+@layer components {
+  .control {
+    background: var(--color-surface);
+    color: var(--color-fg);
+    border: 1px solid var(--color-line);
+    border-bottom-color: var(--color-input);
+    border-radius: var(--radius-lg);
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .control:hover { border-color: var(--color-line-strong); }
+  .control[aria-invalid="true"], .control:has(> [aria-invalid="true"]) { border-color: var(--color-danger); }
+  .control:focus, .control:focus-within {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: inset 0 0 0 1px var(--color-accent);
+  }
+  .control:disabled, .control:has(> :disabled) {
+    background: var(--color-surface-2);
+    color: var(--color-fg-muted);
+    border-color: var(--color-line);
+    box-shadow: none;
+    cursor: not-allowed;
+  }
+  /* Native select without the platform arrow; the chevron is two gradients in fg-muted, so it follows the theme. */
+  .control-select {
+    appearance: none;
+    cursor: pointer;
+    background-image:
+      linear-gradient(45deg, transparent 50%, var(--color-fg-muted) 50%),
+      linear-gradient(135deg, var(--color-fg-muted) 50%, transparent 50%);
+    background-position: calc(100% - 15px) 52%, calc(100% - 10px) 52%;
+    background-size: 5px 5px;
+    background-repeat: no-repeat;
   }
 }
 

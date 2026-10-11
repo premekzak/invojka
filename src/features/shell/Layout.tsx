@@ -20,7 +20,7 @@ export function Layout({ section, children }: { section: string; children: React
     <div className="flex min-h-screen">
       <aside className="sticky top-0 flex h-screen w-60 shrink-0 flex-col border-r border-line bg-sidebar p-4">
         <div className="mb-6 flex items-center gap-2 px-2 font-semibold">
-          <div className="grid size-7 shrink-0 place-items-center rounded-md bg-accent font-serif text-base font-semibold text-accent-fg">I</div>
+          <div className="grid size-7 shrink-0 place-items-center rounded-md bg-brand font-serif text-lg font-semibold text-surface">I</div>
           <span className="truncate">{settings?.supplier.name}</span>
         </div>
         <Button className="mb-4 w-full" onClick={() => navigate('/invoices/new')}>
@@ -41,7 +41,7 @@ export function Layout({ section, children }: { section: string; children: React
           ))}
         </nav>
         {demo ? (
-          <div className="mt-auto flex items-center justify-between gap-2 rounded-lg border border-accent/40 px-3 py-2 text-xs" title={t('demo.badgeHint')}>
+          <div className="mt-auto flex items-center justify-between gap-2 rounded-lg border border-line px-3 py-2 text-xs" title={t('demo.badgeHint')}>
             <span className="font-medium text-accent">{t('demo.badge')}</span>
             <button className="text-fg-muted underline-offset-2 hover:text-fg hover:underline" onClick={() => void exitDemo()}>{t('demo.exit')}</button>
           </div>

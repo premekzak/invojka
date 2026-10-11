@@ -58,7 +58,7 @@ export function PdfPreview({ invoice, onClose }: { invoice: Invoice; onClose: ()
 
   // Portal: the page container animates with a transform, which would otherwise trap this fixed overlay inside it.
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-6 backdrop-blur-sm" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-scrim/50 p-6 backdrop-blur-sm" onClick={onClose}>
       <Card className="animate-rise flex h-full w-full max-w-4xl flex-col overflow-hidden" >
         <div className="flex items-center gap-2 border-b border-line px-4 py-3" onClick={(e) => e.stopPropagation()}>
           <span className="font-medium">{fileName}</span>

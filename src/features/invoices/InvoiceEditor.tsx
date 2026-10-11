@@ -1,5 +1,5 @@
 import { ArrowLeft, Ban, Check, CloudDownload, FileDown, Loader2, Plus, RotateCcw, Send, Trash2, X } from 'lucide-react'
-import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useEffect, useMemo, useState, type InputHTMLAttributes } from 'react'
 import { useTranslation } from 'react-i18next'
 import { today } from '@/domain/id'
 import { displayStatus, invoiceTotals, isoPlusDays, newInvoice, snapshotOf } from '@/domain/invoice'
@@ -8,7 +8,7 @@ import type { Customer, Invoice, InvoiceLine } from '@/domain/schema'
 import { chargesVat, lineBase, VAT_RATES } from '@/domain/vat'
 import { useStore } from '@/state/store'
 import { StatusBadge, useFormat } from '@/ui/format'
-import { Button, Card, Input, cn } from '@/ui/primitives'
+import { Button, Card, Checkbox, ErrorSummary, Input, Labeled, Select, Textarea, cn } from '@/ui/primitives'
 import { navigate, type Route } from '@/ui/router'
 import { emptyCustomer } from '@/features/customers/CustomerDetail'
 import { CustomerPicker } from './CustomerPicker'
@@ -16,19 +16,8 @@ import { rateDateOf } from '@/domain/fx'
 import { fetchEcbRate } from '@/fx/ecb'
 import { PdfPreview, savePdfToFolder } from './PdfPreview'
 
-const selectCls = 'h-10 w-full rounded-lg border border-line bg-surface px-3 text-sm focus:border-accent focus:outline-none'
-
-function L({ label, children, className }: { label: string; children: ReactNode; className?: string }) {
-  return (
-    <label className={cn('block space-y-1.5', className)}>
-      <span className="text-xs font-medium text-fg-muted">{label}</span>
-      {children}
-    </label>
-  )
-}
-
 /** Number input that lets the user type freely ("1 234,50") and commits the parsed value. */
-function NumberInput({ value, onChange, className, ...p }: { value: number; onChange: (n: number) => void; className?: string; placeholder?: string }) {
+function NumberInput({ value, onChange, className, ...p }: Omit<InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'> & { value: number; onChange: (n: number) => void }) {
   const [text, setText] = useState(String(value))
   useEffect(() => {
     setText((t) => (Number(t.replace(/\s/g, '').replace(',', '.')) === value ? t : String(value)))
@@ -107,6 +96,23 @@ function Editor({ initial, isNew }: { initial: Invoice; isNew: boolean }) {
   const dirty = !saved || JSON.stringify(draft) !== JSON.stringify(saved)
   const numberTaken = invoices.some((i) => i.number === draft.number && i.id !== draft.id)
   const canSave = !!draft.customerSnapshot.name && draft.lines.length > 0 && !numberTaken
+  // Saving with mistakes shows them all (and a summary when there is more than one) instead of a disabled button.
+  const [showErrors, setShowErrors] = useState(false)
+  const errors = [
+    !draft.customerSnapshot.name && { id: 'invoice-customer', message: t('validation.customer') },
+    numberTaken && { id: 'invoice-number', message: t('editor.numberTaken') },
+  ].filter((e): e is { id: string; message: string } => !!e)
+  // A taken number shows at once; a missing customer only after a save attempt.
+  const errorFor = (id: string) => (showErrors || id === 'invoice-number' ? errors.find((e) => e.id === id)?.message : undefined)
+  /** Runs the action when the invoice is valid; otherwise shows the errors and focuses the first one. */
+  const guarded = (action: () => void) => () => {
+    if (errors.length) {
+      setShowErrors(true)
+      document.getElementById(errors[0].id)?.focus()
+      return
+    }
+    action()
+  }
 
   function pickCustomer(c: Customer) {
     // A brand-new invoice starts from this customer's last one; a saved one only switches the customer.
@@ -183,31 +189,32 @@ function Editor({ initial, isNew }: { initial: Invoice; isNew: boolean }) {
           )}
           {draft.status === 'draft' ? (
             <>
-              <Button variant="secondary" disabled={!canSave || !dirty} onClick={() => save()}>{t('editor.saveDraft')}</Button>
-              <Button disabled={!canSave} onClick={() => void issue()}><Send className="size-4" /> {t('editor.issue')}</Button>
+              <Button variant="secondary" disabled={!dirty} onClick={guarded(() => save())}>{t('editor.saveDraft')}</Button>
+              <Button onClick={guarded(() => void issue())}><Send className="size-4" /> {t('editor.issue')}</Button>
             </>
           ) : (
-            <Button disabled={!canSave || !dirty} onClick={() => save()}>{t('common.save')}</Button>
+            <Button disabled={!dirty} onClick={guarded(() => save())}>{t('common.save')}</Button>
           )}
         </div>
       </div>
-      {pdfError && <p className="rounded-lg bg-danger/10 p-3 text-sm text-danger">{t('pdf.saveFailed')}: {pdfError}</p>}
+      {pdfError && <p className="rounded-lg bg-surface-2 p-3 text-sm text-danger">{t('pdf.saveFailed')}: {pdfError}</p>}
+      {showErrors && errors.length > 1 && <ErrorSummary title={t('validation.invoiceSummary')} errors={errors} />}
       {preview && <PdfPreview invoice={preview} onClose={() => setPreview(undefined)} />}
 
       <div className="grid grid-cols-3 gap-6">
-        <Card className="col-span-2 space-y-5 p-6">
-          <L label={t('invoices.customer')}>
-            <CustomerPicker customers={customers} value={draft.customerId} onChange={pickCustomer}
+        <Card className="col-span-2 space-y-5 p-5">
+          <Labeled label={t('invoices.customer')} required error={errorFor('invoice-customer')}>
+            <CustomerPicker id="invoice-customer" customers={customers} value={draft.customerId} onChange={pickCustomer}
               onCreate={(name) => { const c = emptyCustomer(name); upsertCustomer(c); pickCustomer(c) }}
               autoFocus={!saved && !draft.customerId} />
-          </L>
+          </Labeled>
           {draft.customerSnapshot.name && (
             <p className="-mt-2 text-xs text-fg-muted">
               {[draft.customerSnapshot.address.street, draft.customerSnapshot.address.zip, draft.customerSnapshot.address.city, draft.customerSnapshot.address.country].filter(Boolean).join(', ')}
               {draft.customerSnapshot.ic && ` · ${t('fields.ic')} ${draft.customerSnapshot.ic}`}
               {draft.customerSnapshot.dic && ` · ${t('fields.dic')} ${draft.customerSnapshot.dic}`}
               {draft.customerId && (
-                <a href={`#/customers/${draft.customerId}`} className="ml-2 text-accent hover:underline" onClick={(e) => {
+                <a href={`#/customers/${draft.customerId}`} className="ml-2 text-accent underline underline-offset-2 decoration-line-strong hover:decoration-current" onClick={(e) => {
                   // Keep the work: store the invoice (as a draft if new) before leaving; drafts pick up the edited customer details.
                   e.preventDefault()
                   if (dirty && canSave) save()
@@ -237,9 +244,9 @@ function Editor({ initial, isNew }: { initial: Invoice; isNew: boolean }) {
                   <Input className="col-span-1 px-2" value={l.unit} placeholder="ks" onChange={(e) => setLine(i, { unit: e.target.value })} />
                   <NumberInput className="col-span-2" value={toMajor(l.unitPrice)} onChange={(n) => setLine(i, { unitPrice: toMinor(n) })} />
                   {vatOn && (
-                    <select className={cn(selectCls, 'col-span-1 px-1')} value={l.vatRate} onChange={(e) => setLine(i, { vatRate: Number(e.target.value) })}>
+                    <Select className="col-span-1 pr-6 pl-2" aria-label={t('editor.vat')} value={l.vatRate} onChange={(e) => setLine(i, { vatRate: Number(e.target.value) })}>
                       {VAT_RATES.map((r) => <option key={r} value={r}>{r} %</option>)}
-                    </select>
+                    </Select>
                   )}
                   <span className="col-span-2 pr-1 text-right text-sm font-medium tabular-nums">{f.money(lineBase(l), draft.currency)}</span>
                   {draft.lines.length > 1 && (
@@ -273,70 +280,68 @@ function Editor({ initial, isNew }: { initial: Invoice; isNew: boolean }) {
             </dl>
           </div>
 
-          <L label={t('editor.note')}>
-            <textarea className="min-h-20 w-full rounded-lg border border-line bg-surface p-3 text-sm focus:border-accent focus:outline-none"
-              value={draft.note} onChange={(e) => set({ note: e.target.value })} />
-          </L>
+          <Labeled label={t('editor.note')}>
+            <Textarea value={draft.note} onChange={(e) => set({ note: e.target.value })} />
+          </Labeled>
         </Card>
 
-        <Card className="h-fit space-y-4 p-6">
-          <L label={t('invoices.number')}>
-            <Input value={draft.number} className={cn('tabular-nums', numberTaken && 'border-danger')}
+        <Card className="h-fit space-y-4 p-5">
+          <Labeled label={t('invoices.number')} error={errorFor('invoice-number')}>
+            <Input id="invoice-number" value={draft.number} className="tabular-nums"
               onChange={(e) => set({ number: e.target.value, variableSymbol: e.target.value.replace(/\D/g, '') })} />
-            {numberTaken && <span className="text-xs text-danger">{t('editor.numberTaken')}</span>}
-          </L>
-          <L label={t('editor.vs')}>
+          </Labeled>
+          <Labeled label={t('editor.vs')}>
             <Input value={draft.variableSymbol} className="tabular-nums" onChange={(e) => set({ variableSymbol: e.target.value })} />
-          </L>
+          </Labeled>
           <div className="grid grid-cols-2 gap-3">
-            <L label={t('invoices.issued')}>
+            <Labeled label={t('invoices.issued')}>
               <Input type="date" value={draft.issueDate} onChange={(e) => {
                 const days = Math.round((Date.parse(draft.dueDate) - Date.parse(draft.issueDate)) / 864e5)
                 set({ issueDate: e.target.value, dueDate: isoPlusDays(e.target.value, days), ...(isPayer ? { taxableSupplyDate: e.target.value } : {}), ...clearAutoRate(draft) })
               }} />
-            </L>
-            <L label={t('invoices.due')}>
+            </Labeled>
+            <Labeled label={t('invoices.due')}>
               <Input type="date" value={draft.dueDate} onChange={(e) => set({ dueDate: e.target.value })} />
-            </L>
+            </Labeled>
           </div>
           <div className="flex gap-1.5">
             {[7, 14, 30].map((d) => (
               <button key={d} onClick={() => set({ dueDate: isoPlusDays(draft.issueDate, d) })}
                 className={cn('rounded border px-2.5 py-0.5 text-xs transition-colors',
-                  isoPlusDays(draft.issueDate, d) === draft.dueDate ? 'border-accent bg-accent/10 text-accent' : 'border-line text-fg-muted hover:border-fg-subtle')}>
+                  isoPlusDays(draft.issueDate, d) === draft.dueDate ? 'border-accent bg-surface-2 text-accent' : 'border-line text-fg-muted hover:border-line-strong')}>
                 {t('editor.days', { count: d })}
               </button>
             ))}
           </div>
           {isPayer && (
-            <L label={t('editor.taxableSupplyDate')}>
+            <Labeled label={t('editor.taxableSupplyDate')}>
               <Input type="date" value={draft.taxableSupplyDate ?? ''} onChange={(e) => set({ taxableSupplyDate: e.target.value || undefined, ...clearAutoRate(draft) })} />
-            </L>
+            </Labeled>
           )}
           <div className="grid grid-cols-2 gap-3">
-            <L label={t('editor.currency')}>
-              <select className={selectCls} value={draft.currency} onChange={(e) => set({ currency: e.target.value, exchangeRate: undefined, exchangeRateSource: undefined })}>
+            <Labeled label={t('editor.currency')}>
+              <Select value={draft.currency} onChange={(e) => set({ currency: e.target.value, exchangeRate: undefined, exchangeRateSource: undefined })}>
                 {[...new Set([...CURRENCIES, draft.currency])].map((c) => <option key={c}>{c}</option>)}
-              </select>
-            </L>
-            <L label={t('editor.language')}>
-              <select className={selectCls} value={draft.language} onChange={(e) => set({ language: e.target.value as 'cs' | 'en' })}>
+              </Select>
+            </Labeled>
+            <Labeled label={t('editor.language')}>
+              <Select value={draft.language} onChange={(e) => set({ language: e.target.value as 'cs' | 'en' })}>
                 <option value="cs">Čeština</option>
                 <option value="en">English</option>
-              </select>
-            </L>
+              </Select>
+            </Labeled>
           </div>
           {draft.currency !== 'CZK' && (
             <div className="space-y-1.5">
-              <span className="text-xs font-medium text-fg-muted">{t('editor.exchangeRate', { currency: draft.currency })}</span>
+              <label htmlFor="invoice-rate" className="block text-sm font-medium text-fg">{t('editor.exchangeRate', { currency: draft.currency })}</label>
               <div className="flex gap-2">
-                <NumberInput className="flex-1" value={draft.exchangeRate ?? 0}
+                <NumberInput id="invoice-rate" className="flex-1" value={draft.exchangeRate ?? 0}
                   onChange={(n) => set({ exchangeRate: n > 0 ? n : undefined, exchangeRateSource: n > 0 ? 'manual' : undefined })} />
                 <Button variant="secondary" disabled={rateBusy} title={t('rates.ecbOne')} onClick={() => void loadRate()}>
                   {rateBusy ? <Loader2 className="size-4 animate-spin" /> : <CloudDownload className="size-4" />} ECB
                 </Button>
               </div>
-              <p className="text-xs text-fg-subtle">
+              <p className="text-xs text-fg-muted">
                 {rateError ? <span className="text-danger">{rateError}</span>
                   : draft.exchangeRate ? <>{t(`rates.source.${draft.exchangeRateSource ?? 'manual'}`)} · ≈ {f.money(Math.round(totals.total * draft.exchangeRate))}</>
                   : t('rates.noneYet')}
@@ -344,15 +349,12 @@ function Editor({ initial, isNew }: { initial: Invoice; isNew: boolean }) {
             </div>
           )}
           {isPayer && (
-            <label className="flex items-center gap-2 text-sm">
-              <input type="checkbox" className="size-4 accent-accent" checked={draft.reverseCharge} onChange={(e) => set({ reverseCharge: e.target.checked })} />
-              {t('editor.reverseCharge')}
-            </label>
+            <Checkbox label={t('editor.reverseCharge')} checked={draft.reverseCharge} onChange={(e) => set({ reverseCharge: e.target.checked })} />
           )}
           {draft.status === 'paid' && (
-            <L label={t('editor.paidDate')}>
+            <Labeled label={t('editor.paidDate')}>
               <Input type="date" value={draft.paidDate ?? ''} onChange={(e) => set({ paidDate: e.target.value || undefined })} />
-            </L>
+            </Labeled>
           )}
         </Card>
       </div>

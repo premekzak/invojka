@@ -129,7 +129,7 @@ export function BarChart({ categories, series, formatAxis, formatValue, partial,
               {ticks.map((t) => (
                 <g key={t}>
                   <line x1={M.left} x2={width - M.right} y1={y(t)} y2={y(t)} className="stroke-line" strokeWidth={1} />
-                  <text x={M.left - 8} y={y(t)} dy="0.32em" textAnchor="end" className="fill-fg-subtle text-[11px] tabular-nums">{formatAxis(t)}</text>
+                  <text x={M.left - 8} y={y(t)} dy="0.32em" textAnchor="end" className="fill-fg-subtle text-xs tabular-nums">{formatAxis(t)}</text>
                 </g>
               ))}
 
@@ -150,12 +150,12 @@ export function BarChart({ categories, series, formatAxis, formatValue, partial,
                       )
                     })}
                     {labelIndexes.includes(i) && series.length === 1 && series[0].values[i] ? (
-                      <text x={x0 + band / 2} y={y(series[0].values[i]!) - 5} textAnchor="middle" className="fill-fg-muted text-[11px] font-medium tabular-nums">
+                      <text x={x0 + band / 2} y={y(series[0].values[i]!) - 5} textAnchor="middle" className="fill-fg-muted text-xs font-medium tabular-nums">
                         {formatAxis(series[0].values[i]!)}
                       </text>
                     ) : null}
                     {i % labelEvery === 0 && (
-                      <text x={x0 + band / 2} y={height - 6} textAnchor="middle" className={cn('text-[11px]', hover === i ? 'fill-fg' : 'fill-fg-subtle')}>{tickFormat(c)}</text>
+                      <text x={x0 + band / 2} y={height - 6} textAnchor="middle" className={cn('text-xs', hover === i ? 'fill-fg' : 'fill-fg-subtle')}>{tickFormat(c)}</text>
                     )}
                     {/* Hit target: the whole band, bigger than the bars. */}
                     <rect x={x0} y={M.top} width={band} height={plotH + M.bottom} fill="transparent" onMouseEnter={() => setHover(i)} />

@@ -10,12 +10,12 @@ import { Card, cn } from '@/ui/primitives'
 import { navigate } from '@/ui/router'
 import { RevenueCharts } from './RevenueCharts'
 
-function Step({ icon, title, hint, onClick, tone = 'default' }: { icon: ReactNode; title: string; hint: string; onClick: () => void; tone?: 'default' | 'danger' | 'accent' }) {
+function Step({ icon, title, hint, onClick, tone = 'default' }: { icon: ReactNode; title: string; hint: string; onClick: () => void; tone?: 'default' | 'warning' }) {
   return (
-    <button onClick={onClick} className="group flex w-full items-start gap-4 rounded-2xl border border-line bg-surface p-5 text-left transition-colors hover:border-fg-subtle">
+    <button onClick={onClick} className="group flex w-full items-start gap-4 rounded-2xl border border-line bg-surface p-5 text-left transition-colors hover:border-line-strong">
       <div className={cn(
         'grid size-10 shrink-0 place-items-center rounded-xl',
-        tone === 'danger' ? 'bg-danger/10 text-danger' : tone === 'accent' ? 'bg-accent text-accent-fg' : 'bg-surface-2 text-fg-muted',
+        tone === 'warning' ? 'bg-warning-chip text-warning-chip-fg' : 'bg-surface-2 text-brand',
       )}>{icon}</div>
       <div className="min-w-0 flex-1">
         <div className="font-medium">{title}</div>
@@ -33,7 +33,7 @@ function Summary({ revenue, revenueLast, count, outstanding, overdueSum, overdue
   const { t } = useTranslation()
   const f = useFormat()
   const b = <strong className="font-semibold text-fg tabular-nums" />
-  const r = <strong className="font-semibold text-danger tabular-nums" />
+  const r = <strong className="font-semibold text-warning tabular-nums" />
   const { trend, pct } = yearTrend(revenue, revenueLast)
   const trendKey = { up: 'home.trendUp', down: 'home.trendDown', same: 'home.trendSame', none: 'home.trendNone' } as const
   const payment = outstanding === 0 ? <Trans i18nKey="home.allPaid" />
@@ -41,7 +41,7 @@ function Summary({ revenue, revenueLast, count, outstanding, overdueSum, overdue
     : <Trans i18nKey={overdueSum >= outstanding ? 'home.waitingAllOverdue' : 'home.waitingSomeOverdue'} count={overdueCount}
         values={{ amount: f.moneyWhole(outstanding), overdue: f.moneyWhole(overdueSum) }} components={{ b, r }} />
   return (
-    <p className="max-w-prose text-xl leading-normal text-fg-muted">
+    <p className="max-w-prose text-lg leading-normal text-fg-muted">
       {count === 0 ? t('home.summaryNone') : (
         <><Trans i18nKey="home.summary" count={count} values={{ amount: f.moneyWhole(revenue) }} components={{ b }} />
           <Trans i18nKey={trendKey[trend]} values={{ pct }} components={{ b }} /></>
@@ -91,7 +91,7 @@ export function Home() {
   ].filter(Boolean)
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       <header className="space-y-3">
         <h1 className="font-serif text-4xl leading-[1.2] font-semibold">{greeting}</h1>
         <Summary revenue={stats.revenue} revenueLast={stats.revenueLast} count={stats.countThisYear}
@@ -102,10 +102,10 @@ export function Home() {
 
       <section>
         <h2 className="mb-3 font-serif text-2xl font-semibold">{t('home.nextSteps')}</h2>
-        <div className="grid grid-cols-2 gap-4">
-          <Step tone="accent" icon={<FilePlus2 className="size-5" />} title={t('home.createInvoice')} hint={t('home.createInvoiceHint')} onClick={() => navigate('/invoices/new')} />
+        <div className="grid grid-cols-2 gap-5">
+          <Step icon={<FilePlus2 className="size-5" />} title={t('home.createInvoice')} hint={t('home.createInvoiceHint')} onClick={() => navigate('/invoices/new')} />
           {stats.overdueCount > 0 && (
-            <Step tone="danger" icon={<AlertCircle className="size-5" />} title={t('home.overdue', { count: stats.overdueCount })}
+            <Step tone="warning" icon={<AlertCircle className="size-5" />} title={t('home.overdue', { count: stats.overdueCount })}
               hint={t('home.overdueHint', { amount: f.money(stats.overdueSum) })} onClick={() => navigate('/invoices?status=overdue')} />
           )}
           {missing.length > 0 && (
@@ -119,7 +119,7 @@ export function Home() {
         <section>
           <div className="mb-3 flex items-center justify-between">
             <h2 className="font-serif text-2xl font-semibold">{t('home.recent')}</h2>
-            <a href="#/invoices" className="text-sm text-accent hover:underline">{t('home.all')}</a>
+            <a href="#/invoices" className="text-sm text-accent underline underline-offset-2 decoration-line-strong hover:decoration-current">{t('home.all')}</a>
           </div>
           <Card className="divide-y divide-line">
             {recent.map((inv) => (

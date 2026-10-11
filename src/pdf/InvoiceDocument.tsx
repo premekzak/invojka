@@ -10,27 +10,36 @@ Font.register({ family: 'Inter', fonts: [{ src: fonts.regular, fontWeight: 400 }
 // Czech words must not be hyphenated by the English default.
 Font.registerHyphenationCallback((word) => [word])
 
-const ACCENT = '#4f46e5'
-const MUTED = '#6b6b75'
-const LINE = '#e4e4e8'
+// The PDF stays neutral (the owner's choice): warm ink greys like the app, no accent colour.
+// Grayscale phase (2026-10-01): the cancelled and paid stamps are ink too; they were #a8322b and #37703a.
+// Every colour on the PDF comes from here.
+const C = {
+  ink: '#1f1c18',
+  muted: '#5c554c',
+  line: '#e4e0d7',
+  box: '#f5f3ee',
+  paper: '#ffffff',
+  danger: '#1f1c18',
+  success: '#1f1c18',
+}
 
 const s = StyleSheet.create({
-  page: { fontFamily: 'Inter', fontSize: 9, color: '#18181b', padding: 40, paddingBottom: 60, lineHeight: 1.4 },
+  page: { fontFamily: 'Inter', fontSize: 9, color: C.ink, padding: 40, paddingBottom: 60, lineHeight: 1.4 },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 28 },
   title: { fontSize: 20, fontWeight: 600, lineHeight: 1.2 },
-  number: { fontSize: 11, color: MUTED, marginTop: 4, lineHeight: 1.2 },
-  label: { fontSize: 7.5, color: MUTED, textTransform: 'uppercase', letterSpacing: 0.6, marginBottom: 4 },
+  number: { fontSize: 11, color: C.muted, marginTop: 4, lineHeight: 1.2 },
+  label: { fontSize: 7.5, color: C.muted, textTransform: 'uppercase', letterSpacing: 0.6, marginBottom: 4 },
   parties: { flexDirection: 'row', gap: 24, marginBottom: 20 },
   party: { flex: 1 },
-  partyBox: { flex: 1, backgroundColor: '#f7f7f8', borderRadius: 6, padding: 12 },
+  partyBox: { flex: 1, backgroundColor: C.box, borderRadius: 6, padding: 12 },
   name: { fontSize: 11, fontWeight: 600, marginBottom: 2 },
-  meta: { flexDirection: 'row', gap: 24, marginBottom: 24, paddingVertical: 12, borderTop: `1 solid ${LINE}`, borderBottom: `1 solid ${LINE}` },
+  meta: { flexDirection: 'row', gap: 24, marginBottom: 24, paddingVertical: 12, borderTop: `1 solid ${C.line}`, borderBottom: `1 solid ${C.line}` },
   metaCol: { flex: 1, gap: 3 },
   metaRow: { flexDirection: 'row', justifyContent: 'space-between' },
-  metaKey: { color: MUTED },
+  metaKey: { color: C.muted },
   metaVal: { fontWeight: 600 },
-  th: { flexDirection: 'row', borderBottom: `1 solid ${LINE}`, paddingBottom: 5, color: MUTED, fontSize: 7.5, textTransform: 'uppercase', letterSpacing: 0.5 },
-  tr: { flexDirection: 'row', paddingVertical: 6, borderBottom: `0.5 solid ${LINE}` },
+  th: { flexDirection: 'row', borderBottom: `1 solid ${C.line}`, paddingBottom: 5, color: C.muted, fontSize: 7.5, textTransform: 'uppercase', letterSpacing: 0.5 },
+  tr: { flexDirection: 'row', paddingVertical: 6, borderBottom: `0.5 solid ${C.line}` },
   cDesc: { flex: 1, paddingRight: 8 },
   cQty: { width: 60, textAlign: 'right' },
   cPrice: { width: 75, textAlign: 'right' },
@@ -41,10 +50,10 @@ const s = StyleSheet.create({
   qrImg: { width: 86, height: 86 },
   totals: { width: 230 },
   sumRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 2 },
-  toPay: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8, padding: 10, backgroundColor: ACCENT, color: 'white', borderRadius: 6 },
+  toPay: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8, padding: 10, backgroundColor: C.ink, color: C.paper, borderRadius: 6 },
   toPayAmount: { fontSize: 14, fontWeight: 600 },
-  note: { marginTop: 24, color: MUTED },
-  footer: { position: 'absolute', bottom: 24, left: 40, right: 40, flexDirection: 'row', justifyContent: 'space-between', fontSize: 7.5, color: MUTED, borderTop: `0.5 solid ${LINE}`, paddingTop: 6 },
+  note: { marginTop: 24, color: C.muted },
+  footer: { position: 'absolute', bottom: 24, left: 40, right: 40, flexDirection: 'row', justifyContent: 'space-between', fontSize: 7.5, color: C.muted, borderTop: `0.5 solid ${C.line}`, paddingTop: 6 },
 })
 
 export interface InvoicePdfProps {
@@ -81,9 +90,9 @@ export function InvoiceDocument({ invoice: inv, settings, qr }: InvoicePdfProps)
           <View>
             <Text style={s.title}>{isPayer && !inv.reverseCharge ? L.taxInvoice : L.invoice}</Text>
             <Text style={s.number}>{inv.number}</Text>
-            {inv.status === 'cancelled' ? <Text style={{ marginTop: 6, color: '#dc2626', fontWeight: 600, letterSpacing: 1 }}>{L.cancelled}</Text> : null}
+            {inv.status === 'cancelled' ? <Text style={{ marginTop: 6, color: C.danger, fontWeight: 600, letterSpacing: 1 }}>{L.cancelled}</Text> : null}
           </View>
-          <Text style={{ fontSize: 11, fontWeight: 600, color: ACCENT, maxWidth: 220, textAlign: 'right' }}>{sup.name}</Text>
+          <Text style={{ fontSize: 11, fontWeight: 600, color: C.ink, maxWidth: 220, textAlign: 'right' }}>{sup.name}</Text>
         </View>
 
         <View style={s.parties}>
@@ -93,7 +102,7 @@ export function InvoiceDocument({ invoice: inv, settings, qr }: InvoicePdfProps)
             {addr(sup.address).map((l) => <Text key={l}>{l}</Text>)}
             {sup.ic ? <Text style={{ marginTop: 4 }}>{L.ic}: {sup.ic}</Text> : null}
             {sup.dic ? <Text>{L.dic}: {sup.dic}</Text> : null}
-            {sup.registration ? <Text style={{ color: MUTED, marginTop: 4, fontSize: 7.5 }}>{sup.registration}</Text> : null}
+            {sup.registration ? <Text style={{ color: C.muted, marginTop: 4, fontSize: 7.5 }}>{sup.registration}</Text> : null}
           </View>
           <View style={s.partyBox}>
             <Text style={s.label}>{L.customer}</Text>
@@ -146,7 +155,7 @@ export function InvoiceDocument({ invoice: inv, settings, qr }: InvoicePdfProps)
             {qr ? (
               <>
                 <Image src={qr} style={s.qrImg} />
-                <Text style={{ fontSize: 7, color: MUTED, marginTop: 3 }}>{L.qrPayment}</Text>
+                <Text style={{ fontSize: 7, color: C.muted, marginTop: 3 }}>{L.qrPayment}</Text>
               </>
             ) : null}
           </View>
@@ -156,12 +165,12 @@ export function InvoiceDocument({ invoice: inv, settings, qr }: InvoicePdfProps)
                 <Text style={[s.label, { marginBottom: 2 }]}>{L.vatSummary}</Text>
                 {totals.byRate.map((r) => (
                   <View key={r.rate} style={s.sumRow}>
-                    <Text style={{ color: MUTED }}>{r.rate} %: {money(r.base)} + {L.vat}</Text>
+                    <Text style={{ color: C.muted }}>{r.rate} %: {money(r.base)} + {L.vat}</Text>
                     <Text>{money(r.vat)}</Text>
                   </View>
                 ))}
-                <View style={[s.sumRow, { borderTop: `0.5 solid ${LINE}`, marginTop: 2, paddingTop: 4 }]}>
-                  <Text style={{ color: MUTED }}>{L.base} / {L.vat}</Text>
+                <View style={[s.sumRow, { borderTop: `0.5 solid ${C.line}`, marginTop: 2, paddingTop: 4 }]}>
+                  <Text style={{ color: C.muted }}>{L.base} / {L.vat}</Text>
                   <Text>{money(totals.base)} / {money(totals.vat)}</Text>
                 </View>
               </>
@@ -171,7 +180,7 @@ export function InvoiceDocument({ invoice: inv, settings, qr }: InvoicePdfProps)
               <Text style={s.toPayAmount}>{money(totals.total)}</Text>
             </View>
             {inv.status === 'paid' ? (
-              <Text style={{ textAlign: 'right', marginTop: 4, color: '#16a34a', fontWeight: 600 }}>{L.paid} {date(inv.paidDate)}</Text>
+              <Text style={{ textAlign: 'right', marginTop: 4, color: C.success, fontWeight: 600 }}>{L.paid} {date(inv.paidDate)}</Text>
             ) : null}
           </View>
         </View>

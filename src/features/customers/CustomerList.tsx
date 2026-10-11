@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { totalCzk } from '@/domain/invoice'
 import { useStore } from '@/state/store'
 import { useFormat } from '@/ui/format'
-import { Button, Card, Input } from '@/ui/primitives'
+import { Button, Card, Checkbox, Input } from '@/ui/primitives'
 import { navigate } from '@/ui/router'
 
 export function CustomerList() {
@@ -36,16 +36,13 @@ export function CustomerList() {
       <div className="flex items-center justify-between">
         <h1 className="font-serif text-4xl leading-[1.2] font-semibold">{t('customers.title')}</h1>
         <div className="flex items-center gap-4">
-          <label className="flex items-center gap-2 text-sm text-fg-muted">
-            <input type="checkbox" className="size-4 accent-accent" checked={showArchived} onChange={(e) => setShowArchived(e.target.checked)} />
-            {t('customers.showArchived')}
-          </label>
+          <Checkbox label={t('customers.showArchived')} checked={showArchived} onChange={(e) => setShowArchived(e.target.checked)} />
           <Button onClick={() => navigate('/customers/new')}><Plus className="size-4" /> {t('customers.newCustomer')}</Button>
         </div>
       </div>
       <div className="relative">
         <Search className="absolute top-3 left-3 size-4 text-fg-subtle" />
-        <Input className="pl-9" placeholder={t('customers.search')} value={search} onChange={(e) => setSearch(e.target.value)} autoFocus />
+        <Input className="pl-9" aria-label={t('customers.search')} placeholder={t('customers.search')} value={search} onChange={(e) => setSearch(e.target.value)} autoFocus />
       </div>
       <Card className="overflow-hidden">
         <table className="w-full text-sm">

@@ -39,20 +39,20 @@ export function RatesPanel() {
         {missing.length ? t('rates.missing', { count: missing.length, currencies }) : t('rates.allSet')}
       </p>
       <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2 rounded-xl border border-line p-4">
+        <div className="space-y-2 rounded-lg bg-surface-2 p-4">
           <div className="font-medium">{t('rates.ecbTitle')}</div>
           <p className="text-xs text-fg-muted">{t('rates.ecbHint')}</p>
           <Button size="sm" disabled={run.busy || !missing.length} onClick={() => void fillFromEcb()}>
             <CloudDownload className="size-4" /> {t('rates.ecbButton')}
           </Button>
         </div>
-        <div className="space-y-2 rounded-xl border border-line p-4">
+        <div className="space-y-2 rounded-lg bg-surface-2 p-4">
           <div className="font-medium">{t('rates.cnbTitle')}</div>
           <p className="text-xs text-fg-muted">{t('rates.cnbHint')}</p>
           {years.length > 0 && (
             <p className="flex flex-wrap gap-x-2 gap-y-1 text-xs">
               {years.map((y) => (
-                <a key={y} href={CNB_YEAR(y)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-0.5 text-accent hover:underline">
+                <a key={y} href={CNB_YEAR(y)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-0.5 text-accent underline underline-offset-2 decoration-line-strong hover:decoration-current">
                   {y} <ExternalLink className="size-3" />
                 </a>
               ))}

@@ -13,7 +13,12 @@
 - [x] Settings: profile, bank account (IBAN filled in automatically), VAT, defaults, numbering, language, theme, folder
 - [x] Exchange rates: ECB automatic, ČNB file upload, manual; foreign revenue counted in CZK
 - [x] Demo mode for screenshots and videos: an anonymized in-memory copy; the folder is never written
-- [x] 42 unit tests
+- [x] 56 unit tests
+- [x] Colour cleanup (2026-10-01): the PDF has its own neutral palette in one place; `danger-fg` and `scrim` tokens; one selected tint (`accent/10`); dark red raised to pass contrast on its badge
+- [x] Neutral 12-step scale (2026-10-01): three text levels, visible field borders, `color-scheme` in dark mode
+- [x] Ledger theme (2026-10-01), reached by going all-grey first and then adding colour role by role: light grey page (cream tried and replaced), blue for actions, black identity (navy tried and replaced), red warnings and errors, green confirmations
+
+- [x] Design system "Invoicer Ledger" (2026-10-11): colour-agnostic roles, type, layout, and a forms standard (ledger-line fields, labels above, hint or error under the field, error summary, setting rows), all built into the app
 
 ## To verify with the owner
 

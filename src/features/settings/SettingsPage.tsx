@@ -9,28 +9,27 @@ import { VAT_RATES } from '@/domain/vat'
 import { RatesPanel } from '@/features/rates/RatesPanel'
 import { useStore } from '@/state/store'
 import { FsAccessAdapter } from '@/storage/fsAccess'
-import { Button, Card, Choice, Field } from '@/ui/primitives'
-
-const selectCls = 'h-10 w-full rounded-lg border border-line bg-surface px-3 text-sm focus:border-accent focus:outline-none'
+import { Button, Card, Choice, Field, InputAffix, Labeled, Select, SettingRow } from '@/ui/primitives'
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <Card className="p-6">
-      <h2 className="mb-4 font-serif text-2xl font-semibold">{title}</h2>
-      {children}
-    </Card>
+    <section>
+      <h2 className="mb-3 font-serif text-2xl font-semibold">{title}</h2>
+      <Card className="p-5">{children}</Card>
+    </section>
   )
 }
 
-function Select({ label, value, onChange, options }: { label: string; value: string; onChange: (v: string) => void; options: [string, string][] }) {
+function Options({ value, onChange, options, ...p }: { value: string; onChange: (v: string) => void; options: [string, string][]; 'aria-label'?: string }) {
   return (
-    <label className="block space-y-1.5">
-      <span className="text-xs font-medium text-fg-muted">{label}</span>
-      <select className={selectCls} value={value} onChange={(e) => onChange(e.target.value)}>
-        {options.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-      </select>
-    </label>
+    <Select value={value} onChange={(e) => onChange(e.target.value)} {...p}>
+      {options.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+    </Select>
   )
+}
+
+function SelectField({ label, ...p }: { label: string; value: string; onChange: (v: string) => void; options: [string, string][] }) {
+  return <Labeled label={label}><Options {...p} /></Labeled>
 }
 
 export function SettingsPage() {
@@ -56,12 +55,13 @@ export function SettingsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-10">
       <h1 className="font-serif text-4xl leading-[1.2] font-semibold">{t('settings.title')}</h1>
 
       <Section title={t('settings.supplier')}>
         <div className="grid grid-cols-6 gap-4">
-          <Field className="col-span-6" label={t('fields.name')} value={s.supplier.name} onChange={(e) => sup({ name: e.target.value })} />
+          <Field className="col-span-6" label={t('fields.name')} required error={s.supplier.name.trim() ? undefined : t('validation.name')}
+            value={s.supplier.name} onChange={(e) => sup({ name: e.target.value })} />
           <Field className="col-span-3" label={t('fields.ic')} value={s.supplier.ic} onChange={(e) => sup({ ic: e.target.value })} />
           <Field className="col-span-3" label={t('fields.dic')} value={s.supplier.dic} onChange={(e) => sup({ dic: e.target.value })} />
           <Field className="col-span-6" label={t('fields.street')} value={s.supplier.address.street} onChange={(e) => addr({ street: e.target.value })} />
@@ -85,14 +85,14 @@ export function SettingsPage() {
       </Section>
 
       <Section title={t('settings.vat')}>
-        <div className="grid grid-cols-3 gap-3">
+        <div role="radiogroup" aria-label={t('settings.vat')} className="grid grid-cols-3 gap-3">
           {(['nonPayer', 'payer', 'identifiedPerson'] as const).map((m) => (
             <Choice key={m} selected={s.vatMode === m} onClick={() => update({ vatMode: m })} title={t(`vatMode.${m}`)} hint={t(`vatMode.${m}Hint`)} />
           ))}
         </div>
         {s.vatMode === 'payer' && (
           <div className="mt-4 w-48">
-            <Select label={t('settings.defaultVatRate')} value={String(s.defaultVatRate)} onChange={(v) => update({ defaultVatRate: Number(v) })}
+            <SelectField label={t('settings.defaultVatRate')} value={String(s.defaultVatRate)} onChange={(v) => update({ defaultVatRate: Number(v) })}
               options={VAT_RATES.map((r) => [String(r), `${r} %`])} />
           </div>
         )}
@@ -100,15 +100,15 @@ export function SettingsPage() {
 
       <Section title={t('settings.defaults')}>
         <div className="grid grid-cols-4 gap-4">
-          <Field label={t('settings.dueDays')} type="number" min={0} value={s.defaults.dueDays} onChange={(e) => defaults({ dueDays: Math.max(0, Number(e.target.value)) })} />
-          <Select label={t('settings.currency')} value={s.defaults.currency} onChange={(v) => defaults({ currency: v })} options={CURRENCIES.map((c) => [c, c])} />
-          <Select label={t('settings.invoiceLanguage')} value={s.defaults.invoiceLanguage} onChange={(v) => defaults({ invoiceLanguage: v as 'cs' | 'en' })}
+          <Labeled label={t('settings.dueDays')}>
+            <InputAffix unit={t('common.days')} type="number" min={0} value={s.defaults.dueDays} onChange={(e) => defaults({ dueDays: Math.max(0, Number(e.target.value)) })} />
+          </Labeled>
+          <SelectField label={t('settings.currency')} value={s.defaults.currency} onChange={(v) => defaults({ currency: v })} options={CURRENCIES.map((c) => [c, c])} />
+          <SelectField label={t('settings.invoiceLanguage')} value={s.defaults.invoiceLanguage} onChange={(v) => defaults({ invoiceLanguage: v as 'cs' | 'en' })}
             options={[['cs', 'Čeština'], ['en', 'English']]} />
           <Field label={t('settings.unit')} value={s.defaults.unit} placeholder="ks, hod…" onChange={(e) => defaults({ unit: e.target.value })} />
-          <div className="col-span-2">
-            <Field label={t('settings.pattern')} value={s.numbering.pattern} className="font-mono" onChange={(e) => update({ numbering: { pattern: e.target.value } })} />
-            <p className="mt-1 text-xs text-fg-subtle">{t('settings.patternHint', { next })}</p>
-          </div>
+          <Field className="col-span-2" label={t('settings.pattern')} hint={t('settings.patternHint', { next })} value={s.numbering.pattern}
+            inputClassName="font-mono" onChange={(e) => update({ numbering: { pattern: e.target.value } })} />
           <Field className="col-span-2" label={t('settings.note')} value={s.defaults.note} onChange={(e) => defaults({ note: e.target.value })} />
         </div>
       </Section>
@@ -117,25 +117,30 @@ export function SettingsPage() {
         <div id="rates"><RatesPanel /></div>
       </Section>
 
-      <Section title={t('settings.app')}>
-        <div className="grid grid-cols-4 items-end gap-4">
-          <Select label={t('settings.uiLanguage')} value={s.ui.language} onChange={(v) => update({ ui: { ...s.ui, language: v as 'cs' | 'en' } })}
-            options={[['cs', 'Čeština'], ['en', 'English']]} />
-          <Select label={t('settings.theme')} value={s.ui.theme} onChange={(v) => update({ ui: { ...s.ui, theme: v as Settings['ui']['theme'] } })}
-            options={[['system', t('settings.themeSystem')], ['light', t('settings.themeLight')], ['dark', t('settings.themeDark')]]} />
-          <div className="col-span-2 flex items-center justify-between gap-3 rounded-lg bg-surface-2 px-3 py-2 text-sm">
-            <span className="truncate"><span className="text-fg-muted">{t('settings.folder')}:</span> {adapter?.name}</span>
-            <Button size="sm" variant="secondary" disabled={demo} onClick={async () => {
+      {/* Single-value settings are rows: text on the left, the control on the right (design system: SettingRow). */}
+      <section>
+        <h2 className="mb-3 font-serif text-2xl font-semibold">{t('settings.app')}</h2>
+        <Card className="divide-y divide-line">
+          <SettingRow title={t('settings.uiLanguage')}>
+            <Options aria-label={t('settings.uiLanguage')} value={s.ui.language} onChange={(v) => update({ ui: { ...s.ui, language: v as 'cs' | 'en' } })}
+              options={[['cs', 'Čeština'], ['en', 'English']]} />
+          </SettingRow>
+          <SettingRow title={t('settings.theme')}>
+            <Options aria-label={t('settings.theme')} value={s.ui.theme} onChange={(v) => update({ ui: { ...s.ui, theme: v as Settings['ui']['theme'] } })}
+              options={[['system', t('settings.themeSystem')], ['light', t('settings.themeLight')], ['dark', t('settings.themeDark')]]} />
+          </SettingRow>
+          <SettingRow title={t('settings.folder')} hint={adapter?.name}>
+            <Button className="w-full" variant="secondary" disabled={demo} onClick={async () => {
               try {
                 const next = await FsAccessAdapter.pick()
                 await useStore.getState().flush()
                 await open(next)
               } catch (e) { if ((e as Error).name !== 'AbortError') throw e }
             }}>{t('settings.changeFolder')}</Button>
-          </div>
-        </div>
-        <DemoToggle />
-      </Section>
+          </SettingRow>
+          <DemoToggle />
+        </Card>
+      </section>
     </div>
   )
 }
@@ -153,15 +158,10 @@ function DemoToggle() {
     }
   }
   return (
-    <div className="mt-6 flex items-start justify-between gap-6 border-t border-line pt-5">
-      <div className="space-y-1">
-        <div className="text-sm font-medium">{t('demo.title')}</div>
-        <p className="max-w-prose text-xs text-fg-muted">{t('demo.hint')}</p>
-        {error && <p className="text-xs text-danger">{error}</p>}
-      </div>
-      <Button size="sm" variant={demo ? 'primary' : 'secondary'} className="shrink-0" onClick={() => void toggle()}>
+    <SettingRow title={t('demo.title')} hint={<>{t('demo.hint')}{error && <span className="mt-1 block font-medium text-danger">{error}</span>}</>}>
+      <Button className="w-full" variant={demo ? 'primary' : 'secondary'} onClick={() => void toggle()}>
         {demo ? t('demo.off') : t('demo.on')}
       </Button>
-    </div>
+    </SettingRow>
   )
 }

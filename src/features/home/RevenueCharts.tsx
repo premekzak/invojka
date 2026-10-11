@@ -41,47 +41,51 @@ export function RevenueCharts({ today }: { today: string }) {
   const missing = yearly.missingRate
   const rates = useRates()
   return (
-    <div className="grid grid-cols-5 gap-4">
-      <Card className="col-span-3 p-5">
-        <h2 className="font-serif text-lg font-semibold">{t('home.byMonth')}</h2>
-        <BarChart
-          categories={months}
-          series={[
-            { key: 'this', label: String(year), color: 'var(--color-series-1)', values: current },
-            { key: 'last', label: String(year - 1), color: 'var(--color-series-2)', values: lastYear.values },
-          ]}
-          formatAxis={axis}
-          formatValue={(v) => f.money(v)}
-          partial={{ indexes: [month], note: t('home.ytd', { date: f.date(today) }) }}
-          tooltipExtra={(i) => {
-            const p = current[i] != null ? pct(current[i]!, lastYear.values[i]) : undefined
-            return p && t('home.vsLastYear', { pct: p, year: year - 1 })
-          }}
-          tableLabel={t('home.table')}
-          chartLabel={t('home.chart')}
-        />
-      </Card>
-      <Card className="col-span-2 p-5">
-        <h2 className="font-serif text-lg font-semibold">{t('home.byYear')}</h2>
-        <BarChart
-          categories={yearly.years.map(String)}
-          tickFormat={(y) => (yearly.years.length <= 8 ? y : `’${y.slice(2)}`)}
-          series={[{ key: 'rev', label: t('home.byYear'), color: 'var(--color-series-1)', values: yearly.values }]}
-          formatAxis={axis}
-          formatValue={(v) => f.money(v)}
-          partial={{ indexes: [yearly.years.length - 1], note: t('home.ytd', { date: f.date(today) }) }}
-          labelIndexes={[yearly.values.indexOf(Math.max(...yearly.values)), yearly.years.length - 1]}
-          tooltipExtra={(i) => i > 0 ? (pct(yearly.values[i], yearly.values[i - 1]) && t('home.vsLastYear', { pct: pct(yearly.values[i], yearly.values[i - 1]), year: yearly.years[i - 1] })) : undefined}
-          tableLabel={t('home.table')}
-          chartLabel={t('home.chart')}
-        />
-      </Card>
+    <div className="grid grid-cols-5 gap-x-6 gap-y-4">
+      <section className="col-span-3">
+        <h2 className="mb-3 font-serif text-2xl font-semibold">{t('home.byMonth')}</h2>
+        <Card className="p-5">
+          <BarChart
+            categories={months}
+            series={[
+              { key: 'this', label: String(year), color: 'var(--color-series-1)', values: current },
+              { key: 'last', label: String(year - 1), color: 'var(--color-series-2)', values: lastYear.values },
+            ]}
+            formatAxis={axis}
+            formatValue={(v) => f.money(v)}
+            partial={{ indexes: [month], note: t('home.ytd', { date: f.date(today) }) }}
+            tooltipExtra={(i) => {
+              const p = current[i] != null ? pct(current[i]!, lastYear.values[i]) : undefined
+              return p && t('home.vsLastYear', { pct: p, year: year - 1 })
+            }}
+            tableLabel={t('home.table')}
+            chartLabel={t('home.chart')}
+          />
+        </Card>
+      </section>
+      <section className="col-span-2">
+        <h2 className="mb-3 font-serif text-2xl font-semibold">{t('home.byYear')}</h2>
+        <Card className="p-5">
+          <BarChart
+            categories={yearly.years.map(String)}
+            tickFormat={(y) => (yearly.years.length <= 8 ? y : `’${y.slice(2)}`)}
+            series={[{ key: 'rev', label: t('home.byYear'), color: 'var(--color-series-1)', values: yearly.values }]}
+            formatAxis={axis}
+            formatValue={(v) => f.money(v)}
+            partial={{ indexes: [yearly.years.length - 1], note: t('home.ytd', { date: f.date(today) }) }}
+            labelIndexes={[yearly.values.indexOf(Math.max(...yearly.values)), yearly.years.length - 1]}
+            tooltipExtra={(i) => i > 0 ? (pct(yearly.values[i], yearly.values[i - 1]) && t('home.vsLastYear', { pct: pct(yearly.values[i], yearly.values[i - 1]), year: yearly.years[i - 1] })) : undefined}
+            tableLabel={t('home.table')}
+            chartLabel={t('home.chart')}
+          />
+        </Card>
+      </section>
       {(missing.count > 0 || rates.run.busy || rates.run.filled !== undefined) && (
         <div className="col-span-5 -mt-2 flex items-center gap-3 text-xs text-fg-subtle">
           {missing.count > 0 && <span>{t('home.missingRate', { count: missing.count, currencies: missing.currencies.join(', ') })}</span>}
           {missing.count > 0 && !rates.run.busy && (
             <>
-              <button className="font-medium text-accent hover:underline" onClick={() => void rates.fillFromEcb()}>{t('rates.fillNow')}</button>
+              <button className="font-medium text-accent underline underline-offset-2 decoration-line-strong hover:decoration-current" onClick={() => void rates.fillFromEcb()}>{t('rates.fillNow')}</button>
               <a href="#/settings" className="hover:underline">{t('rates.otherOptions')}</a>
             </>
           )}

@@ -1,6 +1,11 @@
 const cs = {
   app: { name: 'Invoicer', tagline: 'Fakturace a přehledy. Vaše data zůstávají ve vaší složce.' },
-  common: { continue: 'Pokračovat', back: 'Zpět', save: 'Uložit', cancel: 'Zrušit', skip: 'Přeskočit', optional: 'nepovinné' },
+  common: { continue: 'Pokračovat', back: 'Zpět', save: 'Uložit', cancel: 'Zrušit', skip: 'Přeskočit', days: 'dní' },
+  validation: {
+    name: 'Zadejte název firmy nebo jméno.',
+    customer: 'Vyberte nebo vytvořte odběratele.',
+    invoiceSummary: 'Fakturu zatím nejde uložit. Opravte:',
+  },
   welcome: {
     pick: 'Vybrat složku s daty',
     pickHint: 'Zvolte prázdnou složku pro nová data, nebo složku, kde už Invoicer data má. Faktury se ukládají jako JSON soubory.',
@@ -105,7 +110,7 @@ const cs = {
   },
   settings: {
     title: 'Nastavení', supplier: 'Vaše údaje', bank: 'Bankovní účet', vat: 'DPH', defaults: 'Výchozí hodnoty faktur', app: 'Aplikace',
-    dueDays: 'Splatnost (dní)', currency: 'Měna', invoiceLanguage: 'Jazyk faktury', unit: 'Jednotka', note: 'Poznámka na faktuře',
+    dueDays: 'Splatnost', currency: 'Měna', invoiceLanguage: 'Jazyk faktury', unit: 'Jednotka', note: 'Poznámka na faktuře',
     defaultVatRate: 'Výchozí sazba DPH', pattern: 'Formát čísla faktury', patternHint: '{YYYY} rok, {NNNN} pořadí. Příští číslo: {{next}}',
     uiLanguage: 'Jazyk aplikace', theme: 'Vzhled', themeSystem: 'Podle systému', themeLight: 'Světlý', themeDark: 'Tmavý',
     folder: 'Složka s daty', changeFolder: 'Změnit složku',
@@ -139,7 +144,7 @@ const cs = {
     title: 'Odběratelé', search: 'Hledat jméno, IČ, město…', invoiceCount: 'Faktur', revenue: 'Obrat (Kč)', lastInvoice: 'Poslední faktura',
     newInvoice: 'Nová faktura', newCustomer: 'Nový odběratel', newTitle: 'Nový odběratel', notFound: 'Odběratel nenalezen.',
     cc: 'Kopie e-mailu', ccHint: 'oddělte čárkou', contactName: 'Kontaktní osoba', note: 'Poznámka (jen pro vás)',
-    invoiceDefaults: 'Výchozí hodnoty faktur', fromSettings: 'Podle nastavení',
+    details: 'Údaje odběratele', invoiceDefaults: 'Výchozí hodnoty faktur', fromSettings: 'Podle nastavení',
     archive: 'Archivovat', unarchive: 'Obnovit', archived: 'Archivováno', showArchived: 'Zobrazit archivované',
     archiveHint: 'Archivovaný odběratel se nenabízí u nových faktur; jeho faktury zůstávají.',
     create: 'Vytvořit „{{name}}“', edit: 'Upravit odběratele',

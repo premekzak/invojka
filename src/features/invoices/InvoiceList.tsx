@@ -5,11 +5,10 @@ import { today } from '@/domain/id'
 import { daysOverdue, displayStatus, invoiceTotals, type DisplayStatus } from '@/domain/invoice'
 import { useStore } from '@/state/store'
 import { StatusBadge, useFormat } from '@/ui/format'
-import { Button, Card, Input, cn } from '@/ui/primitives'
+import { Button, Card, Input, Select, cn } from '@/ui/primitives'
 import { navigate, type Route } from '@/ui/router'
 
 const STATUSES: DisplayStatus[] = ['draft', 'issued', 'overdue', 'paid', 'cancelled']
-const selectCls = 'h-10 rounded-lg border border-line bg-surface px-3 text-sm focus:border-accent focus:outline-none'
 
 export function InvoiceList({ route }: { route: Route }) {
   const { t } = useTranslation()
@@ -63,18 +62,18 @@ export function InvoiceList({ route }: { route: Route }) {
       <div className="flex gap-3">
         <div className="relative flex-1">
           <Search className="absolute top-3 left-3 size-4 text-fg-subtle" />
-          <Input className="pl-9" placeholder={t('invoices.search')} value={search} onChange={(e) => setSearch(e.target.value)} autoFocus />
+          <Input className="pl-9" aria-label={t('invoices.search')} placeholder={t('invoices.search')} value={search} onChange={(e) => setSearch(e.target.value)} autoFocus />
         </div>
-        <select className={selectCls} value={year} onChange={(e) => setYear(e.target.value)}>
+        <Select className="w-auto" aria-label={t('invoices.allYears')} value={year} onChange={(e) => setYear(e.target.value)}>
           <option value="">{t('invoices.allYears')}</option>
           {years.map((y) => <option key={y}>{y}</option>)}
-        </select>
+        </Select>
       </div>
       <div className="flex flex-wrap gap-2">
         {(['', ...STATUSES] as const).map((s) => (
           <button key={s} onClick={() => setStatus(s)} className={cn(
             'rounded border px-3 py-1 text-sm transition-colors',
-            status === s ? 'border-accent bg-accent text-accent-fg' : 'border-line text-fg-muted hover:border-fg-subtle',
+            status === s ? 'border-accent bg-accent text-accent-fg' : 'border-line text-fg-muted hover:border-line-strong',
           )}>
             {s ? t(`status.${s}`) : t('invoices.allStatuses')}
           </button>
@@ -103,7 +102,7 @@ export function InvoiceList({ route }: { route: Route }) {
                   <div className="truncate text-xs text-fg-subtle">{inv.lines[0]?.description}</div>
                 </td>
                 <td className="px-4 py-3 whitespace-nowrap text-fg-muted">{f.date(inv.issueDate)}</td>
-                <td className={cn('px-4 py-3 whitespace-nowrap', s === 'overdue' ? 'text-danger' : 'text-fg-muted')}
+                <td className={cn('px-4 py-3 whitespace-nowrap', s === 'overdue' ? 'font-medium text-warning' : 'text-fg-muted')}
                   title={s === 'overdue' ? t('invoices.daysOverdue', { count: daysOverdue(inv, on) }) : undefined}>
                   {f.date(inv.dueDate)}
                 </td>

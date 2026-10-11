@@ -2,7 +2,12 @@ import type { Messages } from './cs'
 
 const en: Messages = {
   app: { name: 'Invoicer', tagline: 'Invoicing and insights. Your data stays in your folder.' },
-  common: { continue: 'Continue', back: 'Back', save: 'Save', cancel: 'Cancel', skip: 'Skip', optional: 'optional' },
+  common: { continue: 'Continue', back: 'Back', save: 'Save', cancel: 'Cancel', skip: 'Skip', days: 'days' },
+  validation: {
+    name: 'Enter a company or person name.',
+    customer: 'Pick or create a customer.',
+    invoiceSummary: "The invoice can't be saved yet. Fix:",
+  },
   welcome: {
     pick: 'Choose data folder',
     pickHint: 'Choose an empty folder for new data, or a folder that already holds Invoicer data. Invoices are stored as JSON files.',
@@ -107,7 +112,7 @@ const en: Messages = {
   },
   settings: {
     title: 'Settings', supplier: 'Your details', bank: 'Bank account', vat: 'VAT', defaults: 'Invoice defaults', app: 'App',
-    dueDays: 'Payment terms (days)', currency: 'Currency', invoiceLanguage: 'Invoice language', unit: 'Unit', note: 'Invoice note',
+    dueDays: 'Payment terms', currency: 'Currency', invoiceLanguage: 'Invoice language', unit: 'Unit', note: 'Invoice note',
     defaultVatRate: 'Default VAT rate', pattern: 'Invoice number format', patternHint: '{YYYY} year, {NNNN} sequence. Next number: {{next}}',
     uiLanguage: 'App language', theme: 'Theme', themeSystem: 'System', themeLight: 'Light', themeDark: 'Dark',
     folder: 'Data folder', changeFolder: 'Change folder',
@@ -141,7 +146,7 @@ const en: Messages = {
     title: 'Customers', search: 'Search name, company ID, city…', invoiceCount: 'Invoices', revenue: 'Revenue (CZK)', lastInvoice: 'Last invoice',
     newInvoice: 'New invoice', newCustomer: 'New customer', newTitle: 'New customer', notFound: 'Customer not found.',
     cc: 'Email copies', ccHint: 'comma separated', contactName: 'Contact person', note: 'Note (only for you)',
-    invoiceDefaults: 'Invoice defaults', fromSettings: 'From settings',
+    details: 'Customer details', invoiceDefaults: 'Invoice defaults', fromSettings: 'From settings',
     archive: 'Archive', unarchive: 'Restore', archived: 'Archived', showArchived: 'Show archived',
     archiveHint: 'Archived customers are not offered for new invoices; their invoices stay.',
     create: 'Create "{{name}}"', edit: 'Edit customer',

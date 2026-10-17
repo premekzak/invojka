@@ -47,6 +47,7 @@ describe('checkData', () => {
     ['invoice.variableSymbol', { variableSymbol: '2026-01' }],
     ['invoice.blankLine', { lines: [{ description: ' ', quantity: 1, unit: '', unitPrice: 100, vatRate: 0 }] }],
     ['invoice.zeroQuantity', { lines: [{ description: 'Work', quantity: 0, unit: '', unitPrice: 100, vatRate: 0 }] }],
+    ['invoice.draftVatMode', { status: 'draft', vatMode: 'payer' }],
     ['invoice.draftStale', { status: 'draft', customerSnapshot: { name: 'Acme Old', ic: '', dic: '', address: { street: '', zip: '', city: '', country: '' } } }],
   ])('warns about %s', (code, patch) => {
     const found = checkData({ settings, customers: [customer], invoices: [invoice(patch)] })

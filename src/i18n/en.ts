@@ -25,10 +25,17 @@ const en: Messages = {
     import: 'Import data',
     importHint: 'Have an export from your previous invoicing service? Upload both CSV files. You can also skip this.',
     customersCsv: 'Customers (customers.csv)',
+    importError: {
+      empty: 'The file in “{{file}}” is empty. Choose the file from your previous invoicing service’s export.',
+      notCsv: 'The file in “{{file}}” can’t be read as a CSV table. Choose the .csv file from the export.',
+      swapped: 'The file in “{{file}}” belongs in the other box. Swap the two files.',
+      unknownFormat: 'The file in “{{file}}” has columns Invojka can’t read. For now the import only knows the export with Czech columns (Firma, Číslo dokladu…). You can skip the import and enter your details by hand.',
+      failed: 'The import failed: {{message}}. You can skip the import and enter your details by hand.',
+    },
     invoicesCsv: 'Invoices (invoices.csv)',
     importSummary: '{{invoices}} invoices, {{customers}} customers',
     merged: 'Merged duplicate customers',
-    finish: 'Finish',
+    finish: 'Finish', skipImport: 'Skip the import', listedTwice: 'listed more than once',
   },
   fields: {
     name: 'Name / company', ic: 'Company ID (IČ)', dic: 'VAT ID (DIČ)', street: 'Street', zip: 'Postcode', city: 'City', country: 'Country',
@@ -95,6 +102,10 @@ const en: Messages = {
     taskCustomers_few: '{{count}} customers without an email',
     taskCustomers_other: '{{count}} customers without an email',
     taskCustomersDetail: 'Add their emails, so you have them at hand when sending invoices.',
+    taskRates_one: '{{count}} invoice without an exchange rate',
+    taskRates_few: '{{count}} invoices without an exchange rate',
+    taskRates_other: '{{count}} invoices without an exchange rate',
+    taskRatesDetail: 'Invoices in {{currencies}} don’t count towards your CZK revenue until they have a rate.',
     taskShow: 'Show',
     taskFill: 'Fill in',
     taskCheck: 'Review',
@@ -112,6 +123,7 @@ const en: Messages = {
     title: 'Invoices', search: 'Search number, customer, description…', allYears: 'All years', allStatuses: 'All statuses',
     number: 'Number', customer: 'Customer', issued: 'Issued', due: 'Due', total: 'Total', status: 'Status',
     markPaid: 'Mark paid', empty: 'No invoices match the filter.', count_one: '{{count}} invoice · {{total}}', count_few: '{{count}} invoices · {{total}}', count_other: '{{count}} invoices · {{total}}',
+    countExcludes: ' · drafts and cancelled not included',
     daysOverdue_one: '{{count}} day overdue', daysOverdue_few: '{{count}} days overdue', daysOverdue_other: '{{count}} days overdue',
   },
   editor: {
@@ -189,13 +201,14 @@ const en: Messages = {
   pdf: { saveToFolder: 'Save to folder', download: 'Download', savedTo: 'Saved: {{path}}', saveFailed: 'Could not save the PDF' },
   status: { draft: 'Draft', issued: 'Issued', overdue: 'Overdue', paid: 'Paid', cancelled: 'Cancelled' },
   customers: {
-    title: 'Customers', search: 'Search name, company ID, city…', invoiceCount: 'Invoices', revenue: 'Revenue (CZK)', lastInvoice: 'Last invoice',
+    title: 'Customers', search: 'Search name, company ID, city…', paidCount: 'Paid invoices', paid: 'Paid', lastInvoice: 'Last invoice',
     newInvoice: 'New invoice', newCustomer: 'New customer', newTitle: 'New customer', notFound: 'Customer not found.',
     cc: 'Email copies', ccHint: 'comma separated', contactName: 'Contact person', note: 'Note (only for you)',
     details: 'Customer details', invoiceDefaults: 'Invoice defaults', fromSettings: 'From settings',
     archive: 'Archive', unarchive: 'Restore', archived: 'Archived', showArchived: 'Show archived',
     archiveHint: 'Archived customers are not offered for new invoices; their invoices stay.',
     create: 'Create "{{name}}"', edit: 'Edit customer',
+    issuedTotal_one: '{{count}} invoice issued in total', issuedTotal_few: '{{count}} invoices issued in total', issuedTotal_other: '{{count}} invoices issued in total',
   },
 }
 export default en

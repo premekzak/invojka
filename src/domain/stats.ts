@@ -1,4 +1,4 @@
-import { displayStatus, totalCzk } from './invoice'
+import { displayStatus, invoiceTotals, totalCzk } from './invoice'
 import type { Invoice } from './schema'
 
 /**
@@ -50,22 +50,33 @@ export function yearlyRevenue(invoices: Invoice[], lastYear: number): { years: n
 }
 
 export interface CustomerStats {
-  /** Revenue invoices (drafts and cancelled ones left out). */
+  /** Issued and paid invoices. */
   count: number
-  /** CZK minor units; invoices without an exchange rate add nothing. */
-  revenue: number
-  /** Issue date of the latest revenue invoice, '' when none. */
+  /** Paid invoices only (the owner's choice: a customer shows what they actually paid). */
+  paidCount: number
+  /** CZK minor units of the paid invoices that can be converted. */
+  paid: number
+  /** Paid invoices without an exchange rate, summed in their own currency (minor units), so they never show as 0 Kč. */
+  paidUnconverted: Record<string, number>
+  /** Issue date of the latest issued or paid invoice, '' when none. */
   last: string
 }
 
-/** Per-customer totals for the customer list and detail, keyed by customer id. */
+export const emptyCustomerStats = (): CustomerStats => ({ count: 0, paidCount: 0, paid: 0, paidUnconverted: {}, last: '' })
+
+/** Per-customer figures for the customer list and detail, keyed by customer id. */
 export function customerStats(invoices: Invoice[]): Map<string, CustomerStats> {
   const stats = new Map<string, CustomerStats>()
   for (const inv of invoices) {
     if (!inv.customerId || !counts(inv)) continue
-    const s = stats.get(inv.customerId) ?? { count: 0, revenue: 0, last: '' }
+    const s = stats.get(inv.customerId) ?? emptyCustomerStats()
     s.count++
-    s.revenue += totalCzk(inv) ?? 0
+    if (inv.status === 'paid') {
+      s.paidCount++
+      const czk = totalCzk(inv)
+      if (czk !== undefined) s.paid += czk
+      else s.paidUnconverted[inv.currency] = (s.paidUnconverted[inv.currency] ?? 0) + invoiceTotals(inv).total
+    }
     if (inv.issueDate > s.last) s.last = inv.issueDate
     stats.set(inv.customerId, s)
   }
@@ -81,6 +92,8 @@ export interface HomeStats {
   outstanding: number
   overdueSum: number
   overdueCount: number
+  /** Revenue invoices of any year in another currency without an exchange rate; they add nothing above. */
+  missingRate: RevenueSeries['missingRate']
 }
 
 /** The figures in Home's summary and tasks, as of `on` (yyyy-mm-dd). */
@@ -88,10 +101,12 @@ export function homeStats(invoices: Invoice[], on: string): HomeStats {
   const year = on.slice(0, 4)
   const lastYear = String(Number(year) - 1)
   const sameDayLastYear = `${lastYear}${on.slice(4)}`
-  const s: HomeStats = { revenue: 0, revenueLast: 0, countThisYear: 0, outstanding: 0, overdueSum: 0, overdueCount: 0 }
+  const s: HomeStats = { revenue: 0, revenueLast: 0, countThisYear: 0, outstanding: 0, overdueSum: 0, overdueCount: 0, missingRate: { count: 0, currencies: [] } }
+  const currencies = new Set<string>()
   for (const inv of invoices) {
     if (!counts(inv)) continue
     const czk = totalCzk(inv) ?? 0
+    if (totalCzk(inv) === undefined) { s.missingRate.count++; currencies.add(inv.currency) }
     if (inv.issueDate.startsWith(`${year}-`)) { s.revenue += czk; s.countThisYear++ }
     if (inv.issueDate.startsWith(`${lastYear}-`) && inv.issueDate <= sameDayLastYear) s.revenueLast += czk
     if (inv.status === 'issued') {
@@ -99,5 +114,6 @@ export function homeStats(invoices: Invoice[], on: string): HomeStats {
       if (displayStatus(inv, on) === 'overdue') { s.overdueSum += czk; s.overdueCount++ }
     }
   }
+  s.missingRate.currencies = [...currencies].sort()
   return s
 }

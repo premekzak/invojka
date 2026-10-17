@@ -7,10 +7,26 @@ import type { VatMode } from '@/domain/vat'
 // Importer for the CSV exports of the previous invoicing service (Czech headers, US dates, UTF-8 with BOM).
 
 type Row = Record<string, string>
+type FileKind = 'customers' | 'invoices'
 
-function parse(text: string): Row[] {
-  const res = Papa.parse<Row>(text.replace(/^﻿/, ''), { header: true, skipEmptyLines: true })
-  if (res.errors.length) throw new Error(`CSV parse error on row ${res.errors[0].row}: ${res.errors[0].message}`)
+/** Why a file can't be imported, so the UI can tell a beginner what to do. `detail` is the parser's message, for 'notCsv'. */
+export class ImportError extends Error {
+  constructor(readonly reason: 'empty' | 'notCsv' | 'swapped' | 'unknownFormat', readonly file: FileKind, readonly detail = '') {
+    super(`${file}: ${reason}${detail ? ` (${detail})` : ''}`)
+  }
+}
+
+// A column each file must have, and one that only the other file has (to spot swapped files).
+const REQUIRED: Record<FileKind, string[]> = { customers: ['Firma'], invoices: ['Číslo dokladu', 'Vystaveno', 'Celkem'] }
+
+function parse(text: string, file: FileKind): Row[] {
+  const clean = text.replace(/^﻿/, '')
+  if (!clean.trim()) throw new ImportError('empty', file)
+  const res = Papa.parse<Row>(clean, { header: true, skipEmptyLines: true })
+  if (res.errors.length) throw new ImportError('notCsv', file, `row ${res.errors[0].row}: ${res.errors[0].message}`)
+  const columns = (res.meta.fields ?? []).map((f) => f.trim())
+  const has = (kind: FileKind) => REQUIRED[kind].every((c) => columns.includes(c))
+  if (!has(file)) throw new ImportError(has(file === 'customers' ? 'invoices' : 'customers') ? 'swapped' : 'unknownFormat', file)
   return res.data.map((r) => Object.fromEntries(Object.entries(r).map(([k, v]) => [k.trim(), (v ?? '').trim()])))
 }
 
@@ -46,7 +62,7 @@ export function importCsv(customersCsv: string, invoicesCsv: string, vatMode: Va
     if (c.ic) byIc.set(c.ic, c)
   }
 
-  for (const r of parse(customersCsv)) {
+  for (const r of parse(customersCsv, 'customers')) {
     const name = r['Firma'] || [r['Titul'], r['Jméno'], r['Příjmení']].filter(Boolean).join(' ')
     if (!name) { warnings.push('Skipped a customer row without a name'); continue }
     const ic = normalizeIc(r['IČ'] ?? '')
@@ -81,7 +97,7 @@ export function importCsv(customersCsv: string, invoicesCsv: string, vatMode: Va
 
   const createdFromInvoices: string[] = []
   const invoices: Invoice[] = []
-  for (const r of parse(invoicesCsv)) {
+  for (const r of parse(invoicesCsv, 'invoices')) {
     const number = r['Číslo dokladu']
     const name = r['Název/Jméno']
     const ic = normalizeIc(r['IČ'] ?? '')

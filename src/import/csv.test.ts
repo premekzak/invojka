@@ -2,13 +2,32 @@ import { existsSync, readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { InvoicesFile, CustomersFile, SCHEMA_VERSION } from '@/domain/schema'
 import { computeTotals } from '@/domain/vat'
-import { importCsv, usDate } from './csv'
+import { ImportError, importCsv, usDate } from './csv'
 import { fixtureCustomersCsv, fixtureInvoicesCsv } from './fixture'
 
 it('converts US dates', () => {
   expect(usDate('09/06/2026')).toBe('2026-09-06')
   expect(usDate('1/2/2014')).toBe('2014-01-02')
   expect(usDate('')).toBeUndefined()
+})
+
+describe('files that can’t be imported say why', () => {
+  const reason = (customers: string, invoices: string) => {
+    try {
+      importCsv(customers, invoices, 'nonPayer')
+    } catch (e) {
+      return e instanceof ImportError ? `${e.file}: ${e.reason}` : String(e)
+    }
+    return 'imported'
+  }
+  it.each([
+    ['an empty file', '﻿\n', fixtureInvoicesCsv, 'customers: empty'],
+    ['swapped files', fixtureInvoicesCsv, fixtureCustomersCsv, 'customers: swapped'],
+    ['another service’s export', 'Name,VAT\nAcme,CZ1', fixtureInvoicesCsv, 'customers: unknownFormat'],
+    ['a file that is not a table', fixtureCustomersCsv, 'just some text', 'invoices: notCsv'],
+  ])('%s', (_, customers, invoices, expected) => {
+    expect(reason(customers, invoices)).toBe(expected)
+  })
 })
 
 describe('import of the export format (made-up fixture)', () => {

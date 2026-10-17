@@ -1,11 +1,12 @@
 import { Plus, Search } from 'lucide-react'
 import { useDeferredValue, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { customerStats } from '@/domain/stats'
+import { customerStats, emptyCustomerStats } from '@/domain/stats'
 import { useStore } from '@/state/store'
 import { useFormat } from '@/ui/format'
 import { Button, Card, Checkbox, Input } from '@/ui/primitives'
 import { navigate } from '@/ui/router'
+import { formatPaid } from './CustomerDetail'
 
 export function CustomerList() {
   const { t } = useTranslation()
@@ -19,7 +20,7 @@ export function CustomerList() {
     const stats = customerStats(invoices)
     return customers
       .filter((c) => (showArchived || !c.archived) && (!q || c.name.toLowerCase().includes(q) || c.ic.includes(q) || c.address.city.toLowerCase().includes(q)))
-      .map((c) => ({ c, s: stats.get(c.id) ?? { count: 0, revenue: 0, last: '' } }))
+      .map((c) => ({ c, s: stats.get(c.id) ?? emptyCustomerStats() }))
       .sort((a, b) => b.s.last.localeCompare(a.s.last) || a.c.name.localeCompare(b.c.name))
   }, [customers, invoices, q, showArchived])
 
@@ -43,8 +44,8 @@ export function CustomerList() {
               <th className="px-4 py-2.5 font-medium">{t('fields.name')}</th>
               <th className="px-4 py-2.5 font-medium">{t('fields.ic')}</th>
               <th className="px-4 py-2.5 font-medium">{t('fields.city')}</th>
-              <th className="px-4 py-2.5 text-right font-medium">{t('customers.invoiceCount')}</th>
-              <th className="px-4 py-2.5 text-right font-medium">{t('customers.revenue')}</th>
+              <th className="px-4 py-2.5 text-right font-medium">{t('customers.paidCount')}</th>
+              <th className="px-4 py-2.5 text-right font-medium">{t('customers.paid')}</th>
               <th className="py-2.5 pr-5 pl-4 font-medium">{t('customers.lastInvoice')}</th>
             </tr>
           </thead>
@@ -57,8 +58,8 @@ export function CustomerList() {
                 </td>
                 <td className="px-4 py-3 tabular-nums text-fg-muted">{c.ic}</td>
                 <td className="px-4 py-3 text-fg-muted">{c.address.city}</td>
-                <td className="px-4 py-3 text-right tabular-nums">{s.count}</td>
-                <td className="px-4 py-3 text-right tabular-nums">{f.money(s.revenue)}</td>
+                <td className="px-4 py-3 text-right tabular-nums">{s.paidCount}</td>
+                <td className="px-4 py-3 text-right tabular-nums">{formatPaid(f, s)}</td>
                 {/* "Nová faktura" shares the last cell (no empty column at the right edge) and shows on hover or keyboard focus as
                     a one-line accent link, not a box that blends into the hovered row (the owner, 2026-10-17). */}
                 <td className="py-3 pr-5 pl-4">

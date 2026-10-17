@@ -27,3 +27,7 @@ Invoices link to customers by `nameKey(name)`, falling back to IČ. With the rea
 - **VAT mode:** the one chosen in onboarding.
 
 Result on the real export: 620 invoices, 49 customers, 2 merges, no warnings.
+
+## Files that can't be imported
+
+`importCsv` throws an `ImportError` with a reason, and onboarding shows a plain message for each: **empty** file, **notCsv** (the parser fails), **swapped** (the customers file is in the invoices box or the other way round, told apart by their columns) and **unknownFormat** (another service's export). Every message says what to do next, including that the import can be skipped. A repeated customer row with the same name shows as "v exportu víckrát" rather than a merge of a name into itself. With no files chosen, the last button reads "Přeskočit import".

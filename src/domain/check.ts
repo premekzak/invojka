@@ -61,6 +61,7 @@ export function checkData(data: { settings: Settings; customers: Customer[]; inv
     if (final && inv.lines.some((l) => l.quantity === 0)) warn('invoice.zeroQuantity', 'Has a line with quantity 0.', at)
     const c = inv.customerId ? byId.get(inv.customerId) : undefined
     if (inv.status === 'draft' && c && c.name !== inv.customerSnapshot.name) warn('invoice.draftStale', 'Draft shows other customer details than the customer has now.', at)
+    if (inv.status === 'draft' && inv.vatMode !== settings.vatMode) warn('invoice.draftVatMode', `Draft is for a ${inv.vatMode}, but the supplier is now a ${settings.vatMode}.`, at)
   }
 
   // The number series: per period, numbers in the current pattern should run 1, 2, 3… without gaps,

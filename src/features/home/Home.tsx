@@ -99,7 +99,9 @@ export function Home() {
   const noEmail = customers.filter((c) => !c.archived && !c.email).length
   const tasks: Task[] = [
     stats.overdueCount > 0 && { key: 'overdue', warning: true, title: t('home.taskOverdue', { count: stats.overdueCount }),
-      detail: t('home.taskOverdueDetail', { amount: f.money(stats.overdueSum) }), action: t('home.taskShow'), href: '#/invoices?status=overdue' },
+      detail: t('home.taskOverdueDetail', { amount: f.moneyWhole(stats.overdueSum) }), action: t('home.taskShow'), href: '#/invoices?status=overdue' },
+    stats.missingRate.count > 0 && { key: 'rates', title: t('home.taskRates', { count: stats.missingRate.count }),
+      detail: t('home.taskRatesDetail', { currencies: stats.missingRate.currencies.join(', ') }), action: t('home.taskFill'), href: '#/settings' },
     missing.length > 0 && { key: 'profile', title: t('home.taskProfile'), detail: t('home.taskProfileDetail', { fields: missing.join(', ') }),
       action: t('home.taskFill'), href: '#/settings' },
     noEmail > 0 && { key: 'customers', title: t('home.taskCustomers', { count: noEmail }), detail: t('home.taskCustomersDetail'),

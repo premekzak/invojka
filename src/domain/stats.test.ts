@@ -38,9 +38,19 @@ describe('revenue stats (made-up export)', () => {
     expect(after.missingRate.count).toBe(1)
   })
 
+  it('gives customers what they paid, and their invoice count', () => {
+    const stats = [...customerStats(invoices).values()]
+    expect(sum(stats.map((s) => s.paid))).toBe(850000 + 1200000) // the two paid CZK invoices; EUR and NZD have no rate
+    expect(sum(stats.map((s) => s.paidCount))).toBe(4)
+    // Paid without a rate stays in its own currency instead of adding 0 Kč.
+    expect(stats.map((s) => s.paidUnconverted).filter((u) => Object.keys(u).length)).toEqual([{ NZD: 150000 }, { EUR: 40000 }])
+    expect(sum(stats.map((s) => s.count))).toBe(5)
+  })
+
   it('gives Home its figures', () => {
     expect(homeStats(invoices, '2026-10-17')).toEqual({
       revenue: 3500000, revenueLast: 0, countThisYear: 3, outstanding: 1450000, overdueSum: 1450000, overdueCount: 1,
+      missingRate: { count: 2, currencies: ['EUR', 'NZD'] },
     })
     // Before the due date of the open invoice it's outstanding, not overdue.
     expect(homeStats(invoices, '2026-09-10')).toMatchObject({ outstanding: 1450000, overdueCount: 0 })
@@ -62,12 +72,20 @@ function expectConsistent(invoices: Invoice[], on: string) {
   // Last year's comparison is never more than the whole of last year.
   expect(home.revenueLast).toBeLessThanOrEqual(sum(monthlyRevenue(invoices, year - 1).values))
 
-  // All customers together, plus invoices without a customer, equal the all-time chart (up to this year).
+  // Customers show what was paid: all customers together, plus paid invoices without a customer, equal the paid part
+  // of the all-time chart (up to this year), and the rest of the chart is what's still waiting to be paid.
   const upToNow = invoices.filter((i) => Number(i.issueDate.slice(0, 4)) <= year)
   const perCustomer = [...customerStats(upToNow).values()]
-  const unlinked = upToNow.filter((i) => countsAsRevenue(i) && !i.customerId).reduce((s, i) => s + (totalCzk(i) ?? 0), 0)
-  expect(sum(perCustomer.map((c) => c.revenue)) + unlinked).toBe(sum(yearlyRevenue(upToNow, year).values))
+  const czk = (list: Invoice[]) => list.reduce((s, i) => s + (totalCzk(i) ?? 0), 0)
+  const paid = sum(perCustomer.map((c) => c.paid)) + czk(upToNow.filter((i) => i.status === 'paid' && !i.customerId))
+  const unpaid = czk(upToNow.filter((i) => i.status === 'issued'))
+  expect(paid + unpaid).toBe(sum(yearlyRevenue(upToNow, year).values))
+  expect(sum(perCustomer.map((c) => c.paidCount))).toBe(upToNow.filter((i) => i.status === 'paid' && i.customerId).length)
   expect(sum(perCustomer.map((c) => c.count))).toBe(upToNow.filter((i) => countsAsRevenue(i) && i.customerId).length)
+  for (const c of perCustomer) expect(c.paidCount).toBeLessThanOrEqual(c.count)
+
+  // Home's "invoices without a rate" task counts the invoices the charts leave out.
+  expect(home.missingRate).toEqual(yearlyRevenue(invoices, Math.max(year, ...invoices.map((i) => Number(i.issueDate.slice(0, 4))))).missingRate)
 
   // Overdue is part of what's waiting to be paid, and Home counts the same invoices the "Overdue" filter shows.
   expect(home.overdueSum).toBeLessThanOrEqual(home.outstanding)

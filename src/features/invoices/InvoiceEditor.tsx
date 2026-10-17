@@ -17,10 +17,13 @@ import { fetchEcbRate } from '@/fx/ecb'
 import { PdfPreview, savePdfToFolder } from './PdfPreview'
 
 /** Number input that lets the user type freely ("1 234,50") and commits the parsed value. */
-function NumberInput({ value, onChange, className, ...p }: Omit<InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'> & { value: number; onChange: (n: number) => void }) {
-  const [text, setText] = useState(String(value))
+function NumberInput({ value, onChange, className, ...p }: Omit<InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'> & { value: number | undefined; onChange: (n: number) => void }) {
+  // `undefined` shows an empty field (e.g. a missing exchange rate), not a misleading 0.
+  const show = (v: number | undefined) => (v === undefined ? '' : String(v))
+  const [text, setText] = useState(show(value))
   useEffect(() => {
-    setText((t) => (Number(t.replace(/\s/g, '').replace(',', '.')) === value ? t : String(value)))
+    // Keep what is typed while it still means the same value; an empty field means 0 or nothing.
+    setText((t) => ((t.trim() ? Number(t.replace(/\s/g, '').replace(',', '.')) === value : !value) ? t : show(value)))
   }, [value])
   return (
     <Input {...p} inputMode="decimal" className={cn('text-right tabular-nums', className)} value={text}
@@ -29,7 +32,7 @@ function NumberInput({ value, onChange, className, ...p }: Omit<InputHTMLAttribu
         const n = Number(e.target.value.replace(/\s/g, '').replace(',', '.'))
         if (Number.isFinite(n)) onChange(n)
       }}
-      onBlur={() => setText(String(value))} />
+      onBlur={() => setText(show(value))} />
   )
 }
 
@@ -217,7 +220,7 @@ function Editor({ initial, isNew }: { initial: Invoice; isNew: boolean }) {
       <div className="grid grid-cols-3 gap-6">
         <Card className="col-span-2 space-y-5 p-5">
           <Labeled label={t('invoices.customer')} required error={errorFor('invoice-customer')}>
-            <CustomerPicker id="invoice-customer" customers={customers} value={draft.customerId} onChange={pickCustomer}
+            <CustomerPicker id="invoice-customer" customers={customers} value={draft.customerId} name={draft.customerSnapshot.name} onChange={pickCustomer}
               onCreate={(name) => { const c = emptyCustomer(name); upsertCustomer(c); pickCustomer(c) }}
               autoFocus={!saved && !draft.customerId} />
           </Labeled>
@@ -359,7 +362,7 @@ function Editor({ initial, isNew }: { initial: Invoice; isNew: boolean }) {
             <div className="space-y-1.5">
               <label htmlFor="invoice-rate" className="block text-sm font-medium text-fg">{t('editor.exchangeRate', { currency: draft.currency })}</label>
               <div className="flex gap-2">
-                <NumberInput id="invoice-rate" className="flex-1" value={draft.exchangeRate ?? 0}
+                <NumberInput id="invoice-rate" className="flex-1" value={draft.exchangeRate}
                   onChange={(n) => set({ exchangeRate: n > 0 ? n : undefined, exchangeRateSource: n > 0 ? 'manual' : undefined })} />
                 <Button variant="secondary" disabled={rateBusy} title={t('rates.ecbOne')} onClick={() => void loadRate()}>
                   {rateBusy ? <Loader2 className="size-4 animate-spin" /> : <CloudDownload className="size-4" />} ECB

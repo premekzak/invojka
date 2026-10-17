@@ -3,6 +3,7 @@ import { useDeferredValue, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { today } from '@/domain/id'
 import { daysOverdue, displayStatus, invoiceTotals, type DisplayStatus } from '@/domain/invoice'
+import { countsAsRevenue } from '@/domain/stats'
 import { useStore } from '@/state/store'
 import { StatusBadge, useFormat } from '@/ui/format'
 import { Button, Card, Input, Select, cn } from '@/ui/primitives'
@@ -47,11 +48,13 @@ export function InvoiceList({ route }: { route: Route }) {
     return m
   }, [base])
 
+  // The total counts what Home counts (issued and paid). Only when you filter drafts or cancelled ones does it add those up.
+  const summed = useMemo(() => (status === 'draft' || status === 'cancelled' ? rows : rows.filter((r) => countsAsRevenue(r.inv))), [rows, status])
   const sumByCurrency = useMemo(() => {
     const m = new Map<string, number>()
-    for (const r of rows) m.set(r.inv.currency, (m.get(r.inv.currency) ?? 0) + r.totals.total)
+    for (const r of summed) m.set(r.inv.currency, (m.get(r.inv.currency) ?? 0) + r.totals.total)
     return [...m.entries()].map(([c, v]) => f.money(v, c)).join(' + ')
-  }, [rows, f])
+  }, [summed, f])
 
   function markPaid(id: string) {
     const inv = invoices.find((i) => i.id === id)!
@@ -64,7 +67,8 @@ export function InvoiceList({ route }: { route: Route }) {
       <div className="flex items-end justify-between gap-6">
         <div className="space-y-1">
           <h1 className="font-display text-4xl leading-[1.2] font-bold tracking-[-0.03em]">{t('invoices.title')}</h1>
-          <p className="text-sm text-fg-muted">{t('invoices.count', { count: rows.length, total: sumByCurrency || '0' })}</p>
+          <p className="text-sm text-fg-muted">{t('invoices.count', { count: rows.length, total: sumByCurrency || f.money(0) })}
+            {summed.length < rows.length && t('invoices.countExcludes')}</p>
         </div>
         <Button onClick={() => navigate('/invoices/new')}><Plus className="size-4" /> {t('nav.newInvoice')}</Button>
       </div>

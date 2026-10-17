@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { displayStatus, newInvoice, snapshotDiffers } from './invoice'
+import { displayStatus, newInvoice, snapshotDiffers, withVatMode } from './invoice'
 import { SCHEMA_VERSION, Settings, type Customer, type Invoice } from './schema'
 
 const settings = Settings.parse({ schemaVersion: SCHEMA_VERSION, supplier: { name: 'Me' }, vatMode: 'nonPayer' })
@@ -37,4 +37,22 @@ it('derives overdue', () => {
   expect(displayStatus(previous, '2026-08-10')).toBe('issued')
   expect(displayStatus(previous, '2026-09-30')).toBe('overdue')
   expect(displayStatus({ ...previous, status: 'paid' }, '2026-09-30')).toBe('paid')
+})
+
+describe('withVatMode', () => {
+  const payer = { ...settings, vatMode: 'payer' as const }
+  const draft = { ...newInvoice(settings, [], customer, '2026-10-01'), lines: [{ description: 'Work', quantity: 1, unit: '', unitPrice: 100000, vatRate: 0 }] }
+
+  it('turns a draft into a VAT payer invoice: default rate and DUZP', () => {
+    expect(withVatMode(draft, payer)).toMatchObject({ vatMode: 'payer', taxableSupplyDate: '2026-10-01', lines: [{ vatRate: 21 }] })
+  })
+  it('and back, without VAT, DUZP or reverse charge', () => {
+    const back = withVatMode({ ...withVatMode(draft, payer), reverseCharge: true }, settings)
+    expect(back).toMatchObject({ vatMode: 'nonPayer', taxableSupplyDate: undefined, reverseCharge: false, lines: [{ vatRate: 0 }] })
+  })
+  it('leaves issued invoices and drafts already in the mode alone', () => {
+    const issued = { ...draft, status: 'issued' as const }
+    expect(withVatMode(issued, payer)).toBe(issued)
+    expect(withVatMode(draft, settings)).toBe(draft)
+  })
 })

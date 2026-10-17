@@ -18,10 +18,10 @@
 | welcome / reconnect | One button: choose the folder, or reopen the remembered one; other remembered businesses are listed under it |
 | onboarding | 3 steps: your details, VAT mode, CSV import with a summary of merges |
 | `#/` Přehled (Home) | A playful greeting by time of day; a summary sentence in place of number tiles; the "Nová faktura" tile and a table of things to check, above the charts; recent invoices |
-| `#/invoices` Faktury (Invoices) | Search (number, customer, description), year filter, a segmented status filter with counts; due dates in grey (the status label says overdue, the date's tooltip says by how many days); "Zaplaceno" (Mark paid) on hover, inside the status cell |
+| `#/invoices` Faktury (Invoices) | The total under the title adds up issued and paid invoices only, and says "bez konceptů a stornovaných" when the list shows some; filtered to drafts or cancelled, it adds those up. Search (number, customer, description), year filter, a segmented status filter with counts; due dates in grey (the status label says overdue, the date's tooltip says by how many days); "Zaplaceno" (Mark paid) on hover, inside the status cell |
 | `#/invoices/:id` (editor) | Customer search (with "Vytvořit „…“" / Create "…"), lines, totals with VAT summary, note; side panel with number, payment reference, dates (7/14/30-day buttons), DUZP, currency, language, rate, reverse charge; actions: PDF, Issue, Mark paid / unpaid, Cancel / Restore, Delete draft |
-| `#/customers` Odběratelé (Customers) | Search, invoice count, revenue, last invoice; "Show archived"; "New customer" |
-| `#/customers/:id` | Edit form, invoice defaults, internal note, stats and invoice history; Archive or Delete |
+| `#/customers` Odběratelé (Customers) | Search, paid invoices and the amount paid ("Zaplacených faktur", "Zaplaceno"), last invoice; "Show archived"; "New customer". Paid money without an exchange rate shows in its own currency ("8 500 Kč + 1 500 NZ$"), never as 0 Kč |
+| `#/customers/:id` | Edit form, invoice defaults, internal note, stats (paid invoices with "Celkem vystaveno N faktur" under them, and the amount paid) and invoice history; Archive or Delete |
 | `#/settings` Nastavení (Settings) | Your details, bank account, VAT, invoice defaults and numbering (with a preview of the next number), exchange rates, app language, theme, data folder, demo data switch (see [architecture.md](architecture.md#demo-mode)) |
 
 ## Design tokens (`src/index.css`)

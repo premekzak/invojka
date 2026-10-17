@@ -13,7 +13,7 @@
 - [x] Settings: profile, bank account (IBAN filled in automatically), VAT, defaults, numbering, language, theme, folder
 - [x] Exchange rates: ECB automatic, ČNB file upload, manual; foreign revenue counted in CZK
 - [x] Demo mode for screenshots and videos: an anonymized in-memory copy; the folder is never written
-- [x] 95 unit tests, including data health, cross-screen consistency and text checks (2026-10-17); they run on a made-up export, so a fresh clone passes
+- [x] 104 unit tests, including data health, cross-screen consistency and text checks (2026-10-17); they run on a made-up export, so a fresh clone passes
 - [x] Colour cleanup (2026-10-01): the PDF has its own neutral palette in one place; `danger-fg` and `scrim` tokens; one selected tint (`accent/10`); dark red raised to pass contrast on its badge
 - [x] Neutral 12-step scale (2026-10-01): three text levels, visible field borders, `color-scheme` in dark mode
 - [x] Ledger theme (2026-10-01), reached by going all-grey first and then adding colour role by role: light grey page (cream tried and replaced), blue for actions, black identity (navy tried and replaced), red warnings and errors, green confirmations
@@ -31,7 +31,7 @@
 
 - [ ] Reopening after a browser restart takes one click (not yet confirmed on the real folder)
 - [ ] The QR Platba code scans in a real Czech banking app
-- [ ] Walk through the user journeys in [test-plan.md](test-plan.md) in the browser and fix what they find
+- [ ] Walk through the user journeys in [test-plan.md](test-plan.md) in the browser and fix what they find (journeys 1–6 done 2026-10-17; journey 7, edge cases, keyboard and PDF content left)
 - [ ] First-time user check: an agent with no context follows the download-to-first-invoice path
 - [ ] Generating a PDF in the built `dist/invojka.html` opened from disk (so far tested only via the dev server)
 

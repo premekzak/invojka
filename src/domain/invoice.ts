@@ -64,6 +64,22 @@ export function newInvoice(settings: Settings, invoices: Invoice[], customer?: C
   }
 }
 
+/**
+ * A draft fitted to the supplier's current VAT mode, after it changed in settings. Issued invoices keep the mode
+ * they were issued with; drafts follow, like they follow customer edits. Prices are net, so a payer's draft gains VAT.
+ */
+export function withVatMode(inv: Invoice, settings: Settings): Invoice {
+  if (inv.status !== 'draft' || inv.vatMode === settings.vatMode) return inv
+  const payer = settings.vatMode === 'payer'
+  return {
+    ...inv,
+    vatMode: settings.vatMode,
+    taxableSupplyDate: payer ? inv.taxableSupplyDate ?? inv.issueDate : undefined,
+    reverseCharge: settings.vatMode === 'nonPayer' ? false : inv.reverseCharge,
+    lines: inv.lines.map((l) => ({ ...l, vatRate: payer ? l.vatRate || settings.defaultVatRate : 0 })),
+  }
+}
+
 export function latestFor(invoices: Invoice[], customerId: string): Invoice | undefined {
   let best: Invoice | undefined
   for (const i of invoices) if (i.customerId === customerId && (!best || i.issueDate > best.issueDate)) best = i

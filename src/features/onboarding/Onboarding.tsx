@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { SCHEMA_VERSION, Settings } from '@/domain/schema'
 import { czechIban } from '@/domain/spayd'
 import type { VatMode } from '@/domain/vat'
-import { importCsv, type ImportResult } from '@/import/csv'
+import { ImportError, importCsv, type ImportResult } from '@/import/csv'
 import { useStore } from '@/state/store'
 import { FsAccessAdapter } from '@/storage/fsAccess'
 import { Button, Card, Choice, Field, cn } from '@/ui/primitives'
@@ -41,11 +41,14 @@ export function Onboarding() {
     setFiles(next)
     setResult(undefined)
     setImportError(undefined)
-    if (next.customers && next.invoices) {
+    // An empty file is still a file: compare with undefined, so it gets the "empty" message instead of nothing.
+    if (next.customers !== undefined && next.invoices !== undefined) {
       try {
         setResult(importCsv(next.customers, next.invoices, vatMode))
       } catch (e) {
-        setImportError((e as Error).message)
+        setImportError(e instanceof ImportError
+          ? t(`onboarding.importError.${e.reason}`, { file: t(e.file === 'customers' ? 'onboarding.customersCsv' : 'onboarding.invoicesCsv') })
+          : t('onboarding.importError.failed', { message: (e as Error).message }))
       }
     }
   }
@@ -162,7 +165,11 @@ export function Onboarding() {
                     <div>
                       <p className="text-fg-muted">{t('onboarding.merged')}:</p>
                       <ul className="mt-1 list-inside list-disc text-fg-muted">
-                        {result.merges.map((m) => <li key={m.kept}>{m.kept} ← {m.merged.join(', ')}</li>)}
+                        {result.merges.map((m) => {
+                          // The same name twice is a repeated row, not a merge of two names.
+                          const others = m.merged.filter((n) => n !== m.kept)
+                          return <li key={m.kept}>{m.kept} {others.length ? `← ${others.join(', ')}` : `(${t('onboarding.listedTwice')})`}</li>
+                        })}
                       </ul>
                     </div>
                   )}
@@ -188,7 +195,7 @@ export function Onboarding() {
             {step > 0 && <Button variant="ghost" onClick={() => setStep(step - 1)}>{t('common.back')}</Button>}
             {step < steps.length - 1
               ? <Button onClick={next}>{t('common.continue')}</Button>
-              : <Button onClick={() => void finish()} disabled={saving}>{saving ? t('save.saving') : t('onboarding.finish')}</Button>}
+              : <Button onClick={() => void finish()} disabled={saving}>{saving ? t('save.saving') : step === 2 && !result ? t('onboarding.skipImport') : t('onboarding.finish')}</Button>}
           </div>
         </div>
       </Card>

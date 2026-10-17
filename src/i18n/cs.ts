@@ -23,10 +23,17 @@ const cs = {
     import: 'Import dat',
     importHint: 'Máte export ze starého fakturačního systému? Nahrajte oba CSV soubory. Import můžete i přeskočit.',
     customersCsv: 'Odběratelé (customers.csv)',
+    importError: {
+      empty: 'Soubor v políčku „{{file}}“ je prázdný. Vyberte soubor z exportu vašeho starého fakturačního systému.',
+      notCsv: 'Soubor v políčku „{{file}}“ se nedá přečíst jako tabulka CSV. Vyberte soubor s koncovkou .csv z exportu.',
+      swapped: 'V políčku „{{file}}“ je soubor, který patří do druhého políčka. Vyměňte soubory mezi políčky.',
+      unknownFormat: 'Soubor v políčku „{{file}}“ má jiné sloupce, než Invojka umí načíst. Import zatím zná jen export s českými sloupci (Firma, Číslo dokladu…). Import můžete přeskočit a údaje zadat ručně.',
+      failed: 'Import se nepodařil: {{message}}. Import můžete přeskočit a údaje zadat ručně.',
+    },
     invoicesCsv: 'Faktury (invoices.csv)',
     importSummary: '{{invoices}} faktur, {{customers}} odběratelů',
     merged: 'Sloučení duplicitní odběratelé',
-    finish: 'Dokončit',
+    finish: 'Dokončit', skipImport: 'Přeskočit import', listedTwice: 'v exportu víckrát',
   },
   fields: {
     name: 'Jméno / firma', ic: 'IČ', dic: 'DIČ', street: 'Ulice', zip: 'PSČ', city: 'Město', country: 'Stát',
@@ -93,6 +100,10 @@ const cs = {
     taskCustomers_few: '{{count}} odběratelé bez e-mailu',
     taskCustomers_other: '{{count}} odběratelů bez e-mailu',
     taskCustomersDetail: 'Doplňte e-maily, ať je máte po ruce při odesílání faktur.',
+    taskRates_one: '{{count}} faktura bez kurzu',
+    taskRates_few: '{{count}} faktury bez kurzu',
+    taskRates_other: '{{count}} faktur bez kurzu',
+    taskRatesDetail: 'Faktury v {{currencies}} se bez kurzu nepočítají do tržeb v Kč.',
     taskShow: 'Zobrazit',
     taskFill: 'Doplnit',
     taskCheck: 'Zkontrolovat',
@@ -110,6 +121,7 @@ const cs = {
     title: 'Faktury', search: 'Hledat číslo, odběratele, popis…', allYears: 'Všechny roky', allStatuses: 'Všechny stavy',
     number: 'Číslo', customer: 'Odběratel', issued: 'Vystaveno', due: 'Splatnost', total: 'Celkem', status: 'Stav',
     markPaid: 'Označit jako zaplacené', empty: 'Žádné faktury neodpovídají filtru.', count_one: '{{count}} faktura · {{total}}', count_few: '{{count}} faktury · {{total}}', count_other: '{{count}} faktur · {{total}}',
+    countExcludes: ' · bez konceptů a stornovaných',
     daysOverdue_one: '{{count}} den po splatnosti', daysOverdue_few: '{{count}} dny po splatnosti', daysOverdue_other: '{{count}} dní po splatnosti',
   },
   editor: {
@@ -187,13 +199,14 @@ const cs = {
   pdf: { saveToFolder: 'Uložit do složky', download: 'Stáhnout', savedTo: 'Uloženo: {{path}}', saveFailed: 'PDF se nepodařilo uložit' },
   status: { draft: 'Koncept', issued: 'Vystaveno', overdue: 'Po splatnosti', paid: 'Zaplaceno', cancelled: 'Stornováno' },
   customers: {
-    title: 'Odběratelé', search: 'Hledat jméno, IČ, město…', invoiceCount: 'Faktur', revenue: 'Obrat (Kč)', lastInvoice: 'Poslední faktura',
+    title: 'Odběratelé', search: 'Hledat jméno, IČ, město…', paidCount: 'Zaplacených faktur', paid: 'Zaplaceno', lastInvoice: 'Poslední faktura',
     newInvoice: 'Nová faktura', newCustomer: 'Nový odběratel', newTitle: 'Nový odběratel', notFound: 'Odběratel nenalezen.',
     cc: 'Kopie e-mailu', ccHint: 'oddělte čárkou', contactName: 'Kontaktní osoba', note: 'Poznámka (jen pro vás)',
     details: 'Údaje odběratele', invoiceDefaults: 'Výchozí hodnoty faktur', fromSettings: 'Podle nastavení',
     archive: 'Archivovat', unarchive: 'Obnovit', archived: 'Archivováno', showArchived: 'Zobrazit archivované',
     archiveHint: 'Archivovaný odběratel se nenabízí u nových faktur; jeho faktury zůstávají.',
     create: 'Vytvořit „{{name}}“', edit: 'Upravit odběratele',
+    issuedTotal_one: 'Celkem vystavena {{count}} faktura', issuedTotal_few: 'Celkem vystaveny {{count}} faktury', issuedTotal_other: 'Celkem vystaveno {{count}} faktur',
   },
 }
 export default cs

@@ -6,8 +6,10 @@ import type { Customer } from '@/domain/schema'
 import { cn } from '@/ui/primitives'
 
 /** Searchable customer select, keyboard-friendly (↑ ↓ Enter Esc). */
-export function CustomerPicker({ customers, value, onChange, onCreate, autoFocus, ...aria }: {
+export function CustomerPicker({ customers, value, name, onChange, onCreate, autoFocus, ...aria }: {
   customers: Customer[]; value: string | null; onChange: (c: Customer) => void
+  /** The name to show for the picked customer: the invoice's printed name, which an issued invoice keeps after the customer is renamed. */
+  name?: string
   /** Create a customer with the typed name (offered when nothing matches exactly). */
   onCreate?: (name: string) => void
   autoFocus?: boolean
@@ -47,8 +49,8 @@ export function CustomerPicker({ customers, value, onChange, onCreate, autoFocus
         <input
           {...aria}
           className="h-full flex-1 bg-transparent text-sm outline-none placeholder:text-fg-subtle"
-          placeholder={selected ? selected.name : t('editor.pickCustomer')}
-          value={open ? q : selected?.name ?? ''}
+          placeholder={selected ? name || selected.name : t('editor.pickCustomer')}
+          value={open ? q : selected ? name || selected.name : ''}
           autoFocus={autoFocus}
           onFocus={() => setOpen(true)}
           onChange={(e) => { setQ(e.target.value); setOpen(true) }}

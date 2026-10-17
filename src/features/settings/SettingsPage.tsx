@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { today } from '@/domain/id'
+import { withVatMode } from '@/domain/invoice'
 import { CURRENCIES } from '@/domain/money'
 import { nextNumber } from '@/domain/numbering'
 import type { Settings } from '@/domain/schema'
@@ -35,7 +36,7 @@ function SelectField({ label, ...p }: { label: string; value: string; onChange: 
 
 export function SettingsPage() {
   const { t } = useTranslation()
-  const { settings, saveSettings, invoices } = useStore()
+  const { settings, saveSettings, invoices, upsertInvoices } = useStore()
   const s = settings!
   const update = (patch: Partial<Settings>) => saveSettings({ ...s, ...patch })
   const sup = (patch: Partial<Settings['supplier']>) => update({ supplier: { ...s.supplier, ...patch } })
@@ -47,6 +48,12 @@ export function SettingsPage() {
     sup({ bank: b })
   }
   const defaults = (patch: Partial<Settings['defaults']>) => update({ defaults: { ...s.defaults, ...patch } })
+  /** Drafts follow the new VAT mode; issued invoices keep theirs. */
+  const setVatMode = (vatMode: Settings['vatMode']) => {
+    const next = { ...s, vatMode }
+    saveSettings(next)
+    upsertInvoices(invoices.filter((i) => withVatMode(i, next) !== i).map((i) => withVatMode(i, next)))
+  }
 
   let next = ''
   try {
@@ -88,7 +95,7 @@ export function SettingsPage() {
       <Section title={t('settings.vat')}>
         <div role="radiogroup" aria-label={t('settings.vat')} className="grid grid-cols-3 gap-3">
           {(['nonPayer', 'payer', 'identifiedPerson'] as const).map((m) => (
-            <Choice key={m} selected={s.vatMode === m} onClick={() => update({ vatMode: m })} title={t(`vatMode.${m}`)} hint={t(`vatMode.${m}Hint`)} />
+            <Choice key={m} selected={s.vatMode === m} onClick={() => setVatMode(m)} title={t(`vatMode.${m}`)} hint={t(`vatMode.${m}Hint`)} />
           ))}
         </div>
         {s.vatMode === 'payer' && (

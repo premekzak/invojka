@@ -5,11 +5,17 @@ import { newId, today } from '@/domain/id'
 import { displayStatus, invoiceTotals, snapshotOf } from '@/domain/invoice'
 import { CURRENCIES } from '@/domain/money'
 import type { Customer } from '@/domain/schema'
-import { customerStats } from '@/domain/stats'
+import { customerStats, emptyCustomerStats, type CustomerStats } from '@/domain/stats'
 import { useStore } from '@/state/store'
 import { StatusBadge, useFormat } from '@/ui/format'
 import { Button, Card, Checkbox, Field, Labeled, Select, Textarea } from '@/ui/primitives'
 import { navigate, type Route } from '@/ui/router'
+
+/** What a customer paid: CZK, plus any amount without an exchange rate in its own currency ("8 500 Kč + 1 500 NZ$"). */
+export function formatPaid(f: ReturnType<typeof useFormat>, s: CustomerStats): string {
+  const foreign = Object.entries(s.paidUnconverted).map(([cur, v]) => f.money(v, cur))
+  return [...(s.paid || !foreign.length ? [f.money(s.paid)] : []), ...foreign].join(' + ')
+}
 
 export const emptyCustomer = (name = ''): Customer => ({
   id: newId(), name, ic: '', dic: '', address: { street: '', zip: '', city: '', country: '' },
@@ -49,7 +55,7 @@ function CustomerForm({ initial, isNew }: { initial: Customer; isNew: boolean })
     () => invoices.filter((i) => i.customerId === c.id).sort((a, b) => b.issueDate.localeCompare(a.issueDate)),
     [invoices, c.id],
   )
-  const revenue = useMemo(() => customerStats(invoices).get(c.id)?.revenue ?? 0, [invoices, c.id])
+  const stats = useMemo(() => customerStats(invoices).get(c.id) ?? emptyCustomerStats(), [invoices, c.id])
 
   function save(next: Partial<Customer> = {}) {
     const cust = { ...c, ...next, name: c.name.trim() }
@@ -152,12 +158,13 @@ function CustomerForm({ initial, isNew }: { initial: Customer; isNew: boolean })
           <div className="space-y-5">
             <Card className="grid grid-cols-2 gap-4 p-5">
               <div>
-                <div className="text-xs text-fg-muted">{t('customers.invoiceCount')}</div>
-                <div className="text-2xl font-semibold tabular-nums">{mine.length}</div>
+                <div className="text-xs text-fg-muted">{t('customers.paidCount')}</div>
+                <div className="text-2xl font-semibold tabular-nums">{stats.paidCount}</div>
+                <div className="text-xs text-fg-muted">{t('customers.issuedTotal', { count: stats.count })}</div>
               </div>
               <div>
-                <div className="text-xs text-fg-muted">{t('customers.revenue')}</div>
-                <div className="text-2xl font-semibold tabular-nums">{f.money(revenue)}</div>
+                <div className="text-xs text-fg-muted">{t('customers.paid')}</div>
+                <div className="text-2xl font-semibold tabular-nums">{formatPaid(f, stats)}</div>
               </div>
             </Card>
             {mine.length > 0 && (

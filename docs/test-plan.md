@@ -51,11 +51,32 @@ Report each finding as a **bug** (wrong result), **illogical** (correct, but sur
 
 Someone who has never seen the app follows the path from the download to the first invoice (see [product.md](product.md#first-run-from-download-to-first-invoice)) and says out loud wherever they hesitate. An AI agent with no context can do a first pass; real testers do the final one.
 
-## Open questions from step 1
+## Findings
 
-Found by the automatic checks and by reading the code on 2026-10-17. They need the owner's decision before anything changes:
+### Step 1, decided and done (2026-10-17)
 
-- **The invoice list total includes drafts and cancelled invoices** when no status filter is on ("12 faktur · 150 000 Kč"), while Home and the customers leave them out. Should the list total leave them out too, or say what it includes?
-- **Home counts foreign invoices without a rate as 0 Kč without saying so.** The charts warn "Excludes 3 invoices in EUR". Home's "this year" sentence should probably warn the same way.
-- **The customer list counts only issued and paid invoices**, but the customer detail lists every invoice, drafts and cancelled ones included, so the two counts can differ.
-- **Importing an empty or wrong CSV** shows "CSV parse error on row undefined: Unable to auto-detect delimiting character". A beginner needs a message that says what to do.
+- The invoice list total counts issued and paid invoices only and says so ("bez konceptů a stornovaných").
+- Home lists foreign invoices without a rate as a task ("2 faktury bez kurzu").
+- Customers show paid invoices only: "Zaplacených faktur" and "Zaplaceno", with "Celkem vystaveno N faktur" on the detail.
+- A CSV that can't be imported gets a plain message that says what to do.
+
+### Step 2, fixed (2026-10-17)
+
+Walked through journeys 1 to 6 on the made-up export. Journey 7 (businesses and demo mode), the edge cases, the keyboard pass and the PDF content are still to do.
+
+- **Bug:** an empty CSV file was silently ignored; now it says so.
+- **Bug:** drafts kept the old VAT mode after switching to a VAT payer, so they would have been issued without VAT. Drafts now follow, and `check()` warns about one that doesn't.
+- **Inconsistent:** a customer with paid foreign invoices showed "0,00 Kč"; now "1 500,00 NZ$".
+- **Inconsistent:** an issued invoice showed the customer's new name in the customer field while printing the old one; the field now shows the printed name.
+- **Inconsistent:** Home showed "14 500 Kč" in the sentence and "14 500,00 Kč" in the task; both are whole crowns now. The new rates task said "obrat", the charts say "tržby"; now "tržby".
+- **Illogical:** an exchange rate field without a rate showed "0"; now it's empty.
+- **Illogical:** onboarding said the import can be skipped, but had no skip button; the button now reads "Přeskočit import" until files are chosen. A customer listed twice showed as "Sokol media ← Sokol media"; now "(v exportu víckrát)".
+
+### Step 2, waiting for the owner's decision
+
+1. **"Vystaveno" means three things**: the issue-date column, a status filter that leaves out paid and overdue invoices, and Home's "Letos máte vystavené 3 faktury", which includes paid ones. Proposal: name the status "Čeká na platbu" (it matches Home's "Na zaplacení čeká").
+2. **Issuing with missing supplier details**: the app issues an invoice without the supplier's IČ, address or bank account, although Home lists them as missing. Proposal: Issue shows what's missing and offers to fill it in; issuing anyway stays possible.
+3. **Issued and cancelled invoices stay fully editable**, including the number, the customer and the amounts, and a cancelled invoice still offers "Použít nové údaje". Czech practice corrects an issued invoice with a credit note. Proposal: lock the number, customer and lines once issued, with an "Upravit" escape that warns; hide the banner on cancelled invoices.
+4. **A copied line keeps the old month**: "Provoz e-shopu za srpen 2026" is copied as is to the next invoice. Proposal: move "za <měsíc> <rok>" to the previous month of the new issue date.
+5. **"Doplnit" on the Home task opens settings, "Doplnit kurzy" under the charts fills the rates at once.** Proposal: the task fills them at once too.
+6. **Date fields follow the browser's language** ("10/17/2026" in an English Chrome) while the rest of the app writes "17. 10. 2026". Native date fields can't be told otherwise; a custom date field would fix it. Low priority.

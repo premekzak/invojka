@@ -47,6 +47,8 @@ export const Settings = z.object({
   ui: z.object({
     language: lang.default('cs'),
     theme: z.enum(['system', 'light', 'dark']).default('system'),
+    /** Colour scheme (docs/ui.md#colour-schemes); 'warm' is Warm paper, the default. Light and dark come from `theme`. */
+    scheme: z.enum(['warm', 'branicek']).default('warm'),
   }).prefault({}),
 })
 export type Settings = z.infer<typeof Settings>

@@ -31,6 +31,7 @@ Toolchain: TypeScript 7, Vite 8, Vitest 5, React 19, Zod 4, Tailwind 4 (via `@ta
   - `openMemory()` opens an empty in-memory folder (onboarding).
   - `check()` runs `checkData()` on the open data and prints a table of errors and warnings. Run it after a test session to see whether anything the UI did broke the data.
   - `useStore` is the store, e.g. `useStore.getState().adapter.files.get('invoices.json')`.
+- **A full reload in dev reopens the folder you last used on `localhost`, which may be your real one.** In-memory test data is then gone, and every click saves into the real files. Before clicking through a test, check `__invojka.useStore.getState().adapter.name` (`memory` for test data), and check again after editing a module that can't be hot-reloaded. On 2026-10-17 a preview switched the colour scheme in the owner's real `settings.json` this way.
 - Editing modules that aren't hot-reloadable (e.g. `src/pdf/*`, `main.tsx`) and the first use of a new dependency make Vite **reload the page, which wipes in-memory data**. Seed again.
 - Headless Chrome with `--virtual-time-budget` stalls on IndexedDB, so a `--dump-dom` of the built file shows an empty root. **That isn't an app bug.**
 

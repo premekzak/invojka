@@ -143,6 +143,7 @@ const cs = {
     dueDays: 'Splatnost', currency: 'Měna', invoiceLanguage: 'Jazyk faktury', unit: 'Jednotka', note: 'Poznámka na faktuře',
     defaultVatRate: 'Výchozí sazba DPH', pattern: 'Formát čísla faktury', patternHint: '{YYYY} nebo {YY} rok, {MM} měsíc, {NNNN} pořadí (s {MM} začíná každý měsíc od 1). Příští číslo: {{next}}',
     uiLanguage: 'Jazyk aplikace', theme: 'Vzhled', themeSystem: 'Podle systému', themeLight: 'Světlý', themeDark: 'Tmavý',
+    scheme: 'Barevné schéma', schemeWarm: 'Teplý papír', schemeBranicek: 'Braníček',
     folder: 'Složka s daty',
   },
   rates: {

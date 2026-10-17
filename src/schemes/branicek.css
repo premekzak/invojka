@@ -1,0 +1,35 @@
+/* Colour scheme "Braníček" (approved by the owner, 2026-10-17), from the owner's brief in schemes/branicek: Braník beer.
+   Light is "Světlý": foam-cream paper, the can's bottle green for the header and every action, gold for the logo
+   receipt, the crest's red for its dot and for errors. Dark is "Černý" (Braník's dark beer): stout-brown paper,
+   foam-cream text, a dark green header. Built in OKLCH (neutrals hue 95 light / 55 dark, C <= 0.022); every text pair
+   reaches 4.5:1 and edges 3:1 in both modes. Active when <html data-scheme="branicek">. */
+@layer base {
+  :root[data-scheme="branicek"] {
+    --paper: #f3f0e4; --card: #fffdf9; --hover: #faf8f0; --fill: #f1edde; --rule: #e9e6db; --line: #dcd8c8; --field: #faf8ef; --edge: #7e836f; --mid: #555e4d; --ink: #102719;
+    --on-ink: #fffdf9;
+    --red: #b7191c; --on-red: #fffdf9; --red-chip: #ffdedb; --green: #346d26; --green-chip: #d9f0d3;
+    /* The accent slot ("blue") is bottle green: 6.2:1 on paper. */
+    --blue: #006731; --on-blue: #fcfaf1; --blue-deep: #005427;
+    --chart-1: #22864a; --chart-2: #b6ddbd;
+    --rust: #964d09; --rust-chip: #fbe3cd;
+    /* Gold receipt with a dark green stem and a crest-red dot. */
+    --orange: #deaf56; --logo: #deaf56; --on-logo: #102719; --logo-dot: #cc2827;
+    /* The header is the can: bottle green with cream text (8.1:1). */
+    --peach: #0a562b; --on-peach: #f9f5e6; --on-peach-muted: #d7d2b5;
+    /* The header is dark, so the current page is a lighter green pill (cream text 5.3:1), not the cream page colour. */
+    --color-header-active: #2f7346;
+    --color-footer: #102a1a; --color-footer-deep: #092012; --color-footer-fg: #f2efe0; --color-footer-muted: #cac5a8;
+  }
+  :root.dark[data-scheme="branicek"] {
+    --paper: #140e0a; --card: #1c1612; --hover: #201915; --fill: #231c18; --rule: #27201b; --line: #342c26; --field: #1e1814; --edge: #7d7268; --mid: #bab0a0; --ink: #f1ebdb;
+    --on-ink: #140e0a;
+    --red: #e66e68; --on-red: #140e0a; --red-chip: #421c19; --green: #7eba71; --green-chip: #1b2f17;
+    --blue: #76be86; --on-blue: #140e0a; --blue-deep: #66af77;
+    --chart-1: #69ba7c; --chart-2: #2e4a34;
+    --rust: #df9555; --rust-chip: #3b220d;
+    --orange: #deaf56; --logo: #deaf56; --on-logo: #140e0a; --logo-dot: #e24942;
+    --peach: #0b2e1a; --on-peach: #f2efe0; --on-peach-muted: #cac5a8;
+    --color-header-active: #1f4a30;
+    --color-footer: #0c0806; --color-footer-deep: #080504; --color-footer-fg: #f0ebdc; --color-footer-muted: #c0b6a2;
+  }
+}

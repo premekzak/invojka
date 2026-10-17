@@ -137,6 +137,10 @@ export function SettingsPage() {
             <Options aria-label={t('settings.theme')} value={s.ui.theme} onChange={(v) => update({ ui: { ...s.ui, theme: v as Settings['ui']['theme'] } })}
               options={[['system', t('settings.themeSystem')], ['light', t('settings.themeLight')], ['dark', t('settings.themeDark')]]} />
           </SettingRow>
+          <SettingRow title={t('settings.scheme')}>
+            <Options aria-label={t('settings.scheme')} value={s.ui.scheme} onChange={(v) => update({ ui: { ...s.ui, scheme: v as Settings['ui']['scheme'] } })}
+              options={[['warm', t('settings.schemeWarm')], ['branicek', t('settings.schemeBranicek')]]} />
+          </SettingRow>
           <FolderRow />
           <DemoToggle />
         </Card>

@@ -10,3 +10,7 @@ invoices.csv
 Thumbs.db
 desktop.ini
 .claude/settings.local.json
+
+# Colour scheme inspiration: images may be under copyright, so only the brief (zadani.md) is kept
+schemes/*/*
+!schemes/*/zadani.md

@@ -24,6 +24,12 @@ function useTheme() {
     mq.addEventListener('change', apply)
     return () => mq.removeEventListener('change', apply)
   }, [theme])
+  // Each scheme other than the default redefines the palette under <html data-scheme="…"> (src/schemes/*.css).
+  const scheme = useStore((s) => s.settings?.ui.scheme ?? 'warm')
+  useEffect(() => {
+    if (scheme === 'warm') delete document.documentElement.dataset.scheme
+    else document.documentElement.dataset.scheme = scheme
+  }, [scheme])
 }
 
 export function App() {

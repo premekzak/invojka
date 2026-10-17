@@ -125,6 +125,19 @@
   - **Saving with mistakes:** save buttons stay enabled; they are disabled only when nothing changed. Pressing one with mistakes shows the errors and focuses the first wrong field. This applies to the customer name, the invoice customer and number, and onboarding step 1. With more than one error, an `ErrorSummary` sits above the invoice; its items are buttons, because the hash is used for routing. An error appears after a save attempt or after leaving the field, and goes away as soon as the value is right. A taken invoice number shows at once.
   - **Choices and settings:** `Choice` cards are `role="radio"` inside a `role="radiogroup"`; selected is `surface-2` with a 2 px `accent` edge. The settings "Aplikace" section uses `SettingRow`s.
 
+## Colour schemes
+
+Settings → App → Barevné schéma (`settings.ui.scheme`). Light and dark come from Vzhled, so every scheme has both. The default `warm` is Warm paper, defined in `src/index.css`. Every other scheme is a file in `src/schemes/` that redefines the palette (the `--paper` … `--peach` slots, the header pill and the footer) under `<html data-scheme="…">`; components never change.
+
+How a scheme is made: the owner puts images and a brief (`zadani.md`) in `schemes/<name>/` (only the brief is committed, images may be under copyright). The palette is built in OKLCH, every text pair is computed to 4.5:1 and edges and chart bars to 3:1 in both modes, and a preview in the real app comes before it is wired in. A dark header needs its own `--color-header-active` (the default pill is the page colour, which only works on a light header).
+
+| Scheme | From | Light | Dark |
+|---|---|---|---|
+| `warm` Teplý papír | the owner's choice "F4" | see the tokens above | |
+| `branicek` Braníček (the owner approved it 2026-10-17) | a Braník Světlý can | foam-cream paper, bottle-green header and actions, a gold logo receipt with a crest-red dot, dark green footer | "Černý": stout-brown paper, foam text, light green actions, dark green header |
+
+Braníček breaks the "large areas are muted" rule with its saturated green header, like Warm paper's orange header; and its success green sits near the accent green (shifted towards yellow). Braník is a trademark: a public release should give the scheme a neutral name.
+
 ## Charts (`ui/BarChart.tsx`, `features/home/RevenueCharts.tsx`)
 
 - Hand-built SVG, with no chart library.

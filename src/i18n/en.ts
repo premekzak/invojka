@@ -145,6 +145,7 @@ const en: Messages = {
     dueDays: 'Payment terms', currency: 'Currency', invoiceLanguage: 'Invoice language', unit: 'Unit', note: 'Invoice note',
     defaultVatRate: 'Default VAT rate', pattern: 'Invoice number format', patternHint: '{YYYY} or {YY} year, {MM} month, {NNNN} sequence (with {MM} it restarts at 1 every month). Next number: {{next}}',
     uiLanguage: 'App language', theme: 'Theme', themeSystem: 'System', themeLight: 'Light', themeDark: 'Dark',
+    scheme: 'Colour scheme', schemeWarm: 'Warm paper', schemeBranicek: 'Braníček',
     folder: 'Data folder',
   },
   rates: {

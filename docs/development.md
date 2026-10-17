@@ -36,7 +36,7 @@ Toolchain: TypeScript 7, Vite 8, Vitest 5, React 19, Zod 4, Tailwind 4 (via `@ta
 
 ## Releasing
 
-Users download `invojka.html` from [GitHub Releases](https://github.com/premekzak/invoicer/releases). The link `https://github.com/premekzak/invoicer/releases/latest/download/invojka.html` always gives the newest version, so the website can use it.
+Users download `invojka.html` from [GitHub Releases](https://github.com/premekzak/invojka/releases). The link `https://github.com/premekzak/invojka/releases/latest/download/invojka.html` always gives the newest version, so the website can use it.
 
 1. Merge into `main`.
 2. Set the version: `npm version 0.3.0 --no-git-tag-version` (it updates `package.json` and the lock file).

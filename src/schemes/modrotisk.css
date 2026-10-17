@@ -1,0 +1,21 @@
+/* Colour scheme "Modrotisk" (2026-10-17), from the brief in schemes/modrotisk: Czech indigo blueprint fabric (UNESCO).
+   Light: linen-white paper tinted towards indigo, an indigo header like the printed cloth, indigo actions, a white logo
+   receipt like the pattern with a sky-blue dot. Dark, "Indigová noc": deep indigo night with pattern-white text and
+   periwinkle actions. Built in OKLCH (neutrals hue 265); every text pair 4.5:1, edges and chart bars 3:1, in both modes.
+   Active when <html data-scheme="modrotisk">. The palette slots keep Warm paper's names ("blue" is the accent, "peach" the header). */
+@layer base {
+  :root[data-scheme="modrotisk"] {
+    --paper: #ecf0f9; --card: #fcfdff; --hover: #f5f8fd; --fill: #e8edf7; --rule: #e2e6ef; --line: #d1d6e0; --field: #f4f7fe; --edge: #727a8d; --mid: #515b6f; --ink: #111b39;
+    --on-ink: #fcfdff; --red: #b7191c; --on-red: #fcfdff; --red-chip: #ffdedb; --green: #286f2f; --green-chip: #d6f0d6; --blue: #2b439d; --on-blue: #f7faff; --blue-deep: #1f3385; --chart-1: #4062be;
+    --chart-2: #c1d1f3; --rust: #964d09; --rust-chip: #fbe3cd; --orange: #f5f2e9; --logo: #f5f2e9; --on-logo: #111e47; --logo-dot: #1f86cd; --peach: #19285f; --on-peach: #f2f5fc; --on-peach-muted: #c3cee5;
+    --color-header-active: #2e4282;
+    --color-footer: #111c40; --color-footer-deep: #0a1331; --color-footer-fg: #ebeef5; --color-footer-muted: #bbc4d8;
+  }
+  :root.dark[data-scheme="modrotisk"] {
+    --paper: #0b0f1a; --card: #121724; --hover: #151a28; --fill: #181e2c; --rule: #1c2130; --line: #272d3d; --field: #141926; --edge: #6a758a; --mid: #a7b2c5; --ink: #e7ebf3;
+    --on-ink: #0b0f1a; --red: #e66e68; --on-red: #0b0f1a; --red-chip: #421c19; --green: #75bc78; --green-chip: #182f19; --blue: #90a9eb; --on-blue: #0b0f1a; --blue-deep: #8199da; --chart-1: #84a3ea;
+    --chart-2: #334163; --rust: #df9555; --rust-chip: #3b220d; --orange: #f1eee6; --logo: #f1eee6; --on-logo: #0c142d; --logo-dot: #1a79c2; --peach: #131f43; --on-peach: #ebeef5; --on-peach-muted: #bbc4d8;
+    --color-header-active: #293864;
+    --color-footer: #05070f; --color-footer-deep: #03040a; --color-footer-fg: #e7ebf2; --color-footer-muted: #afb8c8;
+  }
+}

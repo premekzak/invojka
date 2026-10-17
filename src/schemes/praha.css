@@ -1,0 +1,22 @@
+/* Colour scheme "Praha za soumraku" (2026-10-17), from the brief in schemes/praha: roofs, sandstone, domes and gas lamps.
+   Light (day): sandstone paper, a terracotta-roof header, actions and charts in the green copper patina of the domes,
+   a sandstone logo receipt with a patina dot. Dark (dusk): slate-blue night, gas-lamp gold actions and charts, a dark
+   roof header, a gold receipt with a terracotta dot. Warnings lean amber (light) and orange-red (dark) so they stay apart
+   from the header and the gold. Built in OKLCH; every text pair 4.5:1, edges and chart bars 3:1, in both modes.
+   Active when <html data-scheme="praha">. The palette slots keep Warm paper's names ("blue" is the accent, "peach" the header). */
+@layer base {
+  :root[data-scheme="praha"] {
+    --paper: #f7efe5; --card: #fffdf9; --hover: #fcf7f1; --fill: #f5ebde; --rule: #ede5db; --line: #ded4c7; --field: #fcf6ef; --edge: #8c7d6d; --mid: #68574a; --ink: #2b1f16;
+    --on-ink: #fffdf9; --red: #b71532; --on-red: #fffdf9; --red-chip: #ffdedd; --green: #286f2f; --green-chip: #d6f0d6; --blue: #006d68; --on-blue: #fffbf6; --blue-deep: #005b57; --chart-1: #1d857e;
+    --chart-2: #b4dad6; --rust: #8a5600; --rust-chip: #f8e5c7; --orange: #f3e6d2; --logo: #f3e6d2; --on-logo: #1f2730; --logo-dot: #00736f; --peach: #8b381d; --on-peach: #fdf7f0; --on-peach-muted: #f2e2d0;
+    --color-header-active: #6a2816;
+    --color-footer: #1a222e; --color-footer-deep: #111922; --color-footer-fg: #f5eee0; --color-footer-muted: #c8bca9;
+  }
+  :root.dark[data-scheme="praha"] {
+    --paper: #091019; --card: #101822; --hover: #131b26; --fill: #161f2a; --rule: #19222e; --line: #252f3b; --field: #121a25; --edge: #6b7583; --mid: #bbafa0; --ink: #f4ead5;
+    --on-ink: #091019; --red: #e66e6d; --on-red: #091019; --red-chip: #421b1b; --green: #75bc78; --green-chip: #182f19; --blue: #e1b75c; --on-blue: #091019; --blue-deep: #d1a84b; --chart-1: #dbb155;
+    --chart-2: #57451e; --rust: #e88761; --rust-chip: #411e0f; --orange: #e4b750; --logo: #e4b750; --on-logo: #091019; --logo-dot: #9f4325; --peach: #461e12; --on-peach: #f5eee0; --on-peach-muted: #d2c1ac;
+    --color-header-active: #643324;
+    --color-footer: #04080e; --color-footer-deep: #020509; --color-footer-fg: #f4ead5; --color-footer-muted: #c2b6a2;
+  }
+}

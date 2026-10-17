@@ -4,7 +4,7 @@ import { today } from '@/domain/id'
 import { withVatMode } from '@/domain/invoice'
 import { CURRENCIES } from '@/domain/money'
 import { nextNumber } from '@/domain/numbering'
-import type { Settings } from '@/domain/schema'
+import { SCHEMES, type Settings } from '@/domain/schema'
 import { czechIban } from '@/domain/spayd'
 import { VAT_RATES } from '@/domain/vat'
 import { RatesPanel } from '@/features/rates/RatesPanel'
@@ -139,7 +139,7 @@ export function SettingsPage() {
           </SettingRow>
           <SettingRow title={t('settings.scheme')}>
             <Options aria-label={t('settings.scheme')} value={s.ui.scheme} onChange={(v) => update({ ui: { ...s.ui, scheme: v as Settings['ui']['scheme'] } })}
-              options={[['warm', t('settings.schemeWarm')], ['branicek', t('settings.schemeBranicek')]]} />
+              options={SCHEMES.map((id) => [id, t(`settings.schemes.${id}`)])} />
           </SettingRow>
           <FolderRow />
           <DemoToggle />

@@ -1,0 +1,21 @@
+/* Colour scheme "Koláč" (2026-10-17), from the brief in schemes/kolac: grandma's kolache, tvaroh, poppy seed and plum jam.
+   Light: tvaroh-cream paper, poppy blue-grey secondary text and edges, a plum-jam header and actions, a golden-crust logo
+   receipt with a poppy dot. Dark, "Pražený mák": dark poppy paper, cream text, lighter plum actions. Built in OKLCH;
+   every text pair 4.5:1, edges and chart bars 3:1, in both modes.
+   Active when <html data-scheme="kolac">. The palette slots keep Warm paper's names ("blue" is the accent, "peach" the header). */
+@layer base {
+  :root[data-scheme="kolac"] {
+    --paper: #f5f0e1; --card: #fffdf8; --hover: #fbf8ef; --fill: #f3edda; --rule: #ebe6d8; --line: #dcd5c3; --field: #fbf7ec; --edge: #7d7f8f; --mid: #565a6c; --ink: #1f202e;
+    --on-ink: #fffdf8; --red: #b71a18; --on-red: #fffdf8; --red-chip: #ffded9; --green: #286f2f; --green-chip: #d6f0d6; --blue: #7c316e; --on-blue: #fefcf4; --blue-deep: #67235b; --chart-1: #9b488b;
+    --chart-2: #e8cae0; --rust: #944e00; --rust-chip: #fde3c9; --orange: #e5b15b; --logo: #e5b15b; --on-logo: #501a47; --logo-dot: #242533; --peach: #5e2854; --on-peach: #f9f5ea; --on-peach-muted: #e9d3e1;
+    --color-header-active: #79416e;
+    --color-footer: #2d1529; --color-footer-deep: #220d1e; --color-footer-fg: #f2eee3; --color-footer-muted: #d2bdca;
+  }
+  :root.dark[data-scheme="kolac"] {
+    --paper: #0e0e17; --card: #161620; --hover: #191924; --fill: #1d1d28; --rule: #20202b; --line: #2c2c38; --field: #181822; --edge: #737383; --mid: #bab0a0; --ink: #f0ebdc;
+    --on-ink: #0e0e17; --red: #e66f62; --on-red: #0e0e17; --red-chip: #421c18; --green: #75bc78; --green-chip: #182f19; --blue: #d690c6; --on-blue: #0e0e17; --blue-deep: #c581b6; --chart-1: #d387c2;
+    --chart-2: #56364f; --rust: #df9555; --rust-chip: #3b220d; --orange: #e5b15b; --logo: #e5b15b; --on-logo: #0e0e17; --logo-dot: #40213a; --peach: #381a32; --on-peach: #f2eee3; --on-peach-muted: #d2bdca;
+    --color-header-active: #56314e;
+    --color-footer: #07070d; --color-footer-deep: #040408; --color-footer-fg: #f0ebdc; --color-footer-muted: #bfb7a6;
+  }
+}

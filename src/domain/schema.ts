@@ -5,6 +5,8 @@ export const SCHEMA_VERSION = 1
 const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Expected YYYY-MM-DD')
 const minor = z.number().int()
 const lang = z.enum(['cs', 'en'])
+/** Colour schemes, in the order Settings offers them; each but 'warm' has a file in src/schemes/. */
+export const SCHEMES = ['warm', 'branicek', 'modrotisk', 'praha', 'kolac'] as const
 
 export const Address = z.object({
   street: z.string().default(''),
@@ -48,7 +50,7 @@ export const Settings = z.object({
     language: lang.default('cs'),
     theme: z.enum(['system', 'light', 'dark']).default('system'),
     /** Colour scheme (docs/ui.md#colour-schemes); 'warm' is Warm paper, the default. Light and dark come from `theme`. */
-    scheme: z.enum(['warm', 'branicek']).default('warm'),
+    scheme: z.enum(SCHEMES).default('warm'),
   }).prefault({}),
 })
 export type Settings = z.infer<typeof Settings>

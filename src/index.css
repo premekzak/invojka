@@ -1,5 +1,8 @@
 @import "tailwindcss";
 @import "./schemes/branicek.css";
+@import "./schemes/modrotisk.css";
+@import "./schemes/praha.css";
+@import "./schemes/kolac.css";
 
 @custom-variant dark (&:where(.dark, .dark *));
 

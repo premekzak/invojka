@@ -136,7 +136,13 @@ How a scheme is made: the owner puts images and a brief (`zadani.md`) in `scheme
 | `warm` Teplý papír | the owner's choice "F4" | see the tokens above | |
 | `branicek` Braníček (the owner approved it 2026-10-17) | a Braník Světlý can | foam-cream paper, bottle-green header and actions, a gold logo receipt with a crest-red dot, dark green footer | "Černý": stout-brown paper, foam text, light green actions, dark green header |
 
-Braníček breaks the "large areas are muted" rule with its saturated green header, like Warm paper's orange header; and its success green sits near the accent green (shifted towards yellow). Braník is a trademark: a public release should give the scheme a neutral name.
+| `modrotisk` Modrotisk (2026-10-17) | Czech indigo blueprint fabric | linen-white paper tinted to indigo, an indigo header and actions, a white logo receipt with a sky-blue dot | "Indigová noc": deep indigo, pattern-white text, periwinkle actions |
+| `praha` Praha za soumraku (2026-10-17) | roofs, sandstone, copper domes, gas lamps | sandstone paper, a terracotta header with a darker pill, actions in green copper patina, amber warnings | dusk: slate-blue night, gas-lamp gold actions and charts, a dark roof header, orange-red warnings |
+| `kolac` Koláč (2026-10-17) | kolache: tvaroh, poppy seed, plum jam | tvaroh-cream paper, poppy blue-grey secondary text, a plum header and actions, a golden-crust receipt with a poppy dot | "Pražený mák": dark poppy, cream text, lighter plum actions |
+
+The list of schemes lives in `SCHEMES` (`src/domain/schema.ts`); `src/schemes/schemes.test.ts` checks that each one has its file, is imported, has a name in both languages and redefines every slot in light and dark. The palettes were generated and checked by a script against the design system's scheme requirements, including the header text on the pill and the footer.
+
+Every scheme but Warm paper has a saturated header, which breaks the "large areas are muted" rule like Warm paper's orange header does. Braníček breaks the "large areas are muted" rule with its saturated green header, like Warm paper's orange header; and its success green sits near the accent green (shifted towards yellow). Braník is a trademark: a public release should give the scheme a neutral name.
 
 ## Charts (`ui/BarChart.tsx`, `features/home/RevenueCharts.tsx`)
 

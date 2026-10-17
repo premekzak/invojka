@@ -7,7 +7,8 @@ export type Lang = 'cs' | 'en'
 
 const stored = (() => {
   try {
-    return localStorage.getItem('invoicer.lang') as Lang | null
+    // 'invoicer.lang' is the key from before the rename to Invojka.
+    return (localStorage.getItem('invojka.lang') ?? localStorage.getItem('invoicer.lang')) as Lang | null
   } catch {
     return null
   }
@@ -24,7 +25,7 @@ void i18n.use(initReactI18next).init({
 export function setUiLanguage(lang: Lang) {
   if (i18n.language !== lang) void i18n.changeLanguage(lang)
   try {
-    localStorage.setItem('invoicer.lang', lang)
+    localStorage.setItem('invojka.lang', lang)
   } catch {
     /* storage unavailable */
   }

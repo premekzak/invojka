@@ -1,4 +1,4 @@
-# Invoicer
+# Invojka
 
 Create and analyse invoices in your browser. Your data stays on your computer as plain JSON files in a folder you choose. There's no account, no cloud and no database.
 
@@ -10,8 +10,8 @@ Create and analyse invoices in your browser. Your data stays on your computer as
 
 ## Using it
 
-1. Open `invoicer.html` in **Chrome or Edge** (double-click it).
-2. Click **Choose data folder** and pick an empty folder, or one that already holds Invoicer data. A folder synced by Google Drive or OneDrive gives you a backup for free.
+1. Open `invojka.html` in **Chrome or Edge** (double-click it).
+2. Click **Choose data folder** and pick an empty folder, or one that already holds Invojka data. A folder synced by Google Drive or OneDrive gives you a backup for free.
 3. Fill in your details and VAT status, and optionally import CSV files.
 
 On the next launch, one click reconnects to the same folder.
@@ -26,7 +26,7 @@ The folder contains `settings.json`, `customers.json`, `invoices.json` and `pdf/
 npm install
 npm run dev      # development server
 npm test         # unit tests
-npm run build    # produces dist/invoicer.html
+npm run build    # produces dist/invojka.html
 ```
 
 Documentation: [docs/](docs/README.md).

@@ -1,4 +1,4 @@
-# Invoicer documentation
+# Invojka documentation
 
 This folder holds the project's lasting context: what the app is for, how it works, and why it was built this way. Keep it current when something changes. A decision that isn't written down here will be lost.
 

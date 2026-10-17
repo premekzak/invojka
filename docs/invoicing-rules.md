@@ -18,11 +18,12 @@ The rules live in `domain/vat.ts`:
 
 ## Numbering
 
-- `domain/numbering.ts` supports three placeholders in the pattern:
+- `domain/numbering.ts` supports four placeholders in the pattern:
   - `{YYYY}`: the year
   - `{YY}`: the year's last two digits
+  - `{MM}`: the month, two digits (added 2026-10-11 after a tester asked for it)
   - `{N…}`: a zero-padded sequence as wide as the number of N's
-- **The sequence restarts every year.** `nextNumber` takes the highest existing number that matches the pattern for that year, plus one. The owner's historical numbers (`20260008`) fit the default `{YYYY}{NNNN}`.
+- **The sequence restarts every year, or every month when the pattern contains `{MM}`.** `nextNumber(pattern, issueDate, existing)` takes the highest existing number that matches the pattern for that period, plus one. Numbers stay unique because the month is part of them. The owner's historical numbers (`20260008`) fit the default `{YYYY}{NNNN}`.
 - The payment reference (variable symbol) defaults to the number's digits, at most 10 of them in QR Platba.
 - The editor rejects a number that another invoice already has.
 

@@ -5,7 +5,7 @@
 | Command | What it does |
 |---|---|
 | `npm run dev` | Vite dev server. `index.html` is only the source template (blank if opened directly). |
-| `npm run build` | `tsc -b`, then the single-file build to `dist/invoicer.html`. This is the file users open. |
+| `npm run build` | `tsc -b`, then the single-file build to `dist/invojka.html`. This is the file users open. |
 | `npm test` | Vitest, run once |
 | `npx vitest run src/domain/vat.test.ts` | One test file. Add `-t "<name>"` for one test. |
 | `npm run typecheck` | `tsc -b` |
@@ -21,7 +21,7 @@ Toolchain: TypeScript 7, Vite 8, Vitest 5, React 19, Zod 4, Tailwind 4 (via `@ta
 
 ## Testing in a real browser
 
-- The folder dialog is native and can't be automated. In `npm run dev`, `main.tsx` exposes `window.__invoicer` (**dev only**; check that `grep -c __invoicer dist/invoicer.html` returns `0`):
+- The folder dialog is native and can't be automated. In `npm run dev`, `main.tsx` exposes `window.__invojka` (**dev only**; check that `grep -c __invojka dist/invojka.html` returns `0`):
   - `seedFromCsv(vatMode?)` loads the repo's CSVs into in-memory storage and opens the app ready to use.
   - `openMemory()` opens an empty in-memory folder (onboarding).
   - `useStore` is the store, e.g. `useStore.getState().adapter.files.get('invoices.json')`.
@@ -31,7 +31,7 @@ Toolchain: TypeScript 7, Vite 8, Vitest 5, React 19, Zod 4, Tailwind 4 (via `@ta
 ## Pitfalls met so far
 
 - **`file://` works:** Chrome treats `file://` as a secure context, and `showDirectoryPicker` plus IndexedDB work there (checked).
-- **Opening `index.html` directly shows a blank page.** It's only the template. That's why the build output is renamed to `invoicer.html`.
+- **Opening `index.html` directly shows a blank page.** It's only the template. That's why the build output is renamed to `invojka.html`.
 - **An interrupted first save** left a 0-byte `settings.json`. Now Finish waits for the save, and the loader treats empty files as missing.
 - **`position: fixed` inside the animated container** squeezed the PDF preview into a box. Use `createPortal`.
 - **Components defined inside other components** are recreated on every render, which reset the invoice form on each autosave. Keep components at module level.

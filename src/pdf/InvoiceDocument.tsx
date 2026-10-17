@@ -84,7 +84,7 @@ export function InvoiceDocument({ invoice: inv, settings, qr }: InvoicePdfProps)
   ].filter(Boolean) as string[]
 
   return (
-    <Document title={`${L.invoice} ${inv.number}`} author={sup.name} creator="Invoicer" producer="Invoicer" language={inv.language}>
+    <Document title={`${L.invoice} ${inv.number}`} author={sup.name} creator="Invojka" producer="Invojka" language={inv.language}>
       <Page size="A4" style={s.page}>
         <View style={s.header}>
           <View>

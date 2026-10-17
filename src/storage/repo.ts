@@ -34,7 +34,7 @@ async function readJson<S extends z.ZodType>(adapter: StorageAdapter, key: FileK
   }
   const version = (json as { schemaVersion?: unknown })?.schemaVersion
   if (typeof version === 'number' && version > SCHEMA_VERSION) {
-    throw new DataFileError(file, `was saved by a newer version of Invoicer (schema ${version}); please update the app`)
+    throw new DataFileError(file, `was saved by a newer version of Invojka (schema ${version}); please update the app`)
   }
   const parsed = schema.safeParse(json)
   if (!parsed.success) {

@@ -21,7 +21,7 @@ The data folder contains:
 - **Company IDs (IČ) and VAT IDs (DIČ) are strings**, because IČ can start with a zero (e.g. `01234567`). This is one reason YAML was rejected (see [decisions.md](decisions.md)).
 - **Totals are always computed** from the lines with `computeTotals`. `recordedTotal` exists only to check the CSV import.
 - **"Overdue" is never stored.** `displayStatus()` works it out from `status === 'issued'` and `dueDate < today`.
-- **`customerSnapshot`** is a copy of the customer's name, IČ, DIČ and address, taken when an invoice is created. Editing a customer updates the snapshot on **drafts only**; issued invoices keep what was printed.
+- **`customerSnapshot`** is a copy of the customer's name, IČ, DIČ and address, taken when an invoice is created. Editing a customer updates the snapshot on **drafts only**; issued invoices keep what was printed. When an issued, paid or cancelled invoice's snapshot differs from its customer (`snapshotDiffers`), the editor offers "Použít nové údaje" (Use the new details). The owner takes them on purpose, and saving rewrites the PDF in the folder.
 - **`schemaVersion`** is in every file, currently `1`.
   - A file with a higher version is refused with a message asking the user to update the app.
   - Migrations will run in `repo.ts` when a version changes.

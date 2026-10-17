@@ -4,14 +4,14 @@ import tailwindcss from '@tailwindcss/vite'
 import { viteSingleFile } from 'vite-plugin-singlefile'
 import { fileURLToPath } from 'node:url'
 
-// The source template is index.html; the distributable is a single dist/invoicer.html.
+// The source template is index.html; the distributable is a single dist/invojka.html.
 const renameOutput = (): Plugin => ({
   name: 'rename-output',
   enforce: 'post',
   generateBundle(_, bundle) {
     const html = bundle['index.html']
     if (html) {
-      html.fileName = 'invoicer.html'
+      html.fileName = 'invojka.html'
     }
   },
 })

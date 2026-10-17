@@ -28,7 +28,7 @@ if (import.meta.env.DEV) {
         await s.flush()
         s.setPhase({ kind: 'ready' })
       }
-      Object.assign(window, { __invoicer: { useStore, openMemory, seedFromCsv } })
+      Object.assign(window, { __invojka: { useStore, openMemory, seedFromCsv } })
     },
   )
 }

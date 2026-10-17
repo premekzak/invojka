@@ -27,12 +27,19 @@ export const isoPlusDays = (iso: string, days: number) => format(addDays(parseIS
 
 export const snapshotOf = (c: Customer): Invoice['customerSnapshot'] => ({ name: c.name, ic: c.ic, dic: c.dic, address: { ...c.address } })
 
+/** True when the customer's details differ from what the invoice printed (field by field, so key order doesn't matter). */
+export function snapshotDiffers(snap: Invoice['customerSnapshot'], c: Customer): boolean {
+  const now = snapshotOf(c)
+  return now.name !== snap.name || now.ic !== snap.ic || now.dic !== snap.dic ||
+    (['street', 'zip', 'city', 'country'] as const).some((k) => now.address[k] !== snap.address[k])
+}
+
 /**
  * A new draft. With a customer, it starts from that customer's latest invoice (same lines, currency and language),
  * since most invoices repeat the previous one.
  */
 export function newInvoice(settings: Settings, invoices: Invoice[], customer?: Customer, on = today()): Invoice {
-  const number = nextNumber(settings.numbering.pattern, Number(on.slice(0, 4)), invoices.map((i) => i.number))
+  const number = nextNumber(settings.numbering.pattern, on, invoices.map((i) => i.number))
   const last = customer && latestFor(invoices, customer.id)
   const vatRate = settings.vatMode === 'payer' ? settings.defaultVatRate : 0
   return {

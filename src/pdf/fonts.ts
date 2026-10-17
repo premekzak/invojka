@@ -4,11 +4,11 @@ import interRegular from '@expo-google-fonts/inter/400Regular/Inter_400Regular.t
 import interSemiBold from '@expo-google-fonts/inter/600SemiBold/Inter_600SemiBold.ttf?inline'
 // UI-only faces use small woff2 web subsets (latin + latin-ext covers Czech):
 // Inter 500 for labels and names (without it `font-medium` falls back to 400),
-// Newsreader 600 for all headlines (one serif weight keeps the file small).
+// Bricolage Grotesque 700 for all headlines (one display weight keeps the file small).
 import interMediumLatin from '@fontsource/inter/files/inter-latin-500-normal.woff2?inline'
 import interMediumLatinExt from '@fontsource/inter/files/inter-latin-ext-500-normal.woff2?inline'
-import serifLatin from '@fontsource/newsreader/files/newsreader-latin-600-normal.woff2?inline'
-import serifLatinExt from '@fontsource/newsreader/files/newsreader-latin-ext-600-normal.woff2?inline'
+import displayLatin from '@fontsource/bricolage-grotesque/files/bricolage-grotesque-latin-700-normal.woff2?inline'
+import displayLatinExt from '@fontsource/bricolage-grotesque/files/bricolage-grotesque-latin-ext-700-normal.woff2?inline'
 
 export const fonts = { regular: interRegular, semiBold: interSemiBold }
 
@@ -25,7 +25,7 @@ export function loadUiFonts() {
     new FontFace('Inter', `url(${fonts.regular})`, { weight: '400' }),
     new FontFace('Inter', `url(${fonts.semiBold})`, { weight: '600' }),
     ...subset('Inter', '500', interMediumLatin, interMediumLatinExt),
-    ...subset('Newsreader', '600', serifLatin, serifLatinExt),
+    ...subset('Bricolage Grotesque', '700', displayLatin, displayLatinExt),
   ]
   for (const face of faces) void face.load().then((f) => document.fonts.add(f)).catch(() => {})
 }

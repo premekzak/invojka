@@ -73,7 +73,7 @@ function CustomerForm({ initial, isNew }: { initial: Customer; isNew: boolean })
     <div className="space-y-6">
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="sm" onClick={() => history.back()}><ArrowLeft className="size-4" /></Button>
-        <h1 className="font-serif text-4xl leading-[1.2] font-semibold">{saved ? saved.name : t('customers.newTitle')}</h1>
+        <h1 className="font-display text-4xl leading-[1.2] font-bold tracking-[-0.03em]">{saved ? saved.name : t('customers.newTitle')}</h1>
         {c.archived && <span className="rounded bg-surface-3 px-2 py-0.5 text-xs text-fg-muted">{t('customers.archived')}</span>}
         <div className="ml-auto flex gap-2">
           {saved && mine.length === 0 && (
@@ -99,7 +99,7 @@ function CustomerForm({ initial, isNew }: { initial: Customer; isNew: boolean })
       <div className="grid grid-cols-3 gap-6">
         <div className="col-span-2 space-y-10">
           <section>
-            <h2 className="mb-3 font-serif text-2xl font-semibold">{t('customers.details')}</h2>
+            <h2 className="mb-3 font-display text-2xl font-bold tracking-[-0.015em]">{t('customers.details')}</h2>
             <Card className="p-5">
               <div className="grid grid-cols-6 gap-4">
                 <Field className="col-span-6" id="customer-name" label={t('fields.name')} required error={showErrors ? nameError : undefined}
@@ -120,7 +120,7 @@ function CustomerForm({ initial, isNew }: { initial: Customer; isNew: boolean })
             </Card>
           </section>
           <section>
-            <h2 className="mb-3 font-serif text-2xl font-semibold">{t('customers.invoiceDefaults')}</h2>
+            <h2 className="mb-3 font-display text-2xl font-bold tracking-[-0.015em]">{t('customers.invoiceDefaults')}</h2>
             <Card className="p-5">
               <div className="grid grid-cols-6 items-end gap-4">
                 <div className="col-span-2">
@@ -147,7 +147,7 @@ function CustomerForm({ initial, isNew }: { initial: Customer; isNew: boolean })
         </div>
 
         <section>
-          <h2 className="mb-3 font-serif text-2xl font-semibold">{t('invoices.title')}</h2>
+          <h2 className="mb-3 font-display text-2xl font-bold tracking-[-0.015em]">{t('invoices.title')}</h2>
           <div className="space-y-5">
             <Card className="grid grid-cols-2 gap-4 p-5">
               <div>
@@ -160,9 +160,9 @@ function CustomerForm({ initial, isNew }: { initial: Customer; isNew: boolean })
               </div>
             </Card>
             {mine.length > 0 && (
-              <Card className="divide-y divide-line">
+              <Card className="divide-y divide-rule">
                 {mine.slice(0, 12).map((inv) => (
-                  <a key={inv.id} href={`#/invoices/${inv.id}`} className="flex items-center gap-3 px-5 py-3 text-sm transition-colors hover:bg-surface-2">
+                  <a key={inv.id} href={`#/invoices/${inv.id}`} className="flex items-center gap-3 px-5 py-3 text-sm transition-colors hover:bg-row-hover">
                     <span className="tabular-nums text-xs text-fg-muted">{inv.number}</span>
                     <span className="flex-1 text-right tabular-nums">{f.money(invoiceTotals(inv).total, inv.currency)}</span>
                     <StatusBadge status={displayStatus(inv, today())} />

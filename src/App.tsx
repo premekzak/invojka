@@ -60,7 +60,7 @@ export function App() {
       return (
         <div className="grid min-h-screen place-items-center p-6">
           <Card className="max-w-lg p-8">
-            <h1 className="font-serif text-2xl font-semibold text-danger">{t('error.title')}</h1>
+            <h1 className="font-display text-2xl font-bold tracking-[-0.015em] text-danger">{t('error.title')}</h1>
             <p className="mt-2 font-mono text-sm break-words text-fg-muted">{phase.message}</p>
             <div className="mt-6 flex gap-2">
               <Button onClick={() => void reload()}>{t('error.retry')}</Button>

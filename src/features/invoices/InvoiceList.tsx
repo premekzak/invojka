@@ -1,4 +1,4 @@
-import { Check, Search } from 'lucide-react'
+import { Check, Plus, Search } from 'lucide-react'
 import { useDeferredValue, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { today } from '@/domain/id'
@@ -54,9 +54,13 @@ export function InvoiceList({ route }: { route: Route }) {
 
   return (
     <div className="space-y-5">
-      <div className="flex items-end justify-between">
-        <h1 className="font-serif text-4xl leading-[1.2] font-semibold">{t('invoices.title')}</h1>
-        <span className="text-sm text-fg-muted">{t('invoices.count', { count: rows.length, total: sumByCurrency || '0' })}</span>
+      {/* The action for the whole list sits at the right end of the title row (design system: Layout). */}
+      <div className="flex items-end justify-between gap-6">
+        <div className="space-y-1">
+          <h1 className="font-display text-4xl leading-[1.2] font-bold tracking-[-0.03em]">{t('invoices.title')}</h1>
+          <p className="text-sm text-fg-muted">{t('invoices.count', { count: rows.length, total: sumByCurrency || '0' })}</p>
+        </div>
+        <Button onClick={() => navigate('/invoices/new')}><Plus className="size-4" /> {t('nav.newInvoice')}</Button>
       </div>
 
       <div className="flex gap-3">
@@ -82,37 +86,40 @@ export function InvoiceList({ route }: { route: Route }) {
 
       <Card className="overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="border-b border-line bg-surface-2 text-left text-xs text-fg-muted">
+          <thead className="border-b border-rule text-left text-xs text-fg-muted">
             <tr>
               <th className="px-4 py-2.5 font-medium">{t('invoices.number')}</th>
               <th className="px-4 py-2.5 font-medium">{t('invoices.customer')}</th>
-              <th className="px-4 py-2.5 font-medium">{t('invoices.issued')}</th>
-              <th className="px-4 py-2.5 font-medium">{t('invoices.due')}</th>
+              <th className="px-4 py-2.5 text-right font-medium">{t('invoices.issued')}</th>
+              <th className="px-4 py-2.5 text-right font-medium">{t('invoices.due')}</th>
               <th className="px-4 py-2.5 text-right font-medium">{t('invoices.total')}</th>
-              <th className="px-4 py-2.5 font-medium">{t('invoices.status')}</th>
+              <th className="px-4 py-2.5 text-right font-medium">{t('invoices.status')}</th>
               <th />
             </tr>
           </thead>
-          <tbody className="divide-y divide-line">
+          <tbody className="divide-y divide-rule">
             {rows.slice(0, 300).map(({ inv, status: s, totals }) => (
-              <tr key={inv.id} onClick={() => navigate(`/invoices/${inv.id}`)} className="group cursor-pointer transition-colors hover:bg-surface-2">
+              <tr key={inv.id} onClick={() => navigate(`/invoices/${inv.id}`)} className="group cursor-pointer transition-colors hover:bg-row-hover">
                 <td className="px-4 py-3 tabular-nums text-fg-muted">{inv.number}</td>
                 <td className="max-w-xs px-4 py-3">
                   <div className="truncate font-medium">{inv.customerSnapshot.name}</div>
                   <div className="truncate text-xs text-fg-subtle">{inv.lines[0]?.description}</div>
                 </td>
-                <td className="px-4 py-3 whitespace-nowrap text-fg-muted">{f.date(inv.issueDate)}</td>
-                <td className={cn('px-4 py-3 whitespace-nowrap', s === 'overdue' ? 'font-medium text-warning' : 'text-fg-muted')}
+                {/* Dates and amounts are right-aligned with tabular digits, so days, years and thousands line up. */}
+                <td className="px-4 py-3 text-right whitespace-nowrap tabular-nums text-fg-muted">{f.date(inv.issueDate)}</td>
+                <td className={cn('px-4 py-3 text-right whitespace-nowrap tabular-nums', s === 'overdue' ? 'font-medium text-warning' : 'text-fg-muted')}
                   title={s === 'overdue' ? t('invoices.daysOverdue', { count: daysOverdue(inv, on) }) : undefined}>
                   {f.date(inv.dueDate)}
                 </td>
                 <td className="px-4 py-3 text-right font-medium whitespace-nowrap tabular-nums">{f.money(totals.total, inv.currency)}</td>
-                <td className="px-4 py-3"><StatusBadge status={s} /></td>
-                <td className="w-32 px-4 py-2 text-right">
+                <td className="px-4 py-3 text-right"><StatusBadge status={s} /></td>
+                <td className="w-12 py-2 pr-4 text-right">
+                  {/* Icon-only, so the table keeps its width; the verb is in the tooltip and the accessible name. */}
                   {(s === 'issued' || s === 'overdue') && (
-                    <Button size="sm" variant="secondary" className="opacity-0 group-hover:opacity-100"
+                    <Button size="sm" variant="secondary" className="w-8 px-0 opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
+                      title={t('invoices.markPaid')} aria-label={t('invoices.markPaid')}
                       onClick={(e) => { e.stopPropagation(); markPaid(inv.id) }}>
-                      <Check className="size-3.5" /> {t('invoices.markPaid')}
+                      <Check className="size-4" />
                     </Button>
                   )}
                 </td>

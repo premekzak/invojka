@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { displayStatus, newInvoice } from './invoice'
+import { displayStatus, newInvoice, snapshotDiffers } from './invoice'
 import { SCHEMA_VERSION, Settings, type Customer, type Invoice } from './schema'
 
 const settings = Settings.parse({ schemaVersion: SCHEMA_VERSION, supplier: { name: 'Me' }, vatMode: 'nonPayer' })
@@ -24,6 +24,13 @@ describe('newInvoice', () => {
     expect(inv).toMatchObject({ number: '20260009', currency: 'NZD', language: 'en', customerId: 'c1' })
     expect(inv.lines[0].description).toBe('PPC management')
   })
+})
+
+it('notices when the customer changed after the invoice was made', () => {
+  expect(snapshotDiffers(previous.customerSnapshot, customer)).toBe(false)
+  expect(snapshotDiffers(previous.customerSnapshot, { ...customer, note: 'only a note' })).toBe(false)
+  expect(snapshotDiffers(previous.customerSnapshot, { ...customer, address: { ...customer.address, city: 'Brno' } })).toBe(true)
+  expect(snapshotDiffers(previous.customerSnapshot, { ...customer, dic: 'CZ12345678' })).toBe(true)
 })
 
 it('derives overdue', () => {

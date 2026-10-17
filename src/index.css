@@ -4,8 +4,9 @@
 
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, "Segoe UI", sans-serif;
-  /* Headlines only. Newsreader is embedded like Inter (see loadUiFonts). */
-  --font-serif: "Newsreader", ui-serif, Georgia, "Times New Roman", serif;
+  /* Headlines only: Bricolage Grotesque 700 with tight tracking (the owner's choice "G2", 2026-10-17; it replaced the
+     Newsreader serif). Embedded like Inter (see loadUiFonts). */
+  --font-display: "Bricolage Grotesque", ui-sans-serif, system-ui, "Segoe UI", sans-serif;
 
   /* Corners stay small everywhere: the whole scale is capped at 6px. */
   --radius-xs: 1px;
@@ -16,59 +17,90 @@
   --radius-xl: 5px;
   --radius-2xl: 6px;
 
-  /* Ledger theme, mild grey version (the owner's choice, 2026-10-01): a very light grey page, white cards, near-neutral greys,
-     blue for actions, black (ink) for identity, red for warnings and errors, green for success.
-     The palette is defined below (--paper … --green), light and dark. Code uses only these role names. */
+  /* Warm paper theme (the owner's choice "F4", 2026-10-17; it replaced the grayscale Ledger): a faintly cream page, white cards,
+     warm greys, espresso text, a peach header, blue (#099bc1 family) for actions and charts, and the darker orange #fa8d4e used
+     sparingly (the logo letter). Crimson for warnings and errors, green for success.
+     The palette is defined below (--paper … --peach), light and dark. Code uses only these role names. */
   --color-bg: var(--paper);
-  --color-sidebar: var(--paper);
+  /* The header band (it replaced the sidebar on 2026-10-17). Text on it: espresso and a brown muted step (6.2:1) in light,
+     cream in dark. Status colours don't reach 4.5:1 on peach, so the header shows them as header text with an icon, or as a
+     solid chip for errors. */
+  --color-header: var(--peach);
+  --color-header-fg: var(--on-peach);
+  --color-header-muted: var(--on-peach-muted);
   --color-surface: var(--card);
   --color-surface-2: var(--fill);
-  --color-sidebar-active: var(--fill);
+  /* The current page's pill: the page colour on the peach band. Hover is half of it. */
+  --color-header-active: var(--paper);
   --color-surface-3: var(--line);
+  /* Hover on list and table rows: just off card (made subtler 2026-10-11), so a hovered row doesn't look like the table header. */
+  --color-row-hover: var(--hover);
   --color-line: var(--line);
+  /* Row dividers in tables and lists: lighter than line, so a long list reads as rows, not a grid (the owner asked 2026-10-11). */
+  --color-rule: var(--rule);
   /* Mid grey: secondary text and captions (4.5:1 on paper, card, fill and line), input borders, icons. */
   --color-line-strong: var(--mid);
-  /* The bottom edge of fields ("ledger line", the owner's choice 2026-10-11): 3:1 on card and paper. */
+  /* Fields ("ledger line", the owner's choice 2026-10-11): a visible side line (about 2:1) and a stronger bottom edge
+     (4:1 or more on card and paper). Raised the same day: the first sides, in the card-border grey (1.5:1), disappeared. */
   --color-input: var(--edge);
+  --color-input-side: var(--edge-side);
   --color-fg-faint: var(--mid);
   --color-fg-subtle: var(--mid);
   --color-fg-muted: var(--mid);
   --color-fg: var(--ink);
-  /* One accent again: blue = everything you can click; ink = identity, never clickable (titles, logo,
-     next-step icons). Navy was tried as a second interface colour (#0f2a5f, dark #7489b4) and replaced. */
+  /* The one accent is blue: everything clickable or selected, and focus. */
   --color-accent: var(--blue);
   --color-accent-fg: var(--on-blue);
-  --color-brand: var(--ink);
+  /* The one gradient: primary buttons run from accent to this deeper blue (the owner's choice, 2026-10-17; gradients stay rare). */
+  --color-accent-deep: var(--blue-deep);
+  /* Identity: the logo square (espresso with an orange letter in light, orange with a dark letter in dark) and the "Co dál" icons. */
+  --color-brand: var(--logo);
+  --color-brand-fg: var(--on-logo);
   --color-title: var(--ink);
-  /* Red covers warnings (common: pale chips with red text) and errors (rare: solid red, white text). */
+  /* Crimson covers errors (common: pale chips with red text) and errors (rare: solid red, white text). */
   --color-danger: var(--red);
   --color-danger-fg: var(--on-red);
-  --color-warning: var(--red);
-  --color-warning-chip: var(--red-chip);
-  --color-warning-chip-fg: var(--red);
-  /* Green only for short confirmations: saved, rates filled, file loaded. "Paid" stays grey. */
+  /* Warnings (overdue, missing rates) are rust, not red (the owner's choice, 2026-10-17: red felt aggressive). Rust is much darker
+     than the identity orange, so it never reads as decoration. Real errors and delete stay crimson: they are rare. */
+  --color-warning: var(--rust);
+  --color-warning-chip: var(--rust-chip);
+  --color-warning-chip-fg: var(--rust);
+  /* Green only for short confirmations (saved, rates filled, file loaded) and the Paid status. */
   --color-success: var(--green);
   /* Behind modals: ink (light) or the paper tone (dark), at 50%. */
   --color-scrim: var(--ink);
-  /* Chart series: this year blue, last year pale blue (lightness, not hue, separates them, so it is
-     colourblind-safe; the pale bars sit at ~1.6:1 and the Table view has exact values). */
-  --color-series-1: var(--blue);
-  --color-series-2: var(--blue-pale);
+  /* Chart series: this year the owner's blue #099bc1 (3.1:1 on paper), last year a pale blue (lightness separates them, so it is
+     colourblind-safe; the pale bars are deliberately faint and the Table view has exact values). */
+  --color-series-1: var(--chart-1);
+  --color-series-2: var(--chart-2);
 }
 
 @layer base {
-  /* Ledger palette, mild grey. Greys are near-neutral with a faint cool tint (OKLCH h 255, C <= 0.006). Every text colour reaches 4.5:1
-     on paper, card and fill in both modes. */
+  /* Warm paper palette, built in OKLCH. Neutrals lean towards orange (h 55-62, C <= 0.025); the faint cream page is the owner's
+     choice over plain white. Every text colour reaches 4.5:1 on paper, card and fill in both modes; field bottoms 4.5:1 or more. */
   :root {
-    --paper: #f6f7f8; --card: #ffffff; --fill: #ecedef; --line: #d4d6d8; --edge: #86898d; --mid: #595b5e; --ink: #181a1c;
-    --blue: #0000ff; --on-blue: #ffffff; --blue-pale: #b3b8ff;
-    --red: #be2323; --on-red: #ffffff; --red-chip: #ffd5d1; --green: #1e7729;
+    --paper: #fffaf6; --card: #ffffff; --hover: #faf6f3; --fill: #f8eee7; --rule: #eee6e0; --line: #e3d6ce; --edge-side: #b5a89f; --edge: #807167; --mid: #695a50; --ink: #342117;
+    --on-ink: #ffffff;
+    --red: #b7162d; --on-red: #ffffff; --red-chip: #fedfde; --green: #1e7729;
+    /* From the owner's #099bc1, darkened for text and for fills with white text: 5.4:1 on card, 4.6:1 on fill. Charts use #099bc1 itself. */
+    --blue: #077491; --on-blue: #ffffff; --blue-deep: #055f78;
+    --chart-1: #099bc1; --chart-2: #aed9e9;
+    /* Rust for warnings: 6.1:1 on paper, 5.6:1 on fill, 5.3:1 on its chip. */
+    --rust: #9e4501; --rust-chip: #ffe6d6;
+    /* The owner's orange, for small marks only: it reaches 2.3:1 on white, so it is never text on a light surface. */
+    --orange: #fa8d4e; --logo: #342117; --on-logo: #fa8d4e;
+    --peach: #fdb081; --on-peach: #342117; --on-peach-muted: #4e372a;
   }
-  /* Dark: a near-neutral dark grey page, lighter cards, softer accents so they don't vibrate. */
+  /* Dark: a warm near-black page, lighter cards, an espresso header, and lighter, softer accents so they don't vibrate. */
   .dark {
-    --paper: #101112; --card: #161719; --fill: #1f2122; --line: #343538; --edge: #6b6e72; --mid: #a2a5a8; --ink: #eaebed;
-    --blue: #9a9aff; --on-blue: #101112; --blue-pale: #44449e;
-    --red: #d16c5d; --on-red: #101112; --red-chip: #3b1514; --green: #4e9a5b;
+    --paper: #110d0b; --card: #181411; --hover: #1c1714; --fill: #221d19; --rule: #27221e; --line: #332c28; --edge-side: #544b45; --edge: #84776f; --mid: #b5a89f; --ink: #f2e9e4;
+    --on-ink: #110d0b;
+    --red: #df676f; --on-red: #110d0b; --red-chip: #3f191b; --green: #66ac69;
+    --blue: #47b3d7; --on-blue: #110d0b; --blue-deep: #1b94b7;
+    --rust: #e48b53; --rust-chip: #3a1e0e;
+    --chart-1: #47b3d7; --chart-2: #225465;
+    --orange: #fa8d4e; --logo: #fa8d4e; --on-logo: #110d0b;
+    --peach: #342117; --on-peach: #f6e8df; --on-peach-muted: #d7bfaf;
     /* Native controls (date pickers, select arrows, scrollbars) follow the theme. */
     color-scheme: dark;
     --color-scrim: var(--paper);
@@ -85,13 +117,13 @@
 }
 
 /* Form controls (design system: Forms). One box for text fields, selects, text areas, affix groups and the
-   customer picker: a pale line on the top and sides, the 3:1 input edge at the bottom, a 2 px accent edge on focus.
+   customer picker: a lighter line on the top and sides, the stronger input edge at the bottom, a 2 px accent edge on focus.
    Rule order matters: error beats hover, focus beats error, disabled beats everything. */
 @layer components {
   .control {
     background: var(--color-surface);
     color: var(--color-fg);
-    border: 1px solid var(--color-line);
+    border: 1px solid var(--color-input-side);
     border-bottom-color: var(--color-input);
     border-radius: var(--radius-lg);
     transition: border-color 0.15s, box-shadow 0.15s;

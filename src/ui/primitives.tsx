@@ -14,7 +14,7 @@ const button = cva(
   {
     variants: {
       variant: {
-        primary: 'bg-accent text-accent-fg hover:bg-accent/90',
+        primary: 'bg-linear-to-b from-accent to-accent-deep text-accent-fg hover:from-accent/90 hover:to-accent-deep/90',
         secondary: 'bg-surface-2 text-fg hover:bg-surface-3 border border-line',
         ghost: 'text-fg-muted hover:bg-surface-2 hover:text-fg',
         danger: 'bg-danger text-danger-fg hover:bg-danger/90',

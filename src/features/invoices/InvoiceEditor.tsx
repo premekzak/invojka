@@ -1,8 +1,8 @@
-import { ArrowLeft, Ban, Check, CloudDownload, FileDown, Loader2, Plus, RotateCcw, Send, Trash2, X } from 'lucide-react'
+import { ArrowLeft, Ban, Check, CloudDownload, FileDown, Loader2, Plus, RefreshCw, RotateCcw, Send, Trash2, X } from 'lucide-react'
 import { useEffect, useMemo, useState, type InputHTMLAttributes } from 'react'
 import { useTranslation } from 'react-i18next'
 import { today } from '@/domain/id'
-import { displayStatus, invoiceTotals, isoPlusDays, newInvoice, snapshotOf } from '@/domain/invoice'
+import { displayStatus, invoiceTotals, isoPlusDays, newInvoice, snapshotDiffers, snapshotOf } from '@/domain/invoice'
 import { CURRENCIES, toMajor, toMinor } from '@/domain/money'
 import type { Customer, Invoice, InvoiceLine } from '@/domain/schema'
 import { chargesVat, lineBase, VAT_RATES } from '@/domain/vat'
@@ -140,6 +140,19 @@ function Editor({ initial, isNew }: { initial: Invoice; isNew: boolean }) {
     return inv
   }
 
+  /** Saving an issued, paid or cancelled invoice rewrites its PDF in the folder, so the file matches what is shown. */
+  function saveChanges() {
+    const inv = save()
+    if (inv.status === 'draft') return
+    setPdfError(undefined)
+    savePdfToFolder(inv).catch((e: Error) => setPdfError(e.message))
+  }
+
+  // Issued invoices keep the customer details they were printed with. When the customer was edited since,
+  // the owner can take the new details on purpose (then save and send the new PDF).
+  const currentCustomer = customers.find((c) => c.id === draft.customerId)
+  const customerChanged = draft.status !== 'draft' && !!currentCustomer && snapshotDiffers(draft.customerSnapshot, currentCustomer)
+
   /** Issuing also stores the PDF in the data folder, so every issued invoice has its document on disk. */
   async function issue() {
     // A foreign-currency invoice gets its rate when issued, so analytics can count it (best effort, offline is fine).
@@ -154,7 +167,7 @@ function Editor({ initial, isNew }: { initial: Invoice; isNew: boolean }) {
     <div className="space-y-6">
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="sm" onClick={() => history.back()}><ArrowLeft className="size-4" /></Button>
-        <h1 className="font-serif text-4xl leading-[1.2] font-semibold">
+        <h1 className="font-display text-4xl leading-[1.2] font-bold tracking-[-0.03em]">
           {!saved ? t('editor.newTitle') : t('editor.title', { number: draft.number })}
         </h1>
         {saved && <StatusBadge status={status} />}
@@ -193,7 +206,7 @@ function Editor({ initial, isNew }: { initial: Invoice; isNew: boolean }) {
               <Button onClick={guarded(() => void issue())}><Send className="size-4" /> {t('editor.issue')}</Button>
             </>
           ) : (
-            <Button disabled={!dirty} onClick={guarded(() => save())}>{t('common.save')}</Button>
+            <Button disabled={!dirty} onClick={guarded(saveChanges)}>{t('common.save')}</Button>
           )}
         </div>
       </div>
@@ -222,6 +235,17 @@ function Editor({ initial, isNew }: { initial: Invoice; isNew: boolean }) {
                 }}>{t('customers.edit')}</a>
               )}
             </p>
+          )}
+          {customerChanged && (
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-surface-2 p-4 text-sm">
+              <div className="min-w-0 max-w-prose flex-1">
+                <p className="font-medium">{t('editor.customerChanged')}</p>
+                <p className="text-xs text-fg-muted">{t('editor.customerChangedHint')}</p>
+              </div>
+              <Button size="sm" variant="secondary" onClick={() => set({ customerSnapshot: snapshotOf(currentCustomer!) })}>
+                <RefreshCw className="size-4" /> {t('editor.useNewDetails')}
+              </Button>
+            </div>
           )}
 
           <div>

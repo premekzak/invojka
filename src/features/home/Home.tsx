@@ -13,10 +13,8 @@ import { RevenueCharts } from './RevenueCharts'
 function Step({ icon, title, hint, onClick, tone = 'default' }: { icon: ReactNode; title: string; hint: string; onClick: () => void; tone?: 'default' | 'warning' }) {
   return (
     <button onClick={onClick} className="group flex w-full items-start gap-4 rounded-2xl border border-line bg-surface p-5 text-left transition-colors hover:border-line-strong">
-      <div className={cn(
-        'grid size-10 shrink-0 place-items-center rounded-xl',
-        tone === 'warning' ? 'bg-warning-chip text-warning-chip-fg' : 'bg-surface-2 text-brand',
-      )}>{icon}</div>
+      {/* The icon sits on the card with no tile behind it (the owner's request, 2026-10-17). */}
+      <div className={cn('shrink-0', tone === 'warning' ? 'text-warning' : 'text-title')}>{icon}</div>
       <div className="min-w-0 flex-1">
         <div className="font-medium">{title}</div>
         <div className="mt-0.5 text-sm text-fg-muted">{hint}</div>
@@ -93,7 +91,7 @@ export function Home() {
   return (
     <div className="space-y-10">
       <header className="space-y-3">
-        <h1 className="font-serif text-4xl leading-[1.2] font-semibold">{greeting}</h1>
+        <h1 className="font-display text-4xl leading-[1.2] font-bold tracking-[-0.03em]">{greeting}</h1>
         <Summary revenue={stats.revenue} revenueLast={stats.revenueLast} count={stats.countThisYear}
           outstanding={stats.outstanding} overdueSum={stats.overdueSum} overdueCount={stats.overdueCount} />
       </header>
@@ -101,7 +99,7 @@ export function Home() {
       <RevenueCharts today={on} />
 
       <section>
-        <h2 className="mb-3 font-serif text-2xl font-semibold">{t('home.nextSteps')}</h2>
+        <h2 className="mb-3 font-display text-2xl font-bold tracking-[-0.015em]">{t('home.nextSteps')}</h2>
         <div className="grid grid-cols-2 gap-5">
           <Step icon={<FilePlus2 className="size-5" />} title={t('home.createInvoice')} hint={t('home.createInvoiceHint')} onClick={() => navigate('/invoices/new')} />
           {stats.overdueCount > 0 && (
@@ -118,12 +116,12 @@ export function Home() {
       {recent.length > 0 && (
         <section>
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="font-serif text-2xl font-semibold">{t('home.recent')}</h2>
+            <h2 className="font-display text-2xl font-bold tracking-[-0.015em]">{t('home.recent')}</h2>
             <a href="#/invoices" className="text-sm text-accent underline underline-offset-2 decoration-line-strong hover:decoration-current">{t('home.all')}</a>
           </div>
-          <Card className="divide-y divide-line">
+          <Card className="divide-y divide-rule">
             {recent.map((inv) => (
-              <a key={inv.id} href={`#/invoices/${inv.id}`} className="flex items-center gap-4 px-5 py-3 text-sm transition-colors hover:bg-surface-2">
+              <a key={inv.id} href={`#/invoices/${inv.id}`} className="flex items-center gap-4 px-5 py-3 text-sm transition-colors hover:bg-row-hover">
                 <span className="w-24 tabular-nums text-fg-muted">{inv.number}</span>
                 <span className="flex-1 truncate font-medium">{inv.customerSnapshot.name}</span>
                 <span className="w-28 text-fg-muted">{f.date(inv.issueDate)}</span>

@@ -14,7 +14,7 @@ import { Button, Card, Choice, Field, InputAffix, Labeled, Select, SettingRow } 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section>
-      <h2 className="mb-3 font-serif text-2xl font-semibold">{title}</h2>
+      <h2 className="mb-3 font-display text-2xl font-bold tracking-[-0.015em]">{title}</h2>
       <Card className="p-5">{children}</Card>
     </section>
   )
@@ -49,14 +49,14 @@ export function SettingsPage() {
 
   let next = ''
   try {
-    next = nextNumber(s.numbering.pattern, Number(today().slice(0, 4)), invoices.map((i) => i.number))
+    next = nextNumber(s.numbering.pattern, today(), invoices.map((i) => i.number))
   } catch {
     next = '?'
   }
 
   return (
     <div className="space-y-10">
-      <h1 className="font-serif text-4xl leading-[1.2] font-semibold">{t('settings.title')}</h1>
+      <h1 className="font-display text-4xl leading-[1.2] font-bold tracking-[-0.03em]">{t('settings.title')}</h1>
 
       <Section title={t('settings.supplier')}>
         <div className="grid grid-cols-6 gap-4">
@@ -71,7 +71,7 @@ export function SettingsPage() {
           <Field className="col-span-2" label={t('fields.email')} value={s.supplier.email} onChange={(e) => sup({ email: e.target.value })} />
           <Field className="col-span-2" label={t('fields.phone')} value={s.supplier.phone} onChange={(e) => sup({ phone: e.target.value })} />
           <Field className="col-span-2" label={t('fields.web')} value={s.supplier.web} onChange={(e) => sup({ web: e.target.value })} />
-          <Field className="col-span-6" label={t('fields.registration')} value={s.supplier.registration} onChange={(e) => sup({ registration: e.target.value })} />
+          <Field className="col-span-6" label={t('fields.registration')} hint={t('fields.registrationHint')} value={s.supplier.registration} onChange={(e) => sup({ registration: e.target.value })} />
         </div>
       </Section>
 
@@ -119,7 +119,7 @@ export function SettingsPage() {
 
       {/* Single-value settings are rows: text on the left, the control on the right (design system: SettingRow). */}
       <section>
-        <h2 className="mb-3 font-serif text-2xl font-semibold">{t('settings.app')}</h2>
+        <h2 className="mb-3 font-display text-2xl font-bold tracking-[-0.015em]">{t('settings.app')}</h2>
         <Card className="divide-y divide-line">
           <SettingRow title={t('settings.uiLanguage')}>
             <Options aria-label={t('settings.uiLanguage')} value={s.ui.language} onChange={(v) => update({ ui: { ...s.ui, language: v as 'cs' | 'en' } })}

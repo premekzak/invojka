@@ -34,7 +34,7 @@ export function CustomerList() {
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
-        <h1 className="font-serif text-4xl leading-[1.2] font-semibold">{t('customers.title')}</h1>
+        <h1 className="font-display text-4xl leading-[1.2] font-bold tracking-[-0.03em]">{t('customers.title')}</h1>
         <div className="flex items-center gap-4">
           <Checkbox label={t('customers.showArchived')} checked={showArchived} onChange={(e) => setShowArchived(e.target.checked)} />
           <Button onClick={() => navigate('/customers/new')}><Plus className="size-4" /> {t('customers.newCustomer')}</Button>
@@ -46,7 +46,7 @@ export function CustomerList() {
       </div>
       <Card className="overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="border-b border-line bg-surface-2 text-left text-xs text-fg-muted">
+          <thead className="border-b border-rule text-left text-xs text-fg-muted">
             <tr>
               <th className="px-4 py-2.5 font-medium">{t('fields.name')}</th>
               <th className="px-4 py-2.5 font-medium">{t('fields.ic')}</th>
@@ -57,9 +57,9 @@ export function CustomerList() {
               <th />
             </tr>
           </thead>
-          <tbody className="divide-y divide-line">
+          <tbody className="divide-y divide-rule">
             {rows.map(({ c, s }) => (
-              <tr key={c.id} onClick={() => navigate(`/customers/${c.id}`)} className="group cursor-pointer transition-colors hover:bg-surface-2">
+              <tr key={c.id} onClick={() => navigate(`/customers/${c.id}`)} className="group cursor-pointer transition-colors hover:bg-row-hover">
                 <td className="px-4 py-3">
                   <div className="font-medium">{c.name} {c.archived && <span className="ml-1 text-xs font-normal text-fg-subtle">({t('customers.archived')})</span>}</div>
                   <div className="text-xs text-fg-subtle">{c.email}</div>

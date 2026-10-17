@@ -160,9 +160,9 @@ function CustomerForm({ initial, isNew }: { initial: Customer; isNew: boolean })
               </div>
             </Card>
             {mine.length > 0 && (
-              <Card className="divide-y divide-rule">
+              <Card className="overflow-hidden [&>a:nth-child(even)]:bg-row-hover">
                 {mine.slice(0, 12).map((inv) => (
-                  <a key={inv.id} href={`#/invoices/${inv.id}`} className="flex items-center gap-3 px-5 py-3 text-sm transition-colors hover:bg-row-hover">
+                  <a key={inv.id} href={`#/invoices/${inv.id}`} className="flex items-center gap-3 px-5 py-3 text-sm transition-colors hover:bg-surface-2!">
                     <span className="tabular-nums text-xs text-fg-muted">{inv.number}</span>
                     <span className="flex-1 text-right tabular-nums">{f.money(invoiceTotals(inv).total, inv.currency)}</span>
                     <StatusBadge status={displayStatus(inv, today())} />

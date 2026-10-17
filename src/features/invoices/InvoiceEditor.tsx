@@ -288,7 +288,7 @@ function Editor({ initial, isNew }: { initial: Invoice; isNew: boolean }) {
             </Button>
           </div>
 
-          <div className="flex justify-end border-t border-line pt-4">
+          <div className="flex justify-end pt-4">
             <dl className="w-72 space-y-1.5 text-sm">
               {vatOn && totals.byRate.map((r) => (
                 <div key={r.rate} className="flex justify-between text-fg-muted">

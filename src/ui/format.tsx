@@ -1,5 +1,4 @@
 import { format, parseISO } from 'date-fns'
-import { Check } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { DisplayStatus } from '@/domain/invoice'
 import { formatMoney } from '@/domain/money'
@@ -17,22 +16,22 @@ export function useFormat() {
   }
 }
 
-// Status labels aren't clickable, so none uses the accent. Draft is a dashed outline (unfinished), issued a solid one.
-const statusCls: Record<DisplayStatus, string> = {
-  draft: 'border-dashed border-line-strong text-fg-muted',
-  issued: 'border-line-strong text-fg',
-  overdue: 'bg-warning-chip text-warning-chip-fg',
-  // Green text with a check, not a chip (the owner's choice 2026-10-11): calm on a list that is mostly paid, and the icon
-  // keeps it apart from the pale red Overdue chip in grayscale.
-  paid: 'gap-1 px-0 text-success',
-  cancelled: 'px-0 text-fg-subtle line-through',
+// Every status is the same soft rounded label with a dot (the owner's choice "T-C", 2026-10-17). Status labels aren't
+// clickable, so none uses the accent. The dot also works in grayscale: hollow for a draft, filled otherwise, and the
+// words always say it.
+const statusCls: Record<DisplayStatus, { label: string; dot: string }> = {
+  draft: { label: 'bg-surface-2 text-fg-muted', dot: 'ring-[1.5px] ring-inset ring-line-strong' },
+  issued: { label: 'bg-surface-2 text-fg', dot: 'bg-line-strong' },
+  overdue: { label: 'bg-warning-chip text-warning-chip-fg', dot: 'bg-warning' },
+  paid: { label: 'bg-success-chip text-success', dot: 'bg-success' },
+  cancelled: { label: 'bg-surface-2 text-fg-subtle line-through', dot: 'bg-fg-subtle' },
 }
 
 export function StatusBadge({ status }: { status: DisplayStatus }) {
   const { t } = useTranslation()
   return (
-    <span className={cn('inline-flex items-center rounded border border-transparent px-2 py-0.5 text-xs font-medium whitespace-nowrap', statusCls[status])}>
-      {status === 'paid' && <Check aria-hidden="true" className="size-3.5" strokeWidth={2.5} />}
+    <span className={cn('inline-flex items-center gap-1.5 rounded-[12px] px-2.5 py-0.5 text-xs font-medium whitespace-nowrap', statusCls[status].label)}>
+      <span aria-hidden="true" className={cn('size-1.5 shrink-0 rounded-full', statusCls[status].dot)} />
       {t(`status.${status}`)}
     </span>
   )

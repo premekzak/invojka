@@ -14,7 +14,7 @@ const button = cva(
   {
     variants: {
       variant: {
-        primary: 'bg-linear-to-b from-accent to-accent-deep text-accent-fg hover:from-accent/90 hover:to-accent-deep/90',
+        primary: 'bg-accent text-accent-fg hover:bg-accent-deep',
         secondary: 'bg-surface-2 text-fg hover:bg-surface-3 border border-line',
         ghost: 'text-fg-muted hover:bg-surface-2 hover:text-fg',
         danger: 'bg-danger text-danger-fg hover:bg-danger/90',
@@ -130,7 +130,7 @@ export function ErrorSummary({ title, errors }: { title: string; errors: { id: s
 }
 
 export function Card({ className, children }: { className?: string; children: ReactNode }) {
-  return <div className={cn('rounded-2xl border border-line bg-surface', className)}>{children}</div>
+  return <div className={cn('rounded-2xl bg-surface', className)}>{children}</div>
 }
 
 /** One radio option as a card. Wrap a set in `role="radiogroup"` with an `aria-label`. */

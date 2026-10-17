@@ -1,5 +1,5 @@
-import { AlertCircle, ArrowRight, FilePlus2, UserCog, Users } from 'lucide-react'
-import { useMemo, type ReactNode } from 'react'
+import { AlertCircle, CheckCircle2, Plus } from 'lucide-react'
+import { useMemo } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { daySlot, pickDaily, yearTrend } from '@/domain/greeting'
 import { today } from '@/domain/id'
@@ -7,20 +7,42 @@ import { displayStatus, invoiceTotals, totalCzk } from '@/domain/invoice'
 import { useStore } from '@/state/store'
 import { StatusBadge, useFormat } from '@/ui/format'
 import { Card, cn } from '@/ui/primitives'
-import { navigate } from '@/ui/router'
 import { RevenueCharts } from './RevenueCharts'
 
-function Step({ icon, title, hint, onClick, tone = 'default' }: { icon: ReactNode; title: string; hint: string; onClick: () => void; tone?: 'default' | 'warning' }) {
+type Task = { key: string; title: string; detail: string; action: string; href: string; warning?: boolean }
+
+/** Things that need checking, built from the data; an empty list shows "Vše v pořádku". A plain white box like the other
+ *  tables, so it reads as information, unlike the solid "Nová faktura" tile beside it (the owner's choice "K2", 2026-10-17). */
+function Tasks({ tasks }: { tasks: Task[] }) {
+  const { t } = useTranslation()
+  if (!tasks.length) {
+    return (
+      <Card className="flex items-center gap-3 p-5">
+        <CheckCircle2 className="size-5 shrink-0 text-success" />
+        <div>
+          <div className="font-medium">{t('home.allGood')}</div>
+          <div className="text-xs text-fg-muted">{t('home.allGoodDetail')}</div>
+        </div>
+      </Card>
+    )
+  }
   return (
-    <button onClick={onClick} className="group flex w-full items-start gap-4 rounded-2xl border border-line bg-surface p-5 text-left transition-colors hover:border-line-strong">
-      {/* The icon sits on the card with no tile behind it (the owner's request, 2026-10-17). */}
-      <div className={cn('shrink-0', tone === 'warning' ? 'text-warning' : 'text-title')}>{icon}</div>
-      <div className="min-w-0 flex-1">
-        <div className="font-medium">{title}</div>
-        <div className="mt-0.5 text-sm text-fg-muted">{hint}</div>
+    <Card className="overflow-hidden">
+      <div className="flex items-center gap-2 px-5 py-3 text-xs">
+        <AlertCircle className="size-3.5 text-warning" />
+        <span className="font-semibold">{t('home.tasks', { count: tasks.length })}</span>
       </div>
-      <ArrowRight className="mt-2 size-4 shrink-0 text-fg-subtle transition-transform group-hover:translate-x-1" />
-    </button>
+      {tasks.map((task, i) => (
+        <div key={task.key} className={cn('grid grid-cols-[1.5rem_1fr_auto] items-center gap-3 px-5 py-2.5', i % 2 === 0 && 'bg-row-hover')}>
+          <span aria-hidden="true" className={cn('size-2 justify-self-center rounded-full', task.warning ? 'bg-warning' : 'bg-line-strong')} />
+          <div className="min-w-0">
+            <div className={cn('font-medium', task.warning && 'text-warning')}>{task.title}</div>
+            <div className="text-xs text-fg-muted">{task.detail}</div>
+          </div>
+          <a href={task.href} className="inline-flex h-8 items-center rounded-lg border border-line bg-surface-2 px-3 text-sm font-medium whitespace-nowrap transition-colors hover:bg-surface-3">{task.action}</a>
+        </div>
+      ))}
+    </Card>
   )
 }
 
@@ -88,6 +110,16 @@ export function Home() {
     !s.bank.account && !s.bank.iban && t('fields.account'),
   ].filter(Boolean)
 
+  const noEmail = customers.filter((c) => !c.archived && !c.email).length
+  const tasks: Task[] = [
+    stats.overdueCount > 0 && { key: 'overdue', warning: true, title: t('home.taskOverdue', { count: stats.overdueCount }),
+      detail: t('home.taskOverdueDetail', { amount: f.money(stats.overdueSum) }), action: t('home.taskShow'), href: '#/invoices?status=overdue' },
+    missing.length > 0 && { key: 'profile', title: t('home.taskProfile'), detail: t('home.taskProfileDetail', { fields: missing.join(', ') }),
+      action: t('home.taskFill'), href: '#/settings' },
+    noEmail > 0 && { key: 'customers', title: t('home.taskCustomers', { count: noEmail }), detail: t('home.taskCustomersDetail'),
+      action: t('home.taskCheck'), href: '#/customers' },
+  ].filter((x): x is Task => !!x)
+
   return (
     <div className="space-y-10">
       <header className="space-y-3">
@@ -96,22 +128,20 @@ export function Home() {
           outstanding={stats.outstanding} overdueSum={stats.overdueSum} overdueCount={stats.overdueCount} />
       </header>
 
-      <RevenueCharts today={on} />
+      {/* Two different things side by side (the owner's choice "K2", 2026-10-17): the permanent "Nová faktura" tile, a solid
+          accent block that reads as the main button, and a white table of things to check, which shrinks to "Vše v pořádku". */}
+      <div className="grid grid-cols-[17.5rem_1fr] items-stretch gap-5">
+        <a href="#/invoices/new" className="flex min-h-48 flex-col justify-between gap-4 rounded-2xl bg-accent p-5 text-accent-fg transition-colors hover:bg-accent-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">
+          <Plus className="size-11" strokeWidth={2.25} />
+          <div>
+            <div className="text-lg font-semibold">{t('nav.newInvoice')}</div>
+            <div className="mt-0.5 text-xs text-accent-fg/90">{t('home.tileNewHint')}</div>
+          </div>
+        </a>
+        <Tasks tasks={tasks} />
+      </div>
 
-      <section>
-        <h2 className="mb-3 font-display text-2xl font-bold tracking-[-0.015em]">{t('home.nextSteps')}</h2>
-        <div className="grid grid-cols-2 gap-5">
-          <Step icon={<FilePlus2 className="size-5" />} title={t('home.createInvoice')} hint={t('home.createInvoiceHint')} onClick={() => navigate('/invoices/new')} />
-          {stats.overdueCount > 0 && (
-            <Step tone="warning" icon={<AlertCircle className="size-5" />} title={t('home.overdue', { count: stats.overdueCount })}
-              hint={t('home.overdueHint', { amount: f.money(stats.overdueSum) })} onClick={() => navigate('/invoices?status=overdue')} />
-          )}
-          {missing.length > 0 && (
-            <Step icon={<UserCog className="size-5" />} title={t('home.completeProfile')} hint={t('home.completeProfileHint', { fields: missing.join(', ') })} onClick={() => navigate('/settings')} />
-          )}
-          <Step icon={<Users className="size-5" />} title={t('home.reviewCustomers')} hint={t('home.reviewCustomersHint', { count: customers.length })} onClick={() => navigate('/customers')} />
-        </div>
-      </section>
+      <RevenueCharts today={on} />
 
       {recent.length > 0 && (
         <section>
@@ -119,9 +149,9 @@ export function Home() {
             <h2 className="font-display text-2xl font-bold tracking-[-0.015em]">{t('home.recent')}</h2>
             <a href="#/invoices" className="text-sm text-accent underline underline-offset-2 decoration-line-strong hover:decoration-current">{t('home.all')}</a>
           </div>
-          <Card className="divide-y divide-rule">
+          <Card className="overflow-hidden [&>a:nth-child(even)]:bg-row-hover">
             {recent.map((inv) => (
-              <a key={inv.id} href={`#/invoices/${inv.id}`} className="flex items-center gap-4 px-5 py-3 text-sm transition-colors hover:bg-row-hover">
+              <a key={inv.id} href={`#/invoices/${inv.id}`} className="flex items-center gap-4 px-5 py-3 text-sm transition-colors hover:bg-surface-2!">
                 <span className="w-24 tabular-nums text-fg-muted">{inv.number}</span>
                 <span className="flex-1 truncate font-medium">{inv.customerSnapshot.name}</span>
                 <span className="w-28 text-fg-muted">{f.date(inv.issueDate)}</span>

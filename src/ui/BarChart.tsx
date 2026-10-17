@@ -103,7 +103,7 @@ export function BarChart({ categories, series, formatAxis, formatValue, partial,
             <thead className="text-left text-xs text-fg-muted">
               <tr><th className="py-1 font-medium" />{series.map((s) => <th key={s.key} className="py-1 text-right font-medium">{s.label}</th>)}</tr>
             </thead>
-            <tbody className="divide-y divide-rule">
+            <tbody className="[&>tr:nth-child(even)]:bg-row-hover">
               {categories.map((c, i) => (
                 <tr key={c}>
                   <td className="py-1 text-fg-muted">{c}{isPartial(i) ? ` (${partial!.note})` : ''}</td>

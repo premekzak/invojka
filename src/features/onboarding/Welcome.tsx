@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { openBusiness } from '@/features/shell/BusinessSwitcher'
 import { useStore } from '@/state/store'
 import { FsAccessAdapter, isSupported, type RememberedFolder } from '@/storage/fsAccess'
+import { Logo } from '@/ui/Logo'
 import { Button, Card } from '@/ui/primitives'
 
 export function Welcome({ remembered }: { remembered?: FsAccessAdapter }) {
@@ -38,7 +39,7 @@ export function Welcome({ remembered }: { remembered?: FsAccessAdapter }) {
     <div className="grid min-h-screen place-items-center p-6">
       <Card className="animate-rise w-full max-w-md p-8">
         <div className="mb-6 flex items-center gap-3">
-          <div className="grid size-10 place-items-center rounded-xl bg-brand font-display text-lg font-bold text-brand-fg">I</div>
+          <Logo className="size-10" />
           <div>
             <h1 className="font-display text-4xl leading-[1.2] font-bold tracking-[-0.03em]">{t('app.name')}</h1>
             <p className="text-sm text-fg-muted">{t('app.tagline')}</p>
@@ -54,7 +55,7 @@ export function Welcome({ remembered }: { remembered?: FsAccessAdapter }) {
             </Button>
             <p className="text-xs text-fg-muted">{t('welcome.reconnectHint')}</p>
             {others.length > 0 && (
-              <div className="space-y-1 border-t border-line pt-3">
+              <div className="space-y-1 pt-3">
                 <p className="text-xs text-fg-muted">{t('business.others')}</p>
                 {others.map((f) => (
                   <Button key={f.adapter.name + f.label} variant="secondary" className="w-full" onClick={async () => {

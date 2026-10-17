@@ -121,7 +121,7 @@ export function SettingsPage() {
       {/* Single-value settings are rows: text on the left, the control on the right (design system: SettingRow). */}
       <section>
         <h2 className="mb-3 font-display text-2xl font-bold tracking-[-0.015em]">{t('settings.app')}</h2>
-        <Card className="divide-y divide-line">
+        <Card className="divide-y divide-rule">
           <SettingRow title={t('settings.uiLanguage')}>
             <Options aria-label={t('settings.uiLanguage')} value={s.ui.language} onChange={(v) => update({ ui: { ...s.ui, language: v as 'cs' | 'en' } })}
               options={[['cs', 'Čeština'], ['en', 'English']]} />

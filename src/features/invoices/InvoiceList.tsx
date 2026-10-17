@@ -30,16 +30,22 @@ export function InvoiceList({ route }: { route: Route }) {
 
   const years = useMemo(() => [...new Set(invoices.map((i) => i.issueDate.slice(0, 4)))].sort().reverse(), [invoices])
 
-  const rows = useMemo(() => {
+  // Everything but the status filter, so each status button can show its count.
+  const base = useMemo(() => {
     return invoices
       .map((inv) => ({ inv, status: displayStatus(inv, on), totals: invoiceTotals(inv) }))
-      .filter(({ inv, status: s }) =>
+      .filter(({ inv }) =>
         (!year || inv.issueDate.startsWith(year)) &&
-        (!status || s === status) &&
         (!customerId || inv.customerId === customerId) &&
         (!q || inv.number.includes(q) || inv.customerSnapshot.name.toLowerCase().includes(q) || inv.lines.some((l) => l.description.toLowerCase().includes(q))))
       .sort((a, b) => b.inv.issueDate.localeCompare(a.inv.issueDate) || b.inv.number.localeCompare(a.inv.number))
-  }, [invoices, on, year, status, customerId, q])
+  }, [invoices, on, year, customerId, q])
+  const rows = useMemo(() => (status ? base.filter((r) => r.status === status) : base), [base, status])
+  const counts = useMemo(() => {
+    const m = new Map<string, number>([['', base.length]])
+    for (const r of base) m.set(r.status, (m.get(r.status) ?? 0) + 1)
+    return m
+  }, [base])
 
   const sumByCurrency = useMemo(() => {
     const m = new Map<string, number>()
@@ -73,55 +79,61 @@ export function InvoiceList({ route }: { route: Route }) {
           {years.map((y) => <option key={y}>{y}</option>)}
         </Select>
       </div>
-      <div className="flex flex-wrap gap-2">
+      {/* A segmented control (the owner's choice "T-C", 2026-10-17): the chosen status is a white segment on a tinted track. */}
+      <div role="group" aria-label={t('invoices.status')} className="inline-flex flex-wrap gap-0.5 rounded-2xl bg-surface-3 p-[3px] dark:bg-surface-2">
         {(['', ...STATUSES] as const).map((s) => (
-          <button key={s} onClick={() => setStatus(s)} className={cn(
-            'rounded border px-3 py-1 text-sm transition-colors',
-            status === s ? 'border-accent bg-accent text-accent-fg' : 'border-line text-fg-muted hover:border-line-strong',
+          <button key={s} onClick={() => setStatus(s)} aria-pressed={status === s} className={cn(
+            'flex items-center gap-1.5 rounded-lg px-3 py-1 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-accent',
+            status === s ? 'bg-surface text-fg dark:bg-surface-3' : 'text-fg-muted hover:text-fg',
           )}>
             {s ? t(`status.${s}`) : t('invoices.allStatuses')}
+            <span className="font-normal tabular-nums text-fg-muted">{counts.get(s) ?? 0}</span>
           </button>
         ))}
       </div>
 
       <Card className="overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="border-b border-rule text-left text-xs text-fg-muted">
+          {/* Soft stripes instead of row lines (the owner's choice "T-C", 2026-10-17): even rows row-hover, hover one step darker. */}
+          <thead className="text-left text-xs text-fg-muted">
             <tr>
-              <th className="px-4 py-2.5 font-medium">{t('invoices.number')}</th>
-              <th className="px-4 py-2.5 font-medium">{t('invoices.customer')}</th>
-              <th className="px-4 py-2.5 text-right font-medium">{t('invoices.issued')}</th>
-              <th className="px-4 py-2.5 text-right font-medium">{t('invoices.due')}</th>
-              <th className="px-4 py-2.5 text-right font-medium">{t('invoices.total')}</th>
-              <th className="px-4 py-2.5 text-right font-medium">{t('invoices.status')}</th>
-              <th />
+              <th className="py-3 pr-4 pl-5 font-medium">{t('invoices.number')}</th>
+              <th className="px-4 py-3 font-medium">{t('invoices.customer')}</th>
+              <th className="px-4 py-3 text-right font-medium">{t('invoices.issued')}</th>
+              <th className="px-4 py-3 text-right font-medium">{t('invoices.due')}</th>
+              <th className="px-4 py-3 text-right font-medium">{t('invoices.total')}</th>
+              <th className="py-3 pr-5 pl-4 text-right font-medium">{t('invoices.status')}</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-rule">
+          <tbody>
             {rows.slice(0, 300).map(({ inv, status: s, totals }) => (
-              <tr key={inv.id} onClick={() => navigate(`/invoices/${inv.id}`)} className="group cursor-pointer transition-colors hover:bg-row-hover">
-                <td className="px-4 py-3 tabular-nums text-fg-muted">{inv.number}</td>
+              <tr key={inv.id} onClick={() => navigate(`/invoices/${inv.id}`)} className="group cursor-pointer transition-colors even:bg-row-hover hover:bg-surface-2">
+                <td className="py-3 pr-4 pl-5 tabular-nums text-fg-muted">{inv.number}</td>
                 <td className="max-w-xs px-4 py-3">
                   <div className="truncate font-medium">{inv.customerSnapshot.name}</div>
                   <div className="truncate text-xs text-fg-subtle">{inv.lines[0]?.description}</div>
                 </td>
                 {/* Dates and amounts are right-aligned with tabular digits, so days, years and thousands line up. */}
                 <td className="px-4 py-3 text-right whitespace-nowrap tabular-nums text-fg-muted">{f.date(inv.issueDate)}</td>
-                <td className={cn('px-4 py-3 text-right whitespace-nowrap tabular-nums', s === 'overdue' ? 'font-medium text-warning' : 'text-fg-muted')}
+                {/* The status label says overdue; the date stays grey, so a row isn't flagged twice. */}
+                <td className="px-4 py-3 text-right whitespace-nowrap tabular-nums text-fg-muted"
                   title={s === 'overdue' ? t('invoices.daysOverdue', { count: daysOverdue(inv, on) }) : undefined}>
                   {f.date(inv.dueDate)}
                 </td>
                 <td className="px-4 py-3 text-right font-medium whitespace-nowrap tabular-nums">{f.money(totals.total, inv.currency)}</td>
-                <td className="px-4 py-3 text-right"><StatusBadge status={s} /></td>
-                <td className="w-12 py-2 pr-4 text-right">
-                  {/* Icon-only, so the table keeps its width; the verb is in the tooltip and the accessible name. */}
-                  {(s === 'issued' || s === 'overdue') && (
-                    <Button size="sm" variant="secondary" className="w-8 px-0 opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
-                      title={t('invoices.markPaid')} aria-label={t('invoices.markPaid')}
-                      onClick={(e) => { e.stopPropagation(); markPaid(inv.id) }}>
-                      <Check className="size-4" />
-                    </Button>
-                  )}
+                {/* "Mark paid" sits in the status cell, before the label, so there is no empty column at the right edge.
+                    Icon-only; the verb is in the tooltip and the accessible name. */}
+                <td className="py-2 pr-5 pl-4">
+                  <div className="flex items-center justify-end gap-2">
+                    {(s === 'issued' || s === 'overdue') && (
+                      <Button size="sm" variant="secondary" className="w-8 px-0 opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
+                        title={t('invoices.markPaid')} aria-label={t('invoices.markPaid')}
+                        onClick={(e) => { e.stopPropagation(); markPaid(inv.id) }}>
+                        <Check className="size-4" />
+                      </Button>
+                    )}
+                    <StatusBadge status={s} />
+                  </div>
                 </td>
               </tr>
             ))}

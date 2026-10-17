@@ -5,7 +5,7 @@
 - [x] Single-file build that works from `file://`
 - [x] Folder storage with atomic writes, conflict detection and one-click reconnect
 - [x] Onboarding: your details, VAT mode, CSV import with duplicate merging
-- [x] Home: key numbers, "Co dál" (Next steps), recent invoices, revenue charts by month and year
+- [x] Home: key numbers, a "Nová faktura" tile and a table of things to check ("Co dál" cards until 2026-10-17), recent invoices, revenue charts by month and year
 - [x] Invoice list: search, year and status filters, mark paid
 - [x] Invoice editor: multiple lines, VAT for payers, reverse charge, copies the customer's last invoice, numbering, due-date shortcuts, cancel and restore
 - [x] PDF in Czech and English: preview, save to folder, download, QR Platba, saved automatically on issue
@@ -20,6 +20,8 @@
 
 - [x] Design system "Invoicer Ledger" (2026-10-11): colour-agnostic roles, type, layout, and a forms standard (ledger-line fields, labels above, hint or error under the field, error summary, setting rows), all built into the app
 
+- [x] Scheme "A": a darker flat header (`#f28d50`), azure accent, no gradients, borderless cards on a darker page; Roboto nav; striped tables with one status style; a "Nová faktura" tile and a task table above the charts on Home (2026-10-17)
+- [x] Logo: a receipt with a lowercase i, in the header, the welcome screen and the favicon (2026-10-17)
 - [x] No sidebar: a one-row peach header with the logo, the pages as pills, and the business with a save tick (2026-10-17)
 - [x] More businesses: one folder each, a switcher in the header (2026-10-17)
 - [x] Bricolage Grotesque headings, rust warnings, primary-button gradient (2026-10-17)
@@ -48,8 +50,8 @@
 - [ ] **Polish:** command palette (Ctrl+K), shortcuts (N = new invoice, / = search), a theme toggle in the header, date inputs in Czech format
 - [ ] **Sending:** a pre-filled email with the PDF (Gmail draft or `mailto:`), recording `sentAt`
 - [ ] **Customers:** merge two customers (e.g. one company that was renamed and appears twice)
-- [ ] **Drafts nobody meant to make** (the owner, 2026-10-17): open "Upravit odběratele" from the invoice form in a dialog instead of saving a silent draft, and remind about open drafts in "Co dál"
-- [ ] **Businesses:** copy a customer from another business; show each business's own initial in the logo square
+- [ ] **Drafts nobody meant to make** (the owner, 2026-10-17): open "Upravit odběratele" from the invoice form in a dialog instead of saving a silent draft, and remind about open drafts on Home
+- [ ] **Businesses:** copy a customer from another business; show each business's own initial in the business switcher (the logo is one mark for every business since the receipt, 2026-10-17)
 
 ## Later
 

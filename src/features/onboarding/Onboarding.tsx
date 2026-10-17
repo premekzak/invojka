@@ -175,7 +175,7 @@ export function Onboarding() {
 
         {saveError && <p className="mt-6 rounded-lg bg-surface-2 p-3 text-sm text-danger">{t('save.error')}: {saveError}</p>}
 
-        <div className="mt-8 flex items-center justify-between border-t border-line pt-6">
+        <div className="mt-8 flex items-center justify-between">
           <div className="space-y-1">
             <span className="block text-xs text-fg-subtle">{adapter?.name}</span>
             {previous instanceof FsAccessAdapter && previousName && (

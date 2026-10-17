@@ -1,4 +1,4 @@
-import { FilePlus2, Plus, Search } from 'lucide-react'
+import { Plus, Search } from 'lucide-react'
 import { useDeferredValue, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { totalCzk } from '@/domain/invoice'
@@ -46,20 +46,19 @@ export function CustomerList() {
       </div>
       <Card className="overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="border-b border-rule text-left text-xs text-fg-muted">
+          <thead className="text-left text-xs text-fg-muted">
             <tr>
               <th className="px-4 py-2.5 font-medium">{t('fields.name')}</th>
               <th className="px-4 py-2.5 font-medium">{t('fields.ic')}</th>
               <th className="px-4 py-2.5 font-medium">{t('fields.city')}</th>
               <th className="px-4 py-2.5 text-right font-medium">{t('customers.invoiceCount')}</th>
               <th className="px-4 py-2.5 text-right font-medium">{t('customers.revenue')}</th>
-              <th className="px-4 py-2.5 font-medium">{t('customers.lastInvoice')}</th>
-              <th />
+              <th className="py-2.5 pr-5 pl-4 font-medium">{t('customers.lastInvoice')}</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-rule">
+          <tbody>
             {rows.map(({ c, s }) => (
-              <tr key={c.id} onClick={() => navigate(`/customers/${c.id}`)} className="group cursor-pointer transition-colors hover:bg-row-hover">
+              <tr key={c.id} onClick={() => navigate(`/customers/${c.id}`)} className="group cursor-pointer transition-colors even:bg-row-hover hover:bg-surface-2">
                 <td className="px-4 py-3">
                   <div className="font-medium">{c.name} {c.archived && <span className="ml-1 text-xs font-normal text-fg-subtle">({t('customers.archived')})</span>}</div>
                   <div className="text-xs text-fg-subtle">{c.email}</div>
@@ -68,12 +67,16 @@ export function CustomerList() {
                 <td className="px-4 py-3 text-fg-muted">{c.address.city}</td>
                 <td className="px-4 py-3 text-right tabular-nums">{s.count}</td>
                 <td className="px-4 py-3 text-right tabular-nums">{f.money(s.revenue)}</td>
-                <td className="px-4 py-3 text-fg-muted">{f.date(s.last || undefined)}</td>
-                <td className="w-36 px-4 py-2 text-right">
-                  <Button size="sm" variant="secondary" className="opacity-0 group-hover:opacity-100"
-                    onClick={(e) => { e.stopPropagation(); navigate(`/invoices/new?customer=${c.id}`) }}>
-                    <FilePlus2 className="size-3.5" /> {t('customers.newInvoice')}
-                  </Button>
+                {/* "Nová faktura" shares the last cell (no empty column at the right edge) and shows on hover or keyboard focus as
+                    a one-line accent link, not a box that blends into the hovered row (the owner, 2026-10-17). */}
+                <td className="py-3 pr-5 pl-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="whitespace-nowrap text-fg-muted">{f.date(s.last || undefined)}</span>
+                    <a href={`#/invoices/new?customer=${c.id}`} onClick={(e) => e.stopPropagation()}
+                      className="inline-flex items-center gap-1 text-sm font-medium whitespace-nowrap text-accent opacity-0 group-hover:opacity-100 hover:underline focus-visible:opacity-100">
+                      <Plus className="size-4" /> {t('customers.newInvoice')}
+                    </a>
+                  </div>
                 </td>
               </tr>
             ))}

@@ -7,6 +7,8 @@
   /* Headlines only: Bricolage Grotesque 700 with tight tracking (the owner's choice "G2", 2026-10-17; it replaced the
      Newsreader serif). Embedded like Inter (see loadUiFonts). */
   --font-display: "Bricolage Grotesque", ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+  /* The header navigation only: Roboto 500, 14 px, +0.02em (the owner's choice "R3", 2026-10-17). A third face, embedded like the others. */
+  --font-nav: "Roboto", ui-sans-serif, system-ui, "Segoe UI", sans-serif;
 
   /* Corners stay small everywhere: the whole scale is capped at 6px. */
   --radius-xs: 1px;
@@ -18,8 +20,8 @@
   --radius-2xl: 6px;
 
   /* Warm paper theme (the owner's choice "F4", 2026-10-17; it replaced the grayscale Ledger): a faintly cream page, white cards,
-     warm greys, espresso text, a peach header, blue (#099bc1 family) for actions and charts, and the darker orange #fa8d4e used
-     sparingly (the logo letter). Crimson for warnings and errors, green for success.
+     warm greys, espresso text, a peach header, azure blue (hue 245) for actions and charts, and the darker orange #fa8d4e used
+     sparingly (the logo's dot). Crimson for warnings and errors, green for success.
      The palette is defined below (--paper … --peach), light and dark. Code uses only these role names. */
   --color-bg: var(--paper);
   /* The header band (it replaced the sidebar on 2026-10-17). Text on it: espresso and a brown muted step (6.2:1) in light,
@@ -32,6 +34,12 @@
   --color-surface-2: var(--fill);
   /* The current page's pill: the page colour on the peach band. Hover is half of it. */
   --color-header-active: var(--paper);
+  /* The footer (the owner's request, 2026-10-17): espresso with a very slight top-to-bottom gradient, the one gradient in
+     the app. The same in both modes. Cream text 11.5:1, muted 7.8:1 at the lighter top. */
+  --color-footer: #39251a;
+  --color-footer-deep: #2f1e15;
+  --color-footer-fg: #f6e8df;
+  --color-footer-muted: #d7bfaf;
   --color-surface-3: var(--line);
   /* Hover on list and table rows: just off card (made subtler 2026-10-11), so a hovered row doesn't look like the table header. */
   --color-row-hover: var(--hover);
@@ -40,10 +48,10 @@
   --color-rule: var(--rule);
   /* Mid grey: secondary text and captions (4.5:1 on paper, card, fill and line), input borders, icons. */
   --color-line-strong: var(--mid);
-  /* Fields ("ledger line", the owner's choice 2026-10-11): a visible side line (about 2:1) and a stronger bottom edge
-     (4:1 or more on card and paper). Raised the same day: the first sides, in the card-border grey (1.5:1), disappeared. */
+  /* Fields (the owner's choice, 2026-10-17): an even 2 px edge on all four sides (3.3:1 on the field fill, 3:1 in dark),
+     replacing the "ledger line" with its heavier bottom, which read as a shadow; and a faint warm fill inside. */
   --color-input: var(--edge);
-  --color-input-side: var(--edge-side);
+  --color-field: var(--field);
   --color-fg-faint: var(--mid);
   --color-fg-subtle: var(--mid);
   --color-fg-muted: var(--mid);
@@ -51,11 +59,14 @@
   /* The one accent is blue: everything clickable or selected, and focus. */
   --color-accent: var(--blue);
   --color-accent-fg: var(--on-blue);
-  /* The one gradient: primary buttons run from accent to this deeper blue (the owner's choice, 2026-10-17; gradients stay rare). */
+  /* Hover on accent fills: one step darker. No gradients anywhere: the owner tried them on buttons and the header band
+     (2026-10-17) and found both too much. */
   --color-accent-deep: var(--blue-deep);
-  /* Identity: the logo square (espresso with an orange letter in light, orange with a dark letter in dark) and the "Co dál" icons. */
+  /* Identity: the receipt logo (src/ui/Logo.tsx). Light: an espresso receipt, a cream i with an orange dot. Dark: an orange receipt,
+     a near-black stem and a cream dot. */
   --color-brand: var(--logo);
   --color-brand-fg: var(--on-logo);
+  --color-brand-dot: var(--logo-dot);
   --color-title: var(--ink);
   /* Crimson covers errors (common: pale chips with red text) and errors (rare: solid red, white text). */
   --color-danger: var(--red);
@@ -67,9 +78,11 @@
   --color-warning-chip-fg: var(--rust);
   /* Green only for short confirmations (saved, rates filled, file loaded) and the Paid status. */
   --color-success: var(--green);
+  /* Pale background of the Paid status label (soft rounded labels, the owner's choice "T-C", 2026-10-17). */
+  --color-success-chip: var(--green-chip);
   /* Behind modals: ink (light) or the paper tone (dark), at 50%. */
   --color-scrim: var(--ink);
-  /* Chart series: this year the owner's blue #099bc1 (3.1:1 on paper), last year a pale blue (lightness separates them, so it is
+  /* Chart series: this year an azure (3.1:1 on card), last year a pale blue (lightness separates them, so it is
      colourblind-safe; the pale bars are deliberately faint and the Table view has exact values). */
   --color-series-1: var(--chart-1);
   --color-series-2: var(--chart-2);
@@ -77,29 +90,30 @@
 
 @layer base {
   /* Warm paper palette, built in OKLCH. Neutrals lean towards orange (h 55-62, C <= 0.025); the faint cream page is the owner's
-     choice over plain white. Every text colour reaches 4.5:1 on paper, card and fill in both modes; field bottoms 4.5:1 or more. */
+     choice over plain white. Since scheme "A" the page is a step darker than white cards, so boxes need no border. Every text colour reaches 4.5:1 on paper, card and fill in both modes; field bottoms 4.5:1 or more. */
   :root {
-    --paper: #fffaf6; --card: #ffffff; --hover: #faf6f3; --fill: #f8eee7; --rule: #eee6e0; --line: #e3d6ce; --edge-side: #b5a89f; --edge: #807167; --mid: #695a50; --ink: #342117;
+    --paper: #f6eee8; --card: #ffffff; --hover: #faf6f3; --fill: #f8eee7; --rule: #eee6e0; --line: #e3d6ce; --field: #f9f4f0; --edge: #93857b; --mid: #695a50; --ink: #342117;
     --on-ink: #ffffff;
-    --red: #b7162d; --on-red: #ffffff; --red-chip: #fedfde; --green: #1e7729;
-    /* From the owner's #099bc1, darkened for text and for fills with white text: 5.4:1 on card, 4.6:1 on fill. Charts use #099bc1 itself. */
-    --blue: #077491; --on-blue: #ffffff; --blue-deep: #055f78;
-    --chart-1: #099bc1; --chart-2: #aed9e9;
+    --red: #b7162d; --on-red: #ffffff; --red-chip: #fedfde; --green: #1e7729; --green-chip: #e4f2e5;
+    /* Scheme "A" (2026-10-17): azure, hue 245, bluer than the owner's first #099bc1. blue is text, links and solid fills: 5.3:1 on card,
+       4.6:1 on paper and fill. Hover is blue-deep. Charts use a lighter step. */
+    --blue: #006fb5; --on-blue: #ffffff; --blue-deep: #005d9c;
+    --chart-1: #3899e2; --chart-2: #bddcf7;
     /* Rust for warnings: 6.1:1 on paper, 5.6:1 on fill, 5.3:1 on its chip. */
     --rust: #9e4501; --rust-chip: #ffe6d6;
     /* The owner's orange, for small marks only: it reaches 2.3:1 on white, so it is never text on a light surface. */
-    --orange: #fa8d4e; --logo: #342117; --on-logo: #fa8d4e;
-    --peach: #fdb081; --on-peach: #342117; --on-peach-muted: #4e372a;
+    --orange: #fa8d4e; --logo: #342117; --on-logo: #fffaf6; --logo-dot: #fa8d4e;
+    --peach: #f28d50; --on-peach: #342117; --on-peach-muted: #4e372a;
   }
   /* Dark: a warm near-black page, lighter cards, an espresso header, and lighter, softer accents so they don't vibrate. */
   .dark {
-    --paper: #110d0b; --card: #181411; --hover: #1c1714; --fill: #221d19; --rule: #27221e; --line: #332c28; --edge-side: #544b45; --edge: #84776f; --mid: #b5a89f; --ink: #f2e9e4;
+    --paper: #110d0b; --card: #181411; --hover: #1c1714; --fill: #221d19; --rule: #27221e; --line: #332c28; --field: #1e1915; --edge: #6f645d; --mid: #b5a89f; --ink: #f2e9e4;
     --on-ink: #110d0b;
-    --red: #df676f; --on-red: #110d0b; --red-chip: #3f191b; --green: #66ac69;
-    --blue: #47b3d7; --on-blue: #110d0b; --blue-deep: #1b94b7;
+    --red: #df676f; --on-red: #110d0b; --red-chip: #3f191b; --green: #66ac69; --green-chip: #173019;
+    --blue: #5eaceb; --on-blue: #110d0b; --blue-deep: #48a0e0;
     --rust: #e48b53; --rust-chip: #3a1e0e;
-    --chart-1: #47b3d7; --chart-2: #225465;
-    --orange: #fa8d4e; --logo: #fa8d4e; --on-logo: #110d0b;
+    --chart-1: #5eaceb; --chart-2: #2a4b66;
+    --orange: #fa8d4e; --logo: #fa8d4e; --on-logo: #110d0b; --logo-dot: #fffaf6;
     --peach: #342117; --on-peach: #f6e8df; --on-peach-muted: #d7bfaf;
     /* Native controls (date pickers, select arrows, scrollbars) follow the theme. */
     color-scheme: dark;
@@ -117,29 +131,28 @@
 }
 
 /* Form controls (design system: Forms). One box for text fields, selects, text areas, affix groups and the
-   customer picker: a lighter line on the top and sides, the stronger input edge at the bottom, a 2 px accent edge on focus.
+   customer picker: a faint field fill, an even 2 px input edge, the accent edge on focus (no inner shadow).
    Rule order matters: error beats hover, focus beats error, disabled beats everything. */
 @layer components {
+  /* On espresso (the footer) the logo takes its dark-mode colours, or the espresso receipt would vanish. */
+  .on-espresso { --color-brand: var(--orange); --color-brand-fg: #110d0b; --color-brand-dot: #fffaf6; }
   .control {
-    background: var(--color-surface);
+    background: var(--color-field);
     color: var(--color-fg);
-    border: 1px solid var(--color-input-side);
-    border-bottom-color: var(--color-input);
+    border: 2px solid var(--color-input);
     border-radius: var(--radius-lg);
-    transition: border-color 0.15s, box-shadow 0.15s;
+    transition: border-color 0.15s;
   }
   .control:hover { border-color: var(--color-line-strong); }
   .control[aria-invalid="true"], .control:has(> [aria-invalid="true"]) { border-color: var(--color-danger); }
   .control:focus, .control:focus-within {
     outline: none;
     border-color: var(--color-accent);
-    box-shadow: inset 0 0 0 1px var(--color-accent);
   }
   .control:disabled, .control:has(> :disabled) {
-    background: var(--color-surface-2);
+    background: var(--color-surface);
     color: var(--color-fg-muted);
     border-color: var(--color-line);
-    box-shadow: none;
     cursor: not-allowed;
   }
   /* Native select without the platform arrow; the chevron is two gradients in fg-muted, so it follows the theme. */

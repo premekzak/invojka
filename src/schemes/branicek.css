@@ -15,9 +15,10 @@
     /* Gold receipt with a dark green stem and a crest-red dot. */
     --orange: #deaf56; --logo: #deaf56; --on-logo: #102719; --logo-dot: #cc2827;
     /* The header is the can: bottle green with cream text (8.1:1). */
-    --peach: #0a562b; --on-peach: #f9f5e6; --on-peach-muted: #d7d2b5;
-    /* The header is dark, so the current page is a lighter green pill (cream text 5.3:1), not the cream page colour. */
-    --color-header-active: #2f7346;
+    --peach: #0a562b; --on-peach: #f9f5e6; --on-peach-muted: #dcd9bf;
+    /* The header is dark, so the current page is a lighter green pill, not the cream page colour. Header text on it 6.0:1,
+       the muted tone 4.6:1 (the design system's scheme requirement). */
+    --color-header-active: #256a3e;
     --color-footer: #102a1a; --color-footer-deep: #092012; --color-footer-fg: #f2efe0; --color-footer-muted: #cac5a8;
   }
   :root.dark[data-scheme="branicek"] {

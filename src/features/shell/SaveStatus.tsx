@@ -4,19 +4,30 @@ import { FILES } from '@/domain/schema'
 import { useStore } from '@/state/store'
 import { Button, Card, cn } from '@/ui/primitives'
 
+/**
+ * A tick next to the business name when everything is in the folder (the owner's request, 2026-10-17); the sentence and the
+ * folder name are in its tooltip. A save in progress is a small spinner; a problem is a solid chip with words, never just an icon.
+ */
 export function SaveStatus() {
-  const { t } = useTranslation()
-  const { saveState, saveError } = useStore()
-  const Icon = saveState === 'saved' ? Check : saveState === 'saving' || saveState === 'pending' ? Loader2 : AlertTriangle
+  const { t, i18n } = useTranslation()
+  const { saveState, saveError, savedAt, adapter } = useStore()
+  const problem = saveState === 'error' || saveState === 'conflict'
+  const label = saveState === 'saved' && savedAt
+    ? t('save.savedAt', { time: new Date(savedAt).toLocaleTimeString(i18n.language, { hour: 'numeric', minute: '2-digit' }) })
+    : t(`save.${saveState}`)
+  const title = [label, t('save.folder', { folder: adapter?.name }), saveState === 'saved' ? t('save.folderHint') : saveError].filter(Boolean).join('\n')
+  if (problem) {
+    return (
+      <span title={title} className="inline-flex items-center gap-1 rounded-sm bg-danger px-1.5 py-0.5 text-xs font-medium whitespace-nowrap text-danger-fg">
+        <AlertTriangle className="size-3.5" /> {label}
+      </span>
+    )
+  }
+  const Icon = saveState === 'saved' ? Check : Loader2
   return (
-    <span
-      title={saveError}
-      className={cn(
-        'inline-flex items-center gap-1.5 text-xs transition-colors',
-        saveState === 'saved' ? 'text-success' : saveState === 'error' || saveState === 'conflict' ? 'text-danger' : 'text-fg-muted',
-      )}
-    >
-      <Icon className={cn('size-3.5', saveState === 'saving' && 'animate-spin')} /> {t(`save.${saveState}`)}
+    <span title={title} role="status" className={cn('inline-flex shrink-0', saveState === 'saved' ? 'text-header-fg' : 'text-header-muted')}>
+      <Icon className={cn('size-4', saveState !== 'saved' && 'animate-spin')} aria-hidden />
+      <span className="sr-only">{label}</span>
     </span>
   )
 }

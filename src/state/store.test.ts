@@ -60,4 +60,25 @@ describe('store', () => {
     expect(st().customers[0]!.name).toBe('Acme')
     expect(st().customers[0]!.note).toBe('')
   })
+
+  it('saves pending changes to the old business before switching to another', async () => {
+    useStore.getState().saveSettings(settings)
+    useStore.getState().upsertCustomer(customer)
+    const b = new MemoryAdapter('second')
+    await useStore.getState().switchTo(b)
+    // The first business got its last edit; the second starts empty, with its own onboarding.
+    expect(JSON.parse(a.files.get('customers.json')!.text).customers[0].name).toBe('Acme')
+    expect(useStore.getState()).toMatchObject({ adapter: b, previous: a, customers: [], phase: { kind: 'onboarding' } })
+    expect(b.files.size).toBe(0)
+  })
+
+  it('does not switch businesses in demo mode', async () => {
+    useStore.getState().saveSettings(settings)
+    await useStore.getState().flush()
+    await useStore.getState().reload()
+    await useStore.getState().enterDemo('demo')
+    await expect(useStore.getState().switchTo(new MemoryAdapter('second'))).rejects.toThrow('demo')
+    await useStore.getState().exitDemo()
+    expect(useStore.getState().adapter).toBe(a)
+  })
 })

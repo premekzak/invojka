@@ -1,7 +1,7 @@
 import type { Messages } from './cs'
 
 const en: Messages = {
-  app: { name: 'Invoicer', tagline: 'Invoicing and insights. Your data stays in your folder.' },
+  app: { name: 'Invojka', tagline: 'Invoicing and insights. Your data stays in your folder.' },
   common: { continue: 'Continue', back: 'Back', save: 'Save', cancel: 'Cancel', skip: 'Skip', days: 'days' },
   validation: {
     name: 'Enter a company or person name.',
@@ -10,11 +10,11 @@ const en: Messages = {
   },
   welcome: {
     pick: 'Choose data folder',
-    pickHint: 'Choose an empty folder for new data, or a folder that already holds Invoicer data. Invoices are stored as JSON files.',
+    pickHint: 'Choose an empty folder for new data, or a folder that already holds Invojka data. Invoices are stored as JSON files.',
     reconnect: 'Open folder {{folder}}',
     reconnectHint: 'After a restart the browser needs you to confirm access to the folder again.',
     other: 'Choose another folder',
-    unsupported: 'This browser cannot work with folders. Please open Invoicer in Chrome or Edge.',
+    unsupported: 'This browser cannot work with folders. Please open Invojka in Chrome or Edge.',
   },
   onboarding: {
     title: 'Setup',
@@ -32,7 +32,8 @@ const en: Messages = {
   },
   fields: {
     name: 'Name / company', ic: 'Company ID (IČ)', dic: 'VAT ID (DIČ)', street: 'Street', zip: 'Postcode', city: 'City', country: 'Country',
-    email: 'Email', phone: 'Phone', web: 'Website', registration: 'Registration',
+    email: 'Email', phone: 'Phone', web: 'Website', registration: 'Business register entry',
+    registrationHint: 'Printed on the invoice: "Registered in the Trade Register." for a sole trader, or the court and file number for a company.',
     account: 'Account number', bankCode: 'Bank code', iban: 'IBAN', swift: 'SWIFT',
   },
   vatMode: {
@@ -40,7 +41,12 @@ const en: Messages = {
     nonPayer: 'Not a VAT payer', nonPayerHint: 'Invoices will state "Not a VAT payer".',
     identifiedPerson: 'Identified person', identifiedPersonHint: 'Not a VAT payer, but VAT-registered for services to the EU.',
   },
-  save: { saved: 'Saved', pending: 'Unsaved…', saving: 'Saving…', error: 'Save failed', conflict: 'File changed elsewhere' },
+  save: {
+    saved: 'All saved', savedAt: 'All saved at {{time}}', pending: 'Saving changes…', saving: 'Saving changes…', error: 'Save failed', conflict: 'File changed elsewhere',
+    savedHint: 'All invoices, customers and settings are saved in the data folder.',
+    folder: 'Folder: {{folder}}',
+    folderHint: 'The browser tells the app only the folder’s name, not its full path on the disk.',
+  },
   conflict: {
     title: '{{file}} was changed outside the app',
     body: 'Another computer may have changed it via Google Drive, or it was edited by hand. Load the new version (your unsaved changes will be lost) or overwrite it with yours.',
@@ -105,6 +111,9 @@ const en: Messages = {
     description: 'Description', descriptionPlaceholder: 'E.g. PPC campaign management, September', qty: 'Qty', unit: 'Unit', unitPrice: 'Unit price', vat: 'VAT',
     addLine: 'Add line', baseAt: 'Base {{rate}} % + VAT', toPay: 'Amount due', note: 'Note',
     vs: 'Payment reference', numberTaken: 'Another invoice already has this number.',
+    customerChanged: "The customer's details have changed since this invoice was issued.",
+    customerChangedHint: 'The invoice still shows the old details. If you use the new ones and save, the PDF in your folder is replaced; send it to the customer again.',
+    useNewDetails: 'Use the new details',
     taxableSupplyDate: 'Tax point date', currency: 'Currency', language: 'Invoice language', exchangeRate: 'Rate (CZK per 1 {{currency}})',
     reverseCharge: 'Reverse charge', reverseChargeNote: 'VAT to be accounted for by the customer.',
     days_one: '{{count}} day', days_few: '{{count}} days', days_other: '{{count}} days',
@@ -113,9 +122,9 @@ const en: Messages = {
   settings: {
     title: 'Settings', supplier: 'Your details', bank: 'Bank account', vat: 'VAT', defaults: 'Invoice defaults', app: 'App',
     dueDays: 'Payment terms', currency: 'Currency', invoiceLanguage: 'Invoice language', unit: 'Unit', note: 'Invoice note',
-    defaultVatRate: 'Default VAT rate', pattern: 'Invoice number format', patternHint: '{YYYY} year, {NNNN} sequence. Next number: {{next}}',
+    defaultVatRate: 'Default VAT rate', pattern: 'Invoice number format', patternHint: '{YYYY} or {YY} year, {MM} month, {NNNN} sequence (with {MM} it restarts at 1 every month). Next number: {{next}}',
     uiLanguage: 'App language', theme: 'Theme', themeSystem: 'System', themeLight: 'Light', themeDark: 'Dark',
-    folder: 'Data folder', changeFolder: 'Change folder',
+    folder: 'Data folder',
   },
   rates: {
     title: 'Exchange rates',
@@ -132,6 +141,34 @@ const en: Messages = {
     fillNow: 'Fill in rates', otherOptions: 'More options',
     notFound: 'No rate found for this date.', failed: 'Could not load the rate', noneYet: 'Enter a rate or load it.',
     source: { cnb: 'ČNB rate', ecb: 'ECB rate', manual: 'Entered manually' },
+  },
+  business: {
+    switch: 'Switch business',
+    add: 'Add another business',
+    addHint: 'Its own folder with invoices, customers and numbering',
+    unsaved: 'The latest changes must be saved first. Please try again in a moment.',
+    denied: 'The browser did not allow access to the folder {{folder}}.',
+    others: 'Other businesses',
+    open: 'Open {{name}}',
+    cancelNew: 'Cancel and go back to {{name}}',
+    dialogTitle: 'Add a business',
+    dialogIntro: 'In Invojka, each business has its own folder with its invoices, customers and numbering. We will create the folder for it.',
+    name: 'Business name',
+    nameHint: 'We name the folder after it. You fill in the invoice details in the next step.',
+    nameMissing: 'Enter the business name.',
+    stepsTitle: 'What happens next',
+    step1: 'A window for choosing a folder opens. Find the place where the new business should live, such as Documents or where your “{{current}}” folder is.',
+    step2: 'Click the “Select Folder” button at the bottom of the window. Don’t create anything in it.',
+    step3: 'The browser asks whether Invojka may edit files in the folder. Confirm it.',
+    step4: 'Invojka creates the folder “{{folder}}” there and guides you through setting up the business.',
+    choosePlace: 'Choose a place for the folder',
+    existing: 'Does the business already have an Invojka data folder? Open an existing folder',
+    insideBusiness: 'The folder “{{folder}}” already belongs to a business, so we won’t put a new one inside it. Choose a place next to it, for example one level up.',
+    aborted: 'You closed the folder window. Try again whenever you are ready.',
+    title: 'Businesses',
+    folderHint: 'Folder: {{folder}}. Add another business by clicking its name at the top; each one has its own folder.',
+    remove: 'Remove from the list',
+    removeHint: 'The business disappears from the switcher. The files in its folder stay, and you can add it again by choosing the same folder.',
   },
   demo: {
     title: 'Demo data',

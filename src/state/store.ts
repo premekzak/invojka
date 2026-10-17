@@ -24,13 +24,21 @@ interface State {
   stamps: Stamps
   saveState: SaveState
   saveError: string | undefined
+  /** When the last change reached the folder, for "Vše uloženo v 18:05". Unset until something is saved. */
+  savedAt: number | undefined
   conflictFile: FileKey | undefined
   /** Demo mode: an anonymized in-memory copy is shown; the real folder is never written. */
   demo: boolean
+  /** The business open before the current one, so a new business's onboarding can go back to it. */
+  previous: StorageAdapter | undefined
+  /** The name typed when adding a business, to start its onboarding with. */
+  newBusinessName: string | undefined
 
   setPhase(p: Phase): void
-  open(adapter: StorageAdapter): Promise<void>
+  open(adapter: StorageAdapter, newBusinessName?: string): Promise<void>
   reload(): Promise<void>
+  /** Save pending changes, then open another business's folder. Throws 'unsaved' if something couldn't be saved. */
+  switchTo(adapter: StorageAdapter, newBusinessName?: string): Promise<void>
   saveSettings(s: Settings): void
   upsertCustomer(c: Customer): void
   removeCustomer(id: string): void
@@ -85,7 +93,7 @@ export const useStore = create<State>()((set, get) => {
         return set({ saveState: 'error', saveError: (e as Error).message })
       }
     }
-    set({ saveState: dirty.size ? 'pending' : 'saved', saveError: undefined, conflictFile: undefined })
+    set({ saveState: dirty.size ? 'pending' : 'saved', saveError: undefined, conflictFile: undefined, ...(dirty.size ? {} : { savedAt: Date.now() }) })
   }
 
   return {
@@ -97,15 +105,26 @@ export const useStore = create<State>()((set, get) => {
     stamps: {},
     saveState: 'saved',
     saveError: undefined,
+    savedAt: undefined,
     conflictFile: undefined,
     demo: false,
+    previous: undefined,
+    newBusinessName: undefined,
 
     setPhase: (phase) => set({ phase }),
 
-    async open(adapter) {
+    async open(adapter, newBusinessName) {
+      const { adapter: before, demo } = get()
+      set({ adapter, demo: false, previous: demo ? realAdapter : before, newBusinessName })
       realAdapter = undefined
-      set({ adapter, demo: false })
       await get().reload()
+    },
+
+    async switchTo(adapter, newBusinessName) {
+      if (get().demo) throw new Error('demo')
+      await get().flush()
+      if (dirty.size || get().saveState !== 'saved') throw new Error('unsaved')
+      await get().open(adapter, newBusinessName)
     },
 
     async reload() {
@@ -115,7 +134,7 @@ export const useStore = create<State>()((set, get) => {
       dirty.clear()
       try {
         const data = await loadAll(adapter)
-        set({ ...data, saveState: 'saved', conflictFile: undefined, phase: data.settings ? { kind: 'ready' } : { kind: 'onboarding' } })
+        set({ ...data, saveState: 'saved', savedAt: undefined, conflictFile: undefined, phase: data.settings ? { kind: 'ready' } : { kind: 'onboarding' } })
       } catch (e) {
         set({ phase: { kind: 'error', message: (e as Error).message } })
       }

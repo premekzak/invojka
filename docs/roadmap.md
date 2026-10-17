@@ -13,25 +13,43 @@
 - [x] Settings: profile, bank account (IBAN filled in automatically), VAT, defaults, numbering, language, theme, folder
 - [x] Exchange rates: ECB automatic, ČNB file upload, manual; foreign revenue counted in CZK
 - [x] Demo mode for screenshots and videos: an anonymized in-memory copy; the folder is never written
-- [x] 56 unit tests
+- [x] 63 unit tests
 - [x] Colour cleanup (2026-10-01): the PDF has its own neutral palette in one place; `danger-fg` and `scrim` tokens; one selected tint (`accent/10`); dark red raised to pass contrast on its badge
 - [x] Neutral 12-step scale (2026-10-01): three text levels, visible field borders, `color-scheme` in dark mode
 - [x] Ledger theme (2026-10-01), reached by going all-grey first and then adding colour role by role: light grey page (cream tried and replaced), blue for actions, black identity (navy tried and replaced), red warnings and errors, green confirmations
 
 - [x] Design system "Invoicer Ledger" (2026-10-11): colour-agnostic roles, type, layout, and a forms standard (ledger-line fields, labels above, hint or error under the field, error summary, setting rows), all built into the app
 
+- [x] No sidebar: a one-row peach header with the logo, the pages as pills, and the business with a save tick (2026-10-17)
+- [x] More businesses: one folder each, a switcher in the header (2026-10-17)
+- [x] Bricolage Grotesque headings, rust warnings, primary-button gradient (2026-10-17)
+- [x] Theme "Warm paper" (2026-10-17): peach band (first a sidebar), cream page, espresso text, blue actions and charts, an orange logo, rust warnings, crimson errors, green success; designed dark mode
+
 ## To verify with the owner
 
 - [ ] Reopening after a browser restart takes one click (not yet confirmed on the real folder)
 - [ ] The QR Platba code scans in a real Czech banking app
-- [ ] Generating a PDF in the built `dist/invoicer.html` opened from disk (so far tested only via the dev server)
+- [ ] Generating a PDF in the built `dist/invojka.html` opened from disk (so far tested only via the dev server)
+
+## Going public as Invojka (set 2026-10-17)
+
+- [ ] Register invojka.cz and invojka.com (and decide on .app); check trademarks (ÚPV, EUIPO)
+- [x] Rename the code, build output, UI texts, PDF labels and docs from Invoicer to Invojka, with a fallback for the renamed storage keys (2026-10-17)
+- [ ] **Effortless first run** (main focus, see [product.md](product.md#first-run-from-download-to-first-invoice)): an unsupported-browser guide, a "move me out of Downloads" hint, a data-folder step that suggests a concrete place, a bookmark or shortcut hint, and an update check
+- [ ] Download page with step-by-step instructions per system and browser; test it with someone who has never seen the app
+- [ ] Remove anything owner-specific that a stranger would trip over (the CSV import is built for the previous service's export)
+- [ ] Website on invojka.cz: download, the privacy story, comparison with Fakturoid and iDoklad, screenshots (demo mode)
+- [ ] Research the other competitors (Vyfakturuj, SuperFaktura, Pohoda, Money S3)
+- [ ] A licence for the public repo
 
 ## Next (from the original plan)
 
 - [ ] **Deeper analytics:** top customers and their share, days until payment per customer, revenue by currency, year-over-year by customer
-- [ ] **Polish:** command palette (Ctrl+K), shortcuts (N = new invoice, / = search), a theme toggle in the sidebar, date inputs in Czech format
+- [ ] **Polish:** command palette (Ctrl+K), shortcuts (N = new invoice, / = search), a theme toggle in the header, date inputs in Czech format
 - [ ] **Sending:** a pre-filled email with the PDF (Gmail draft or `mailto:`), recording `sentAt`
 - [ ] **Customers:** merge two customers (e.g. one company that was renamed and appears twice)
+- [ ] **Drafts nobody meant to make** (the owner, 2026-10-17): open "Upravit odběratele" from the invoice form in a dialog instead of saving a silent draft, and remind about open drafts in "Co dál"
+- [ ] **Businesses:** copy a customer from another business; show each business's own initial in the logo square
 
 ## Later
 

@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { today } from '@/domain/id'
 import { CURRENCIES } from '@/domain/money'
@@ -7,8 +7,9 @@ import type { Settings } from '@/domain/schema'
 import { czechIban } from '@/domain/spayd'
 import { VAT_RATES } from '@/domain/vat'
 import { RatesPanel } from '@/features/rates/RatesPanel'
+import { openBusiness } from '@/features/shell/BusinessSwitcher'
 import { useStore } from '@/state/store'
-import { FsAccessAdapter } from '@/storage/fsAccess'
+import { FsAccessAdapter, type RememberedFolder } from '@/storage/fsAccess'
 import { Button, Card, Choice, Field, InputAffix, Labeled, Select, SettingRow } from '@/ui/primitives'
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
@@ -34,7 +35,7 @@ function SelectField({ label, ...p }: { label: string; value: string; onChange: 
 
 export function SettingsPage() {
   const { t } = useTranslation()
-  const { settings, saveSettings, invoices, adapter, open, demo } = useStore()
+  const { settings, saveSettings, invoices } = useStore()
   const s = settings!
   const update = (patch: Partial<Settings>) => saveSettings({ ...s, ...patch })
   const sup = (patch: Partial<Settings['supplier']>) => update({ supplier: { ...s.supplier, ...patch } })
@@ -129,19 +130,36 @@ export function SettingsPage() {
             <Options aria-label={t('settings.theme')} value={s.ui.theme} onChange={(v) => update({ ui: { ...s.ui, theme: v as Settings['ui']['theme'] } })}
               options={[['system', t('settings.themeSystem')], ['light', t('settings.themeLight')], ['dark', t('settings.themeDark')]]} />
           </SettingRow>
-          <SettingRow title={t('settings.folder')} hint={adapter?.name}>
-            <Button className="w-full" variant="secondary" disabled={demo} onClick={async () => {
-              try {
-                const next = await FsAccessAdapter.pick()
-                await useStore.getState().flush()
-                await open(next)
-              } catch (e) { if ((e as Error).name !== 'AbortError') throw e }
-            }}>{t('settings.changeFolder')}</Button>
-          </SettingRow>
+          <FolderRow />
           <DemoToggle />
         </Card>
       </section>
     </div>
+  )
+}
+
+/** The current business's folder. With more than one business it can be taken off the list (its files stay). */
+function FolderRow() {
+  const { t } = useTranslation()
+  const { adapter, demo } = useStore()
+  const [others, setOthers] = useState<RememberedFolder[]>([])
+  const [error, setError] = useState('')
+  useEffect(() => {
+    if (!demo) void FsAccessAdapter.list(adapter).then((l) => setOthers(l.filter((f) => !f.current)))
+  }, [adapter, demo])
+  const remove = async () => {
+    if (!(adapter instanceof FsAccessAdapter) || !others[0]) return
+    setError('')
+    const r = await openBusiness(others[0].adapter)
+    if (r === 'ok') await adapter.forgetFolder()
+    else setError(r === 'denied' ? t('business.denied', { folder: others[0].adapter.name }) : t('business.unsaved'))
+  }
+  return (
+    <SettingRow title={t('settings.folder')} hint={<>{t('business.folderHint', { folder: adapter?.name })}
+      {others.length > 0 && <span className="mt-1 block">{t('business.removeHint')}</span>}
+      {error && <span className="mt-1 block font-medium text-danger">{error}</span>}</>}>
+      {others.length > 0 && <Button className="w-full" variant="secondary" disabled={demo} onClick={() => void remove()}>{t('business.remove')}</Button>}
+    </SettingRow>
   )
 }
 

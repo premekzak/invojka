@@ -1,11 +1,12 @@
 import { Check, FileUp } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { SCHEMA_VERSION, Settings } from '@/domain/schema'
 import { czechIban } from '@/domain/spayd'
 import type { VatMode } from '@/domain/vat'
 import { importCsv, type ImportResult } from '@/import/csv'
 import { useStore } from '@/state/store'
+import { FsAccessAdapter } from '@/storage/fsAccess'
 import { Button, Card, Choice, Field, cn } from '@/ui/primitives'
 
 type Supplier = Settings['supplier']
@@ -18,9 +19,13 @@ const emptySupplier: Supplier = {
 
 export function Onboarding() {
   const { t, i18n } = useTranslation()
-  const { saveSettings, replaceAll, adapter } = useStore()
+  const { saveSettings, replaceAll, adapter, previous, open, newBusinessName } = useStore()
   const [step, setStep] = useState(0)
-  const [supplier, setSupplier] = useState<Supplier>(emptySupplier)
+  const [previousName, setPreviousName] = useState('')
+  useEffect(() => {
+    if (previous instanceof FsAccessAdapter) void FsAccessAdapter.list(previous).then((l) => setPreviousName(l.find((f) => f.current)?.label ?? ''))
+  }, [previous])
+  const [supplier, setSupplier] = useState<Supplier>(() => ({ ...emptySupplier, name: newBusinessName ?? '' }))
   const [vatMode, setVatMode] = useState<VatMode>('nonPayer')
   const [files, setFiles] = useState<{ customers?: string; invoices?: string }>({})
   const [result, setResult] = useState<ImportResult>()
@@ -43,6 +48,13 @@ export function Onboarding() {
         setImportError((e as Error).message)
       }
     }
+  }
+
+  // Added a business by mistake: forget the new folder (nothing has been written to it yet) and reopen the one before.
+  async function cancelNew() {
+    if (!(previous instanceof FsAccessAdapter) || !(await previous.activate())) return
+    if (adapter instanceof FsAccessAdapter) await adapter.forgetFolder()
+    await open(previous)
   }
 
   const [saving, setSaving] = useState(false)
@@ -89,7 +101,7 @@ export function Onboarding() {
         <div className="mb-8 flex items-center justify-between">
           <div>
             <p className="text-sm text-fg-subtle">{t('onboarding.step', { n: step + 1, total: steps.length })}</p>
-            <h1 className="mt-1 font-serif text-4xl leading-[1.2] font-semibold">{steps[step]}</h1>
+            <h1 className="mt-1 font-display text-4xl leading-[1.2] font-bold tracking-[-0.03em]">{steps[step]}</h1>
           </div>
           <div className="flex gap-1.5">
             {steps.map((_, i) => (
@@ -114,7 +126,7 @@ export function Onboarding() {
                 <Field className="col-span-3" label={t('fields.phone')} value={supplier.phone} onChange={(e) => set({ phone: e.target.value })} />
                 <Field className="col-span-4" label={t('fields.account')} placeholder="123456789" value={supplier.bank.account} onChange={(e) => setBank({ account: e.target.value })} />
                 <Field className="col-span-2" label={t('fields.bankCode')} placeholder="0800" value={supplier.bank.bankCode} onChange={(e) => setBank({ bankCode: e.target.value })} />
-                <Field className="col-span-6" label={t('fields.registration')} value={supplier.registration} onChange={(e) => set({ registration: e.target.value })} />
+                <Field className="col-span-6" label={t('fields.registration')} hint={t('fields.registrationHint')} value={supplier.registration} onChange={(e) => set({ registration: e.target.value })} />
               </div>
             </div>
           )}
@@ -164,7 +176,14 @@ export function Onboarding() {
         {saveError && <p className="mt-6 rounded-lg bg-surface-2 p-3 text-sm text-danger">{t('save.error')}: {saveError}</p>}
 
         <div className="mt-8 flex items-center justify-between border-t border-line pt-6">
-          <span className="text-xs text-fg-subtle">{adapter?.name}</span>
+          <div className="space-y-1">
+            <span className="block text-xs text-fg-subtle">{adapter?.name}</span>
+            {previous instanceof FsAccessAdapter && previousName && (
+              <button className="text-xs text-accent underline underline-offset-2 decoration-line-strong hover:decoration-current" onClick={() => void cancelNew()}>
+                {t('business.cancelNew', { name: previousName })}
+              </button>
+            )}
+          </div>
           <div className="flex gap-2">
             {step > 0 && <Button variant="ghost" onClick={() => setStep(step - 1)}>{t('common.back')}</Button>}
             {step < steps.length - 1

@@ -9,8 +9,8 @@ loadUiFonts()
 
 // Dev-only hooks so browser automation can run the app against in-memory storage (no folder dialog).
 if (import.meta.env.DEV) {
-  void Promise.all([import('./state/store'), import('./storage/memory'), import('./import/csv'), import('./domain/schema')]).then(
-    ([{ useStore }, { MemoryAdapter }, { importCsv }, { Settings, SCHEMA_VERSION }]) => {
+  void Promise.all([import('./state/store'), import('./storage/memory'), import('./import/csv'), import('./domain/schema'), import('./domain/check')]).then(
+    ([{ useStore }, { MemoryAdapter }, { importCsv }, { Settings, SCHEMA_VERSION }, { checkData }]) => {
       const openMemory = () => useStore.getState().open(new MemoryAdapter())
       /** Load the repo's sample CSVs (served by the dev server) into a fresh in-memory folder. */
       const seedFromCsv = async (vatMode: 'payer' | 'nonPayer' = 'nonPayer') => {
@@ -28,7 +28,15 @@ if (import.meta.env.DEV) {
         await s.flush()
         s.setPhase({ kind: 'ready' })
       }
-      Object.assign(window, { __invojka: { useStore, openMemory, seedFromCsv } })
+      /** List what's wrong with the data that's open now (errors, then warnings) in a console table. */
+      const check = () => {
+        const { settings, customers, invoices } = useStore.getState()
+        if (!settings) return console.warn('No data open.')
+        const issues = checkData({ settings, customers, invoices }).sort((a, b) => a.level.localeCompare(b.level))
+        console.table(issues)
+        return issues
+      }
+      Object.assign(window, { __invojka: { useStore, openMemory, seedFromCsv, check } })
     },
   )
 }

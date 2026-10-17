@@ -22,6 +22,8 @@ The data folder contains:
 - **Totals are always computed** from the lines with `computeTotals`. `recordedTotal` exists only to check the CSV import.
 - **"Overdue" is never stored.** `displayStatus()` works it out from `status === 'issued'` and `dueDate < today`.
 - **`customerSnapshot`** is a copy of the customer's name, IČ, DIČ and address, taken when an invoice is created. Editing a customer updates the snapshot on **drafts only**; issued invoices keep what was printed. When an issued, paid or cancelled invoice's snapshot differs from its customer (`snapshotDiffers`), the editor offers "Použít nové údaje" (Use the new details). The owner takes them on purpose, and saving rewrites the PDF in the folder.
+- **Revenue is issued plus paid invoices, by issue date.** `countsAsRevenue` in `stats.ts` is the one rule, and Home, the charts, the customer list and the customer detail all compute through `stats.ts`, so they show the same numbers. Invoices in another currency without an exchange rate add nothing.
+- **`checkData()`** in `check.ts` lists everything that breaks these rules (errors) or usually is a mistake (warnings): duplicate numbers, due before issue, a paid date without the paid status, gaps and out-of-order dates in the number series, and more. See [development.md](development.md#tests).
 - **`schemaVersion`** is in every file, currently `1`.
   - A file with a higher version is refused with a message asking the user to update the app.
   - Migrations will run in `repo.ts` when a version changes.

@@ -111,8 +111,8 @@ const en: Messages = {
   invoices: {
     title: 'Invoices', search: 'Search number, customer, description…', allYears: 'All years', allStatuses: 'All statuses',
     number: 'Number', customer: 'Customer', issued: 'Issued', due: 'Due', total: 'Total', status: 'Status',
-    markPaid: 'Mark paid', empty: 'No invoices match the filter.', count: '{{count}} invoices · {{total}}',
-    daysOverdue: '{{count}} days overdue',
+    markPaid: 'Mark paid', empty: 'No invoices match the filter.', count_one: '{{count}} invoice · {{total}}', count_few: '{{count}} invoices · {{total}}', count_other: '{{count}} invoices · {{total}}',
+    daysOverdue_one: '{{count}} day overdue', daysOverdue_few: '{{count}} days overdue', daysOverdue_other: '{{count}} days overdue',
   },
   editor: {
     newTitle: 'New invoice', title: 'Invoice {{number}}', notFound: 'Invoice not found.',

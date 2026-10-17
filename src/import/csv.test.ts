@@ -58,7 +58,8 @@ const hasReal = existsSync(realFile('customers.csv')) && existsSync(realFile('in
 describe.skipIf(!hasReal)('import of the real export (local only)', () => {
   const read = (f: string) => readFileSync(realFile(f), 'utf8')
   let n = 0
-  const res = importCsv(read('customers.csv'), read('invoices.csv'), 'nonPayer', () => `id${++n}`)
+  // skipIf still runs this body to collect the tests, so only import when the files exist.
+  const res = hasReal ? importCsv(read('customers.csv'), read('invoices.csv'), 'nonPayer', () => `id${++n}`) : undefined!
 
   it('imports without warnings into schema-valid files', () => {
     expect(res.invoices.length).toBeGreaterThan(0)

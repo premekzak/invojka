@@ -3,7 +3,8 @@ import { useMemo } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { daySlot, pickDaily, yearTrend } from '@/domain/greeting'
 import { today } from '@/domain/id'
-import { displayStatus, invoiceTotals, totalCzk } from '@/domain/invoice'
+import { displayStatus, invoiceTotals } from '@/domain/invoice'
+import { homeStats } from '@/domain/stats'
 import { useStore } from '@/state/store'
 import { StatusBadge, useFormat } from '@/ui/format'
 import { Card, cn } from '@/ui/primitives'
@@ -76,23 +77,8 @@ export function Home() {
   const f = useFormat()
   const { settings, invoices, customers } = useStore()
   const on = today()
-  const year = Number(on.slice(0, 4))
-  const sameDayLastYear = `${year - 1}${on.slice(4)}`
 
-  const stats = useMemo(() => {
-    let revenue = 0, revenueLast = 0, outstanding = 0, overdueSum = 0, overdueCount = 0, countThisYear = 0
-    for (const inv of invoices) {
-      if (inv.status === 'cancelled' || inv.status === 'draft') continue
-      const czk = totalCzk(inv) ?? 0
-      if (inv.issueDate.startsWith(String(year))) { revenue += czk; countThisYear++ }
-      if (inv.issueDate.startsWith(String(year - 1)) && inv.issueDate <= sameDayLastYear) revenueLast += czk
-      if (inv.status === 'issued') {
-        outstanding += czk
-        if (displayStatus(inv, on) === 'overdue') { overdueSum += czk; overdueCount++ }
-      }
-    }
-    return { revenue, revenueLast, outstanding, overdueSum, overdueCount, countThisYear }
-  }, [invoices, on, year, sameDayLastYear])
+  const stats = useMemo(() => homeStats(invoices, on), [invoices, on])
 
   // Chosen once per visit to Home: it follows the time of day but doesn't flip while you look at it.
   const greeting = useMemo(() => {

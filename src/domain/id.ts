@@ -1,6 +1,9 @@
+import { format } from 'date-fns'
+
 export const newId = (): string => crypto.randomUUID()
 
-export const today = (): string => new Date().toISOString().slice(0, 10)
+/** Today's local date (yyyy-mm-dd). Not toISOString(): that is UTC, a day behind in Czechia after midnight. */
+export const today = (now = new Date()): string => format(now, 'yyyy-MM-dd')
 
 /** Normalized company name for matching: case, punctuation, whitespace and legal form don't matter. */
 export function nameKey(name: string): string {

@@ -1,7 +1,7 @@
 import { Plus, Search } from 'lucide-react'
 import { useDeferredValue, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { totalCzk } from '@/domain/invoice'
+import { customerStats } from '@/domain/stats'
 import { useStore } from '@/state/store'
 import { useFormat } from '@/ui/format'
 import { Button, Card, Checkbox, Input } from '@/ui/primitives'
@@ -16,15 +16,7 @@ export function CustomerList() {
   const q = useDeferredValue(search.trim().toLowerCase())
 
   const rows = useMemo(() => {
-    const stats = new Map<string, { count: number; revenue: number; last: string }>()
-    for (const inv of invoices) {
-      if (!inv.customerId || inv.status === 'cancelled' || inv.status === 'draft') continue
-      const s = stats.get(inv.customerId) ?? { count: 0, revenue: 0, last: '' }
-      s.count++
-      s.revenue += totalCzk(inv) ?? 0
-      if (inv.issueDate > s.last) s.last = inv.issueDate
-      stats.set(inv.customerId, s)
-    }
+    const stats = customerStats(invoices)
     return customers
       .filter((c) => (showArchived || !c.archived) && (!q || c.name.toLowerCase().includes(q) || c.ic.includes(q) || c.address.city.toLowerCase().includes(q)))
       .map((c) => ({ c, s: stats.get(c.id) ?? { count: 0, revenue: 0, last: '' } }))

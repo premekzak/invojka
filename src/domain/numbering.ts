@@ -32,3 +32,12 @@ export function nextNumber(pattern: string, isoDate: string, existing: string[])
   }
   return formatNumber(pattern, isoDate, max + 1)
 }
+
+/** The sequence part of `number` if it follows `pattern` for the period of `isoDate`, else undefined. */
+export function sequenceOf(pattern: string, isoDate: string, number: string): number | undefined {
+  const m = toRegex(pattern, isoDate).exec(number)
+  return m ? Number(m[1]) : undefined
+}
+
+/** The numbering period of `isoDate`: a month when the pattern contains {MM}, otherwise a year. */
+export const periodOf = (pattern: string, isoDate: string) => (pattern.includes('{MM}') ? isoDate.slice(0, 7) : isoDate.slice(0, 4))

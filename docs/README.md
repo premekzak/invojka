@@ -12,6 +12,7 @@ This folder holds the project's lasting context: what the app is for, how it wor
 | [csv-import.md](csv-import.md) | Importing the previous service's CSV export and what the real data looks like |
 | [ui.md](ui.md) | Screens, UX principles, design tokens, charts |
 | [development.md](development.md) | Commands, testing (including in the browser), known pitfalls |
+| [test-plan.md](test-plan.md) | How to find bugs and inconsistencies: automatic checks, user journeys, the checklist |
 | [decisions.md](decisions.md) | Dated log of decisions and the reasons behind them |
 | [roadmap.md](roadmap.md) | What's done, what's next, ideas for later |
 

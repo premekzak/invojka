@@ -2,9 +2,10 @@ import { Archive, ArchiveRestore, ArrowLeft, FilePlus2, Trash2 } from 'lucide-re
 import { useMemo, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { newId, today } from '@/domain/id'
-import { displayStatus, invoiceTotals, snapshotOf, totalCzk } from '@/domain/invoice'
+import { displayStatus, invoiceTotals, snapshotOf } from '@/domain/invoice'
 import { CURRENCIES } from '@/domain/money'
 import type { Customer } from '@/domain/schema'
+import { customerStats } from '@/domain/stats'
 import { useStore } from '@/state/store'
 import { StatusBadge, useFormat } from '@/ui/format'
 import { Button, Card, Checkbox, Field, Labeled, Select, Textarea } from '@/ui/primitives'
@@ -48,7 +49,7 @@ function CustomerForm({ initial, isNew }: { initial: Customer; isNew: boolean })
     () => invoices.filter((i) => i.customerId === c.id).sort((a, b) => b.issueDate.localeCompare(a.issueDate)),
     [invoices, c.id],
   )
-  const revenue = mine.reduce((s, i) => s + (i.status === 'paid' || i.status === 'issued' ? totalCzk(i) ?? 0 : 0), 0)
+  const revenue = useMemo(() => customerStats(invoices).get(c.id)?.revenue ?? 0, [invoices, c.id])
 
   function save(next: Partial<Customer> = {}) {
     const cust = { ...c, ...next, name: c.name.trim() }

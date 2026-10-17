@@ -109,8 +109,8 @@ const cs = {
   invoices: {
     title: 'Faktury', search: 'Hledat číslo, odběratele, popis…', allYears: 'Všechny roky', allStatuses: 'Všechny stavy',
     number: 'Číslo', customer: 'Odběratel', issued: 'Vystaveno', due: 'Splatnost', total: 'Celkem', status: 'Stav',
-    markPaid: 'Označit jako zaplacené', empty: 'Žádné faktury neodpovídají filtru.', count: '{{count}} faktur · {{total}}',
-    daysOverdue: '{{count}} dní po splatnosti',
+    markPaid: 'Označit jako zaplacené', empty: 'Žádné faktury neodpovídají filtru.', count_one: '{{count}} faktura · {{total}}', count_few: '{{count}} faktury · {{total}}', count_other: '{{count}} faktur · {{total}}',
+    daysOverdue_one: '{{count}} den po splatnosti', daysOverdue_few: '{{count}} dny po splatnosti', daysOverdue_other: '{{count}} dní po splatnosti',
   },
   editor: {
     newTitle: 'Nová faktura', title: 'Faktura {{number}}', notFound: 'Faktura nenalezena.',

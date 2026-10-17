@@ -40,6 +40,8 @@
 - [ ] Register invojka.cz and invojka.com (and decide on .app); check trademarks (ÚPV, EUIPO)
 - [x] Rename the code, build output, UI texts, PDF labels and docs from Invoicer to Invojka, with a fallback for the renamed storage keys (2026-10-17)
 - [ ] **Effortless first run** (main focus, see [product.md](product.md#first-run-from-download-to-first-invoice)): an unsupported-browser guide, a "move me out of Downloads" hint, a data-folder step that suggests a concrete place, a bookmark or shortcut hint, and an update check
+- [x] Downloads on GitHub Releases, built and published by a workflow on each version tag (2026-10-17; v0.2.0)
+- [ ] Show the app's version (e.g. in Settings), so a user can tell whether their file is the newest
 - [ ] Download page with step-by-step instructions per system and browser; test it with someone who has never seen the app
 - [ ] Remove anything owner-specific that a stranger would trip over (the CSV import is built for the previous service's export)
 - [ ] Website on invojka.cz: download, the privacy story, comparison with Fakturoid and iDoklad, screenshots (demo mode)

@@ -34,6 +34,17 @@ Toolchain: TypeScript 7, Vite 8, Vitest 5, React 19, Zod 4, Tailwind 4 (via `@ta
 - Editing modules that aren't hot-reloadable (e.g. `src/pdf/*`, `main.tsx`) and the first use of a new dependency make Vite **reload the page, which wipes in-memory data**. Seed again.
 - Headless Chrome with `--virtual-time-budget` stalls on IndexedDB, so a `--dump-dom` of the built file shows an empty root. **That isn't an app bug.**
 
+## Releasing
+
+Users download `invojka.html` from [GitHub Releases](https://github.com/premekzak/invoicer/releases). The link `https://github.com/premekzak/invoicer/releases/latest/download/invojka.html` always gives the newest version, so the website can use it.
+
+1. Merge into `main`.
+2. Set the version: `npm version 0.3.0 --no-git-tag-version` (it updates `package.json` and the lock file).
+3. Write the notes in `docs/releases/v0.3.0.md`, in Czech and English, for someone who has never seen the app: start with what to do with the file.
+4. Commit, then tag and push: `git tag v0.3.0 && git push origin main v0.3.0`.
+
+The `Release` workflow (`.github/workflows/release.yml`) then runs the tests, builds, checks that the build has no dev hooks and that the tag matches `package.json`, and publishes the release with the file attached. If a step fails, nothing is published: fix it, delete the tag (`git push origin :v0.3.0`, `git tag -d v0.3.0`) and tag again.
+
 ## Pitfalls met so far
 
 - **Dates come from `today()` in `id.ts`, never `toISOString()`.** That is UTC: in Czechia, after midnight it still gives yesterday, so new invoices were dated a day early and overdue switched an hour or two late.

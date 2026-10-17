@@ -1,0 +1,36 @@
+# Pushing a version tag (e.g. v0.2.0) tests and builds the app, then publishes a GitHub release with
+# invojka.html attached. Release notes come from docs/releases/<tag>.md. See docs/development.md#releasing.
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      # The owner's real CSVs are git-ignored, so the tests run on the made-up export.
+      - run: npm test
+      - run: npm run build
+      - name: Check the build is one offline file without dev hooks
+        run: |
+          test -f dist/invojka.html
+          ! grep -q '__invojka' dist/invojka.html
+          test "$(node -p "'v' + require('./package.json').version")" = "$GITHUB_REF_NAME"
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          notes="docs/releases/$GITHUB_REF_NAME.md"
+          test -f "$notes"
+          gh release create "$GITHUB_REF_NAME" dist/invojka.html --title "Invojka ${GITHUB_REF_NAME#v}" --notes-file "$notes"

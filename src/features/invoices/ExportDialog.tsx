@@ -90,14 +90,14 @@ export function ExportDialog({ onClose }: { onClose: () => void }) {
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-scrim/50 p-6 backdrop-blur-sm" onClick={() => !busy && onClose()}>
       <Card className="animate-rise flex max-h-full w-full max-w-xl flex-col overflow-hidden">
-        <div className="flex items-center gap-2 border-b border-line px-5 py-3" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center gap-2 border-b border-line px-6 py-3" onClick={(e) => e.stopPropagation()}>
           <FileOutput aria-hidden="true" className="size-4 text-fg-muted" />
           <h2 className="font-medium">{t('export.title')}</h2>
           <Button size="sm" variant="ghost" className="ml-auto" aria-label={t('common.close')} disabled={!!busy} onClick={onClose}><X className="size-4" /></Button>
         </div>
-        <div className="flex-1 space-y-5 overflow-auto p-5" onClick={(e) => e.stopPropagation()}>
+        <div className="flex-1 space-y-5 overflow-auto px-6 py-5" onClick={(e) => e.stopPropagation()}>
           <p className="max-w-prose text-sm">{t('export.intro')}</p>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4 mobile-stack">
             <Labeled label={t('export.year')}>
               <Select value={year} onChange={(e) => setYear(e.target.value)}>{years.map((y) => <option key={y}>{y}</option>)}</Select>
             </Labeled>
@@ -126,7 +126,7 @@ export function ExportDialog({ onClose }: { onClose: () => void }) {
           {done && <p role="status" className="text-sm font-medium text-success">{done}</p>}
           {error && <p role="alert" className="text-sm font-medium text-danger">{error}</p>}
         </div>
-        <div className="flex justify-end gap-2 border-t border-line px-5 py-3" onClick={(e) => e.stopPropagation()}>
+        <div className="flex justify-end gap-2 border-t border-line px-6 py-3" onClick={(e) => e.stopPropagation()}>
           <Button variant="secondary" disabled={!docs.length || nothing || !!busy} onClick={() => void run('folder')}><FolderDown className="size-4" /> {t('export.toFolder')}</Button>
           <Button disabled={!docs.length || nothing || !!busy} onClick={() => void run('download')}><Download className="size-4" /> {t('export.download')}</Button>
         </div>

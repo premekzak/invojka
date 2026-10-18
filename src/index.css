@@ -97,12 +97,20 @@
   --color-series-1: var(--chart-1);
   --color-series-2: var(--chart-2);
   /* Categorical slots for a chart whose parts are different things (the tax donut on Home: tax, social, health). An exception
-     to the one-accent rule, the owner's choice (2026-10-18), in each scheme's own hues (Warm paper: brick, orange, olive). Every
-     scheme's set passes the dataviz validator for all pairs on its card, light and dark; Warm paper dark sits in the colour-blind
-     floor band (6.3), allowed because every part has a labelled row and 2 px gaps. Light olive is 2.3:1 on white, same relief. */
+     to the one-accent rule, the owner's choice (2026-10-18), in each scheme's own hues. Warm paper uses shades of its one chart
+     orange instead (the owner: "at most two colours in charts, then only shades"): dark, the bar orange, light; they differ in
+     lightness (normal ΔE 16.9 light / 17.7 dark, colour-blind 15.7 / 16.3). The light shade is 1.9:1 on white, so every part
+     also has a labelled row. The other schemes' sets pass the dataviz validator for all pairs on their card, light and dark. */
   --color-cat-1: var(--cat-1);
   --color-cat-2: var(--cat-2);
   --color-cat-3: var(--cat-3);
+}
+
+/* Phones (the owner, 2026-10-18: a desktop app, but it shouldn't fall apart): a grid marked mobile-stack becomes one column
+   and every child spans it, whatever its col-span. Unlayered, so it wins over the Tailwind utilities. */
+@media (max-width: 767px) {
+  .mobile-stack { grid-template-columns: minmax(0, 1fr); }
+  .mobile-stack > * { grid-column: 1 / -1; }
 }
 
 @layer base {
@@ -113,12 +121,13 @@
     --on-ink: #ffffff;
     --red: #b7162d; --on-red: #ffffff; --red-chip: #fedfde; --green: #1e7729; --green-chip: #e4f2e5;
     /* The accent is a vivid orange, another shade of the header's peach (the owner, 2026-10-18: "get rid of the blue, use another
-       shade of the peach/orange", then "more orange, I don't like the brick"). An orange this bright can't be text on the light
-       page, so it is used for fills with espresso text (5.8:1; hover 4.9:1), and --link is a darker orange for text, thin edges
-       and focus (4.9:1 on paper and fill). The slot keeps its old name "blue". Charts: an orange 3.4:1 on card, last year pale peach. */
-    --blue: #f18336; --on-blue: #342117; --blue-deep: #e27429;
+       shade of the peach/orange", then "more orange, I don't like the brick"). Since the third round of variants (2026-10-18, option 3)
+       a saturated orange with white text: 4.5:1, hover 5.5:1, 4.5:1 on card as a UI edge. It still isn't body text on the paper
+       (3.95:1), so --link is a darker orange for text, thin edges and focus (4.9:1 on paper and fill). The slot keeps its old name
+       "blue". Charts: an orange 3.4:1 on card, last year pale peach. */
+    --blue: #cf4a09; --on-blue: #ffffff; --blue-deep: #b94000;
     --chart-1: #de6907; --chart-2: #f7d2bd;
-    --cat-1: #a14f36; --cat-2: #e36a00; --cat-3: #9db560;
+    --cat-1: #953c00; --cat-2: #de6907; --cat-3: #f4ad80;
     /* Warnings are ochre since the accent became orange (2026-10-18; before, rust #9e4501, which an orange accent would have
        matched): 5.3:1 on paper and fill, 5.0:1 on its chip. Not red, the owner finds red aggressive. The slot keeps the name "rust". */
     --rust: #825b0c; --rust-chip: #fbe5c3;
@@ -133,10 +142,10 @@
     --paper: #110d0b; --card: #181411; --hover: #1c1714; --fill: #221d19; --rule: #27221e; --line: #332c28; --field: #1e1915; --edge: #6f645d; --mid: #b5a89f; --ink: #f2e9e4;
     --on-ink: #110d0b;
     --red: #df676f; --on-red: #110d0b; --red-chip: #3f191b; --green: #66ac69; --green-chip: #173019;
-    --blue: #f99549; --on-blue: #110d0b; --blue-deep: #ec873f;
+    --blue: #f07a3a; --on-blue: #110d0b; --blue-deep: #e36d2e;
     --rust: #d8b260; --rust-chip: #392c0c;
     --chart-1: #f99549; --chart-2: #6f3f22;
-    --cat-1: #983f4a; --cat-2: #d17414; --cat-3: #6a7300;
+    --cat-1: #fdd9c0; --cat-2: #f99549; --cat-3: #9a4412;
     --orange: #fa8d4e; --logo: #fa8d4e; --on-logo: #110d0b; --logo-dot: #fffaf6;
     --peach: #3c2517; --on-peach: #f6e8df; --on-peach-muted: #d7bfaf;
     /* Native controls (date pickers, select arrows, scrollbars) follow the theme. */

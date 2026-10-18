@@ -38,7 +38,7 @@ export function RatesPanel() {
       <p className={cn('font-medium', missing.length ? 'text-warning' : 'text-success')}>
         {missing.length ? t('rates.missing', { count: missing.length, currencies }) : t('rates.allSet')}
       </p>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-4 mobile-stack">
         <div className="space-y-2 rounded-lg bg-surface-2 p-4">
           <div className="font-medium">{t('rates.ecbTitle')}</div>
           <p className="text-xs text-fg-muted">{t('rates.ecbHint')}</p>

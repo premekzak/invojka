@@ -33,9 +33,9 @@ export function CustomerList() {
 
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
         <h1 className="font-display text-4xl leading-[1.2] font-bold tracking-[-0.01em]">{t('customers.title')}</h1>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center justify-end gap-x-4 gap-y-2">
           <Checkbox label={t('customers.quiet', { count: quietIds.size })} checked={quiet} onChange={(e) => setQuiet(e.target.checked)} />
           <Checkbox label={t('customers.showArchived')} checked={showArchived} onChange={(e) => setShowArchived(e.target.checked)} />
           <Button onClick={() => navigate('/customers/new')}><Plus className="size-4" /> {t('customers.newCustomer')}</Button>
@@ -45,8 +45,8 @@ export function CustomerList() {
         <Search className="absolute top-3 left-3 size-4 text-fg-subtle" />
         <Input className="pl-9" aria-label={t('customers.search')} placeholder={t('customers.search')} value={search} onChange={(e) => setSearch(e.target.value)} autoFocus />
       </div>
-      <Card className="overflow-hidden">
-        <table className="w-full text-sm">
+      <Card className="overflow-x-auto">
+        <table className="w-full text-sm max-md:min-w-[36rem]">
           <thead className="text-left text-xs text-fg-muted">
             <tr>
               <th className="px-4 py-2.5 font-medium">{t('fields.name')}</th>
@@ -54,7 +54,7 @@ export function CustomerList() {
               <th className="px-4 py-2.5 font-medium">{t('fields.city')}</th>
               <th className="px-4 py-2.5 text-right font-medium">{t('customers.paidCount')}</th>
               <th className="px-4 py-2.5 text-right font-medium">{t('customers.paid')}</th>
-              <th className="py-2.5 pr-5 pl-4 font-medium">{t('customers.lastInvoice')}</th>
+              <th className="py-2.5 pr-6 pl-4 font-medium">{t('customers.lastInvoice')}</th>
             </tr>
           </thead>
           <tbody>
@@ -70,7 +70,7 @@ export function CustomerList() {
                 <td className="px-4 py-3 text-right tabular-nums">{formatPaid(f, s)}</td>
                 {/* "Nová faktura" shares the last cell (no empty column at the right edge) and shows on hover or keyboard focus as
                     a one-line accent link, not a box that blends into the hovered row (the owner, 2026-10-17). */}
-                <td className="py-3 pr-5 pl-4">
+                <td className="py-3 pr-6 pl-4">
                   <div className="flex items-center justify-between gap-3">
                     <span className="whitespace-nowrap text-fg-muted">{f.date(s.last || undefined)}</span>
                     <a href={`#/invoices/new?customer=${c.id}`} onClick={(e) => e.stopPropagation()}

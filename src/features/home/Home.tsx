@@ -26,7 +26,7 @@ function Tasks({ tasks }: { tasks: Task[] }) {
   const { t } = useTranslation()
   if (!tasks.length) {
     return (
-      <Card className="flex items-center gap-3 p-5">
+      <Card className="flex items-center gap-3 px-6 py-5">
         <CheckCircle2 className="size-5 shrink-0 text-success" />
         <div>
           <div className="font-medium">{t('home.allGood')}</div>
@@ -37,12 +37,12 @@ function Tasks({ tasks }: { tasks: Task[] }) {
   }
   return (
     <Card className="overflow-hidden">
-      <div className="flex items-center gap-2 px-5 py-3 text-xs">
+      <div className="flex items-center gap-2 px-6 py-3 text-xs">
         <AlertCircle className="size-3.5 text-warning" />
         <span className="font-semibold">{t('home.tasks', { count: tasks.length })}</span>
       </div>
       {tasks.map((task, i) => (
-        <div key={task.key} className={cn('grid grid-cols-[1.5rem_1fr_auto] items-center gap-3 px-5 py-2.5', i % 2 === 0 && 'bg-row-hover')}>
+        <div key={task.key} className={cn('grid grid-cols-[1.5rem_1fr_auto] items-center gap-3 px-6 py-2.5', i % 2 === 0 && 'bg-row-hover')}>
           <span aria-hidden="true" className={cn('size-2 justify-self-center rounded-full', task.warning ? 'bg-warning' : 'bg-line-strong')} />
           <div className="min-w-0">
             <div className={cn('font-medium', task.warning && 'text-warning')}>{task.title}</div>
@@ -161,8 +161,8 @@ export function Home() {
 
       {/* Two different things side by side (the owner's choice "K2", 2026-10-17): the permanent "Nová faktura" tile, a solid
           accent block that reads as the main button, and a white table of things to check, which shrinks to "Vše v pořádku". */}
-      <div className="grid grid-cols-[17.5rem_1fr] items-stretch gap-5">
-        <a href="#/invoices/new" className="scheme-tile flex min-h-48 flex-col justify-between gap-4 rounded-2xl bg-accent p-5 text-tile-fg transition-colors hover:bg-accent-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-link">
+      <div className="grid grid-cols-[17.5rem_1fr] items-stretch gap-5 mobile-stack">
+        <a href="#/invoices/new" className="scheme-tile flex min-h-48 flex-col justify-between gap-4 rounded-2xl bg-accent px-6 py-5 text-tile-fg transition-colors hover:bg-accent-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-link">
           <Plus className="size-11" strokeWidth={2.25} />
           <div>
             <div className="text-lg font-semibold">{t('nav.newInvoice')}</div>
@@ -188,12 +188,12 @@ export function Home() {
           </div>
           <Card className="overflow-hidden [&>a:nth-child(even)]:bg-row-hover">
             {recent.map((inv) => (
-              <a key={inv.id} href={`#/invoices/${inv.id}`} className="flex items-center gap-4 px-5 py-3 text-sm transition-colors hover:bg-surface-2!">
-                <span className="w-24 tabular-nums text-fg-muted">{inv.number}</span>
-                <span className="flex-1 truncate font-medium">{inv.customerSnapshot.name}</span>
-                <span className="w-28 text-fg-muted">{f.date(inv.issueDate)}</span>
-                <span className="w-32 text-right tabular-nums">{f.money(invoiceTotals(inv).total, inv.currency)}</span>
-                <span className="w-28 text-right"><StatusBadge status={displayStatus(inv, on)} /></span>
+              <a key={inv.id} href={`#/invoices/${inv.id}`} className="flex items-center gap-4 px-6 py-3 text-sm transition-colors hover:bg-surface-2!">
+                <span className="w-24 tabular-nums text-fg-muted max-md:hidden">{inv.number}</span>
+                <span className="min-w-0 flex-1 truncate font-medium">{inv.customerSnapshot.name}</span>
+                <span className="w-28 text-fg-muted max-md:hidden">{f.date(inv.issueDate)}</span>
+                <span className="shrink-0 text-right tabular-nums md:w-32">{f.money(invoiceTotals(inv).total, inv.currency)}</span>
+                <span className="shrink-0 text-right md:w-28"><StatusBadge status={displayStatus(inv, on)} /></span>
               </a>
             ))}
           </Card>

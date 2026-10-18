@@ -1,6 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { App } from './App'
+import { DesktopNotice } from './ui/DesktopNotice'
 import { ErrorBoundary } from './ui/ErrorBoundary'
 import './i18n'
 import './index.css'
@@ -50,6 +51,7 @@ createRoot(document.getElementById('root')!).render(
     {/* The last line of defence; each screen also has its own boundary (App.tsx), so the header stays usable. */}
     <ErrorBoundary>
       <App />
+      <DesktopNotice />
     </ErrorBoundary>
   </StrictMode>,
 )

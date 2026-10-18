@@ -69,13 +69,13 @@ export function InvoiceList({ route }: { route: Route }) {
   return (
     <div className="space-y-5">
       {/* The action for the whole list sits at the right end of the title row (design system: Layout). */}
-      <div className="flex items-end justify-between gap-6">
+      <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
         <div className="space-y-1">
           <h1 className="font-display text-4xl leading-[1.2] font-bold tracking-[-0.01em]">{t('invoices.title')}</h1>
           <p className="text-sm text-fg-muted">{t('invoices.count', { count: rows.length, total: sumByCurrency || f.money(0) })}
             {summed.length < rows.length && t('invoices.countExcludes')}</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap justify-end gap-2">
           <Button variant="secondary" onClick={() => setExporting(true)}><FileOutput className="size-4" /> {t('export.open')}</Button>
           <Button variant="secondary" onClick={() => setBank(true)}><Landmark className="size-4" /> {t('bank.open')}</Button>
           <Button onClick={() => navigate('/invoices/new')}><Plus className="size-4" /> {t('nav.newInvoice')}</Button>
@@ -107,23 +107,23 @@ export function InvoiceList({ route }: { route: Route }) {
         ))}
       </div>
 
-      <Card className="overflow-hidden">
-        <table className="w-full text-sm">
+      <Card className="overflow-x-auto">
+        <table className="w-full text-sm max-md:min-w-[36rem]">
           {/* Soft stripes instead of row lines (the owner's choice "T-C", 2026-10-17): even rows row-hover, hover one step darker. */}
           <thead className="text-left text-xs text-fg-muted">
             <tr>
-              <th className="py-3 pr-4 pl-5 font-medium">{t('invoices.number')}</th>
+              <th className="py-3 pr-4 pl-6 font-medium">{t('invoices.number')}</th>
               <th className="px-4 py-3 font-medium">{t('invoices.customer')}</th>
               <th className="px-4 py-3 text-right font-medium">{t('invoices.issued')}</th>
               <th className="px-4 py-3 text-right font-medium">{t('invoices.due')}</th>
               <th className="px-4 py-3 text-right font-medium">{t('invoices.total')}</th>
-              <th className="py-3 pr-5 pl-4 text-right font-medium">{t('invoices.status')}</th>
+              <th className="py-3 pr-6 pl-4 text-right font-medium">{t('invoices.status')}</th>
             </tr>
           </thead>
           <tbody>
             {rows.slice(0, 300).map(({ inv, status: s, totals }) => (
               <tr key={inv.id} onClick={() => navigate(`/invoices/${inv.id}`)} className="group cursor-pointer transition-colors even:bg-row-hover hover:bg-surface-2">
-                <td className="py-3 pr-4 pl-5 tabular-nums text-fg-muted">
+                <td className="py-3 pr-4 pl-6 tabular-nums text-fg-muted">
                   {inv.number}
                   {inv.kind !== 'invoice' && <div className="text-xs text-fg-subtle">{t(`invoices.kindTag.${inv.kind}`)}</div>}
                 </td>
@@ -144,7 +144,7 @@ export function InvoiceList({ route }: { route: Route }) {
                 <td className="px-4 py-3 text-right font-medium whitespace-nowrap tabular-nums">{f.money(totals.total, inv.currency)}</td>
                 {/* "Mark paid" sits in the status cell, before the label, so there is no empty column at the right edge.
                     Icon-only; the verb is in the tooltip and the accessible name. */}
-                <td className="py-2 pr-5 pl-4">
+                <td className="py-2 pr-6 pl-4">
                   <div className="flex items-center justify-end gap-2">
                     {(s === 'issued' || s === 'overdue') && (
                       <Button size="sm" variant="secondary" className="w-8 px-0 opacity-0 group-hover:opacity-100 focus-visible:opacity-100"

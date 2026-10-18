@@ -100,7 +100,7 @@ function PeriodView({ year, grain, basis, onBasis, on }: { year: number; grain: 
   return (
     <section>
       <RevenueHeader title={t(grain === 'month' ? 'stats.titleMonths' : 'stats.titleQuarters', { year })} basis={basis} onBasis={onBasis} onCsv={downloadCsv} />
-      <Card className="p-5">
+      <Card className="px-6 py-5">
         <BarChart
           categories={labels}
           series={[
@@ -115,33 +115,33 @@ function PeriodView({ year, grain, basis, onBasis, on }: { year: number; grain: 
           chartLabel={t('home.chart')}
         />
       </Card>
-      <Card className="mt-4 overflow-hidden">
-        <table className="w-full text-sm">
+      <Card className="mt-4 overflow-x-auto">
+        <table className="w-full text-sm max-md:min-w-[36rem]">
           <thead className="text-left text-xs text-fg-muted">
             <tr>
-              <th className="py-2.5 pr-4 pl-5 font-medium">{t('stats.period')}</th>
+              <th className="py-2.5 pr-4 pl-6 font-medium">{t('stats.period')}</th>
               <th className="px-4 py-2.5 text-right font-medium">{year}</th>
               <th className="px-4 py-2.5 text-right font-medium">{t('stats.count')}</th>
               <th className="px-4 py-2.5 text-right font-medium">{year - 1}</th>
-              <th className="py-2.5 pr-5 pl-4 text-right font-medium">{t('stats.yoy')}</th>
+              <th className="py-2.5 pr-6 pl-4 text-right font-medium">{t('stats.yoy')}</th>
             </tr>
           </thead>
           <tbody className="tabular-nums">
             {categories.map((c, i) => (
               <tr key={c} className="even:bg-row-hover">
-                <td className="py-2 pr-4 pl-5">{c}</td>
+                <td className="py-2 pr-4 pl-6">{c}</td>
                 <td className="px-4 py-2 text-right">{future(i) ? '–' : f.money(now.values[i]!)}</td>
                 <td className="px-4 py-2 text-right text-fg-muted">{future(i) ? '–' : now.counts[i]}</td>
                 <td className="px-4 py-2 text-right text-fg-muted">{f.money(before.values[i]!)}</td>
-                <td className="py-2 pr-5 pl-4 text-right text-fg-muted">{future(i) ? '–' : pct(now.values[i]!, before.values[i]!)}</td>
+                <td className="py-2 pr-6 pl-4 text-right text-fg-muted">{future(i) ? '–' : pct(now.values[i]!, before.values[i]!)}</td>
               </tr>
             ))}
             <tr className="border-t border-line font-semibold">
-              <td className="py-2.5 pr-4 pl-5">{t('stats.total')}</td>
+              <td className="py-2.5 pr-4 pl-6">{t('stats.total')}</td>
               <td className="px-4 py-2.5 text-right">{f.money(sum(now.values))}</td>
               <td className="px-4 py-2.5 text-right">{sum(now.counts)}</td>
               <td className="px-4 py-2.5 text-right">{f.money(sum(before.values))}</td>
-              <td className="py-2.5 pr-5 pl-4 text-right">{pct(sum(now.values), sum(before.values))}</td>
+              <td className="py-2.5 pr-6 pl-4 text-right">{pct(sum(now.values), sum(before.values))}</td>
             </tr>
           </tbody>
         </table>
@@ -174,7 +174,7 @@ function YearsView({ basis, onBasis, on }: { basis: StatsBasis; onBasis: (b: Sta
   return (
     <section>
       <RevenueHeader title={t('stats.titleYears')} basis={basis} onBasis={onBasis} onCsv={downloadCsv} />
-      <Card className="p-5">
+      <Card className="px-6 py-5">
         <BarChart
           categories={ys.years.map(String)}
           tickFormat={(y) => (ys.years.length <= 8 ? y : `’${y.slice(2)}`)}
@@ -188,23 +188,23 @@ function YearsView({ basis, onBasis, on }: { basis: StatsBasis; onBasis: (b: Sta
           chartLabel={t('home.chart')}
         />
       </Card>
-      <Card className="mt-4 overflow-hidden">
-        <table className="w-full text-sm">
+      <Card className="mt-4 overflow-x-auto">
+        <table className="w-full text-sm max-md:min-w-[36rem]">
           <thead className="text-left text-xs text-fg-muted">
             <tr>
-              <th className="py-2.5 pr-4 pl-5 font-medium">{t('stats.year')}</th>
+              <th className="py-2.5 pr-4 pl-6 font-medium">{t('stats.year')}</th>
               <th className="px-4 py-2.5 text-right font-medium">{t('stats.amount')}</th>
               <th className="px-4 py-2.5 text-right font-medium">{t('stats.count')}</th>
-              <th className="py-2.5 pr-5 pl-4 text-right font-medium">{t('stats.yoy')}</th>
+              <th className="py-2.5 pr-6 pl-4 text-right font-medium">{t('stats.yoy')}</th>
             </tr>
           </thead>
           <tbody className="tabular-nums">
             {rows.map((r) => (
               <tr key={r.y} className="even:bg-row-hover">
-                <td className="py-2 pr-4 pl-5">{r.y}{r.y === thisYear && <span className="ml-2 text-xs text-fg-muted">{t('home.ytd', { date: f.date(on) })}</span>}</td>
+                <td className="py-2 pr-4 pl-6">{r.y}{r.y === thisYear && <span className="ml-2 text-xs text-fg-muted">{t('home.ytd', { date: f.date(on) })}</span>}</td>
                 <td className="px-4 py-2 text-right">{f.money(r.value)}</td>
                 <td className="px-4 py-2 text-right text-fg-muted">{r.count}</td>
-                <td className="py-2 pr-5 pl-4 text-right text-fg-muted">{r.prev === undefined ? '–' : pct(r.value, r.prev)}</td>
+                <td className="py-2 pr-6 pl-4 text-right text-fg-muted">{r.prev === undefined ? '–' : pct(r.value, r.prev)}</td>
               </tr>
             ))}
           </tbody>
@@ -255,30 +255,30 @@ export function StatsPage() {
         ? <YearsView basis={basis} onBasis={setBasis} on={on} />
         : <PeriodView year={year} grain={view} basis={basis} onBasis={setBasis} on={on} />}
 
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-2 gap-6 mobile-stack">
         <section>
           <div className="mb-3 flex items-center justify-between gap-3">
             <h2 className="font-display text-2xl font-bold">{t('stats.topTitle')}</h2>
             <YearStepper year={rankYear} min={firstYear} max={thisYear} onChange={setRankYear} label={t('stats.topYear')} />
           </div>
-          <Card className="overflow-hidden">
-            {top.length === 0 ? <p className="p-5 text-sm text-fg-muted">{t('stats.noData')}</p> : (
-              <table className="w-full text-sm">
+          <Card className="overflow-x-auto">
+            {top.length === 0 ? <p className="px-6 py-5 text-sm text-fg-muted">{t('stats.noData')}</p> : (
+              <table className="w-full text-sm max-md:min-w-[36rem]">
                 <thead className="text-left text-xs text-fg-muted">
                   <tr>
-                    <th className="py-2.5 pr-3 pl-5 font-medium">{t('invoices.customer')}</th>
+                    <th className="py-2.5 pr-3 pl-6 font-medium">{t('invoices.customer')}</th>
                     <th className="px-3 py-2.5 text-right font-medium">{t('stats.amount')}</th>
                     <th className="px-3 py-2.5 text-right font-medium">{t('stats.share')}</th>
-                    <th className="py-2.5 pr-5 pl-3 text-right font-medium" title={t('stats.daysToPayHint')}>{t('stats.daysToPay')}</th>
+                    <th className="py-2.5 pr-6 pl-3 text-right font-medium" title={t('stats.daysToPayHint')}>{t('stats.daysToPay')}</th>
                   </tr>
                 </thead>
                 <tbody className="tabular-nums">
                   {top.map((r) => (
                     <tr key={r.customerId} className="even:bg-row-hover">
-                      <td className="max-w-48 truncate py-2 pr-3 pl-5"><a href={`#/customers/${r.customerId}`} className="hover:underline">{r.name}</a></td>
+                      <td className="max-w-48 truncate py-2 pr-3 pl-6"><a href={`#/customers/${r.customerId}`} className="hover:underline">{r.name}</a></td>
                       <td className="px-3 py-2 text-right">{f.moneyWhole(r.revenue)}</td>
                       <td className="px-3 py-2 text-right text-fg-muted">{Math.round(r.share * 100)} %</td>
-                      <td className="py-2 pr-5 pl-3 text-right text-fg-muted">{r.daysToPay ?? '–'}</td>
+                      <td className="py-2 pr-6 pl-3 text-right text-fg-muted">{r.daysToPay ?? '–'}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -289,14 +289,14 @@ export function StatsPage() {
           {currencies.length > 1 && (
             <>
               <h2 className="mt-10 mb-3 font-display text-2xl font-bold">{t('stats.byCurrency', { year: rankYear })}</h2>
-              <Card className="overflow-hidden">
-                <table className="w-full text-sm tabular-nums">
+              <Card className="overflow-x-auto">
+                <table className="w-full text-sm max-md:min-w-[36rem] tabular-nums">
                   <tbody>
                     {currencies.map((c) => (
                       <tr key={c.currency} className="even:bg-row-hover">
-                        <td className="py-2 pr-3 pl-5">{c.currency}</td>
+                        <td className="py-2 pr-3 pl-6">{c.currency}</td>
                         <td className="px-3 py-2 text-right">{f.money(c.amount, c.currency)}</td>
-                        <td className="py-2 pr-5 pl-3 text-right text-fg-muted">{c.czk === undefined ? t('stats.noRate') : f.moneyWhole(c.czk)}</td>
+                        <td className="py-2 pr-6 pl-3 text-right text-fg-muted">{c.czk === undefined ? t('stats.noRate') : f.moneyWhole(c.czk)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -311,26 +311,26 @@ export function StatsPage() {
             <h2 className="font-display text-2xl font-bold">{t('stats.debtors')}</h2>
             <span className="text-sm text-fg-muted">{t('stats.asOf', { date: f.date(on) })}</span>
           </div>
-          <Card className="overflow-hidden">
-            {owing.length === 0 ? <p className="p-5 text-sm text-fg-muted">{t('stats.noDebtors')}</p> : (
-              <table className="w-full text-sm">
+          <Card className="overflow-x-auto">
+            {owing.length === 0 ? <p className="px-6 py-5 text-sm text-fg-muted">{t('stats.noDebtors')}</p> : (
+              <table className="w-full text-sm max-md:min-w-[36rem]">
                 <thead className="text-left text-xs text-fg-muted">
                   <tr>
-                    <th className="py-2.5 pr-3 pl-5 font-medium">{t('invoices.customer')}</th>
+                    <th className="py-2.5 pr-3 pl-6 font-medium">{t('invoices.customer')}</th>
                     <th className="px-3 py-2.5 text-right font-medium">{t('stats.overdue')}</th>
                     <th className="px-3 py-2.5 text-right font-medium">{t('stats.invoices')}</th>
-                    <th className="py-2.5 pr-5 pl-3 text-right font-medium">{t('stats.oldest')}</th>
+                    <th className="py-2.5 pr-6 pl-3 text-right font-medium">{t('stats.oldest')}</th>
                   </tr>
                 </thead>
                 <tbody className="tabular-nums">
                   {owing.map((d) => (
                     <tr key={d.customerId ?? d.name} className="even:bg-row-hover">
-                      <td className="max-w-48 truncate py-2 pr-3 pl-5">
+                      <td className="max-w-48 truncate py-2 pr-3 pl-6">
                         {d.customerId ? <a href={`#/invoices?customer=${d.customerId}&status=overdue`} className="hover:underline">{d.name}</a> : d.name}
                       </td>
                       <td className="px-3 py-2 text-right text-warning">{f.moneyWhole(d.overdue)}</td>
                       <td className="px-3 py-2 text-right text-fg-muted">{d.count}</td>
-                      <td className="py-2 pr-5 pl-3 text-right text-fg-muted">{t('stats.days', { count: d.oldestDays })}</td>
+                      <td className="py-2 pr-6 pl-3 text-right text-fg-muted">{t('stats.days', { count: d.oldestDays })}</td>
                     </tr>
                   ))}
                 </tbody>

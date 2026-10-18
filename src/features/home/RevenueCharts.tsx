@@ -41,10 +41,10 @@ export function RevenueCharts({ today }: { today: string }) {
   const missing = yearly.missingRate
   const rates = useRates()
   return (
-    <div className="grid grid-cols-5 gap-x-6 gap-y-4">
+    <div className="grid grid-cols-5 gap-x-6 gap-y-4 mobile-stack">
       <section className="col-span-3">
         <h2 className="mb-3 font-display text-2xl font-bold">{t('home.byMonth')}</h2>
-        <Card className="p-5">
+        <Card className="px-6 py-5">
           <BarChart
             categories={months}
             series={[
@@ -65,7 +65,7 @@ export function RevenueCharts({ today }: { today: string }) {
       </section>
       <section className="col-span-2">
         <h2 className="mb-3 font-display text-2xl font-bold">{t('home.byYear')}</h2>
-        <Card className="p-5">
+        <Card className="px-6 py-5">
           <BarChart
             categories={yearly.years.map(String)}
             tickFormat={(y) => (yearly.years.length <= 8 ? y : `’${y.slice(2)}`)}

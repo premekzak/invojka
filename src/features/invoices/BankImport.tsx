@@ -67,13 +67,13 @@ export function BankImport({ onClose }: { onClose: () => void }) {
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-scrim/50 p-6 backdrop-blur-sm" onClick={onClose}>
       <Card className="animate-rise flex max-h-full w-full max-w-4xl flex-col overflow-hidden">
-        <div className="flex items-center gap-2 border-b border-line px-5 py-3" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center gap-2 border-b border-line px-6 py-3" onClick={(e) => e.stopPropagation()}>
           <Landmark aria-hidden="true" className="size-4 text-fg-muted" />
           <h2 className="font-medium">{t('bank.title')}</h2>
           <Button size="sm" variant="ghost" className="ml-auto" aria-label={t('common.close')} onClick={onClose}><X className="size-4" /></Button>
         </div>
 
-        <div className="flex-1 space-y-5 overflow-auto p-5" onClick={(e) => e.stopPropagation()}>
+        <div className="flex-1 space-y-5 overflow-auto px-6 py-5" onClick={(e) => e.stopPropagation()}>
           {!read && (
             <div className="space-y-3">
               <p className="max-w-prose text-sm">{t('bank.intro')}</p>
@@ -145,7 +145,7 @@ export function BankImport({ onClose }: { onClose: () => void }) {
         </div>
 
         {read && (
-          <div className="flex items-center justify-end gap-2 border-t border-line px-5 py-3" onClick={(e) => e.stopPropagation()}>
+          <div className="flex items-center justify-end gap-2 border-t border-line px-6 py-3" onClick={(e) => e.stopPropagation()}>
             <Button variant="ghost" onClick={() => setRead(undefined)}>{t('bank.another')}</Button>
             <Button disabled={ticked.size === 0} onClick={apply}>{t('bank.markPaid', { count: ticked.size })}</Button>
           </div>

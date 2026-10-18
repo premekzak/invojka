@@ -118,7 +118,7 @@ export function Onboarding() {
           {step === 0 && (
             <div className="space-y-6">
               <p className="max-w-prose text-sm text-fg-muted">{t('onboarding.supplierHint')}</p>
-              <div className="grid grid-cols-6 gap-4">
+              <div className="grid grid-cols-6 gap-4 mobile-stack">
                 <AresLookup className="col-span-6" autoFocus={!supplier.name} onPick={(p) => set({ name: p.name, ic: p.ic, dic: p.dic, address: p.address })} />
                 <Field className="col-span-6" id="supplier-name" label={t('fields.name')} required error={showErrors ? nameError : undefined}
                   value={supplier.name} onChange={(e) => set({ name: e.target.value })} onBlur={() => setShowErrors(true)} />
@@ -147,7 +147,7 @@ export function Onboarding() {
           {step === 2 && (
             <div className="space-y-5">
               <p className="max-w-prose text-sm text-fg-muted">{t('onboarding.importHint')}</p>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-4 mobile-stack">
                 {(['customers', 'invoices'] as const).map((kind) => (
                   <label key={kind} className={cn(
                     'flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed p-6 text-center text-sm transition-colors',

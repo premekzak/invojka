@@ -10,7 +10,7 @@ import { twMerge } from 'tailwind-merge'
 export const cn = (...c: ClassValue[]) => twMerge(clsx(c))
 
 const button = cva(
-  'inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium transition-all active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-link',
+  'inline-flex shrink-0 items-center justify-center gap-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-link',
   {
     variants: {
       variant: {
@@ -155,7 +155,7 @@ export function Choice({ selected, onClick, title, hint }: { selected: boolean; 
 /** One setting as a row: title and description on the left, the control on the right. Rows go in one Card. */
 export function SettingRow({ title, hint, children }: { title: string; hint?: ReactNode; children: ReactNode }) {
   return (
-    <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 px-5 py-4">
+    <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 px-6 py-4">
       <div className="min-w-0 max-w-prose flex-1 space-y-0.5">
         <div className="text-sm font-medium text-fg">{title}</div>
         {hint && <div className="text-xs text-fg-muted">{hint}</div>}

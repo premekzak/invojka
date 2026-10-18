@@ -51,7 +51,8 @@ The `Release` workflow (`.github/workflows/release.yml`) then runs the tests, bu
 ## Showcase for testers
 
 - **What:** the app on made-up data at https://premekzak.github.io/invojka-demo/, for friends and testers (not linked from the website yet). It opens straight on the data, with no folder to pick; changes stay in the tab and a reload starts over. Search engines are told to stay away (`noindex` and `robots.txt`).
-- **Build:** `npm run build:showcase` makes `dist-showcase/index.html` (`--mode showcase`). `src/showcase/history.ts` invents about forty customers and invoices every month from 2019 to today, through the normal CSV import; `src/showcase/boot.ts` runs `anonymize()` over it (the demo-mode names) and opens it in memory. Nothing comes from the owner's data.
+- **Build:** `npm run build:showcase` makes `dist-showcase/index.html` (`--mode showcase`). `src/showcase/history.ts` invents about forty customers and invoices every month from 2019 to today, through the normal CSV import; `src/showcase/boot.ts` runs `anonymize()` over it (the demo-mode names), then `withThingsToCheck()` gives Home's table something to show (turnover near the VAT limit, two regular customers due this month, a paid proforma without its invoice, foreign invoices without a rate, customers without an e-mail; overdue invoices come from the history), and opens it in memory. Nothing comes from the owner's data.
+- **In English:** https://premekzak.github.io/invojka-demo/?lang=en (`?lang=` works in every build, see [decisions.md](decisions.md)).
 - **Publish:** `bash scripts/deploy-showcase.sh` builds and force-pushes just that page to the separate public repo `premekzak/invojka-demo` (GitHub Pages from `main`). The demo names live only in the local `src/domain/demo.ts` and that repo, never in this one's history.
 
 ## Pitfalls met so far

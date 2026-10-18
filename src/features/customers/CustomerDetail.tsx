@@ -98,11 +98,11 @@ function CustomerForm({ initial, isNew }: { initial: Customer; isNew: boolean })
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
         <Button variant="ghost" size="sm" onClick={() => history.back()}><ArrowLeft className="size-4" /></Button>
         <h1 className="font-display text-4xl leading-[1.2] font-bold tracking-[-0.01em]">{saved ? saved.name : t('customers.newTitle')}</h1>
         {c.archived && <span className="rounded bg-surface-3 px-2 py-0.5 text-xs text-fg-muted">{t('customers.archived')}</span>}
-        <div className="ml-auto flex gap-2">
+        <div className="ml-auto flex flex-wrap justify-end gap-2">
           {saved && mine.length === 0 && (
             <Button variant="ghost" onClick={() => { removeCustomer(c.id); navigate('/customers') }}>
               <Trash2 className="size-4" /> {t('editor.delete')}
@@ -123,12 +123,12 @@ function CustomerForm({ initial, isNew }: { initial: Customer; isNew: boolean })
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-3 gap-6 mobile-stack">
         <div className="col-span-2 space-y-10">
           <section>
             <h2 className="mb-3 font-display text-2xl font-bold">{t('customers.details')}</h2>
-            <Card className="p-5">
-              <div className="grid grid-cols-6 gap-4">
+            <Card className="px-6 py-5">
+              <div className="grid grid-cols-6 gap-4 mobile-stack">
                 {!saved && <AresLookup className="col-span-6" autoFocus={!c.name} onPick={fromAres} />}
                 {aresNote && <p role="status" className={cn('col-span-6 -mt-1 text-xs font-medium', aresNote.ok ? 'text-success' : 'text-fg-muted')}>{aresNote.text}</p>}
                 <Field className="col-span-6" id="customer-name" label={t('fields.name')} required error={showErrors ? nameError : undefined}
@@ -154,8 +154,8 @@ function CustomerForm({ initial, isNew }: { initial: Customer; isNew: boolean })
           </section>
           <section>
             <h2 className="mb-3 font-display text-2xl font-bold">{t('customers.invoiceDefaults')}</h2>
-            <Card className="p-5">
-              <div className="grid grid-cols-6 items-end gap-4">
+            <Card className="px-6 py-5">
+              <div className="grid grid-cols-6 items-end gap-4 mobile-stack">
                 <div className="col-span-2">
                   <Sel label={t('editor.currency')} value={c.defaultCurrency ?? ''} onChange={(v) => set({ defaultCurrency: v || undefined })}>
                     <option value="">{t('customers.fromSettings')}</option>
@@ -172,7 +172,7 @@ function CustomerForm({ initial, isNew }: { initial: Customer; isNew: boolean })
                   onChange={(e) => set({ reverseCharge: e.target.checked })} />
               </div>
               {/* Regular invoicing: Home then lists this customer as due each period (domain/recurring.ts). */}
-              <div className="mt-4 grid grid-cols-6 items-end gap-4">
+              <div className="mt-4 grid grid-cols-6 items-end gap-4 mobile-stack">
                 <Checkbox className="col-span-2 h-10 items-center" label={t('recurring.enable')} checked={!!c.recurring}
                   onChange={(e) => set({ recurring: e.target.checked ? { every: 'month', day: 1 } : undefined })} />
                 {c.recurring && (
@@ -203,13 +203,14 @@ function CustomerForm({ initial, isNew }: { initial: Customer; isNew: boolean })
         <section>
           <h2 className="mb-3 font-display text-2xl font-bold">{t('invoices.title')}</h2>
           <div className="space-y-5">
-            <Card className="grid grid-cols-2 gap-4 p-5">
+            {/* One figure per row: side by side, an amount like 1 000 000,00 Kč overflowed the narrow column. */}
+            <Card className="space-y-4 px-6 py-5">
               <div>
                 <div className="text-xs text-fg-muted">{t('customers.paidCount')}</div>
                 <div className="text-2xl font-semibold tabular-nums">{stats.paidCount}</div>
                 <div className="text-xs text-fg-muted">{t('customers.issuedTotal', { count: stats.count })}</div>
               </div>
-              <div>
+              <div className="min-w-0">
                 <div className="text-xs text-fg-muted">{t('customers.paid')}</div>
                 <div className="text-2xl font-semibold tabular-nums">{formatPaid(f, stats)}</div>
               </div>
@@ -217,14 +218,14 @@ function CustomerForm({ initial, isNew }: { initial: Customer; isNew: boolean })
             {mine.length > 0 && (
               <Card className="overflow-hidden [&>a:nth-child(even)]:bg-row-hover">
                 {mine.slice(0, 12).map((inv) => (
-                  <a key={inv.id} href={`#/invoices/${inv.id}`} className="flex items-center gap-3 px-5 py-3 text-sm transition-colors hover:bg-surface-2!">
+                  <a key={inv.id} href={`#/invoices/${inv.id}`} className="flex items-center gap-3 px-6 py-3 text-sm transition-colors hover:bg-surface-2!">
                     <span className="tabular-nums text-xs text-fg-muted">{inv.number}</span>
                     <span className="flex-1 text-right tabular-nums">{f.money(invoiceTotals(inv).total, inv.currency)}</span>
                     <StatusBadge status={displayStatus(inv, today())} />
                   </a>
                 ))}
                 {mine.length > 12 && (
-                  <a href={`#/invoices?customer=${c.id}`} className="block px-5 py-3 text-center text-sm text-link underline underline-offset-2 decoration-line-strong hover:decoration-current">{t('home.all')}</a>
+                  <a href={`#/invoices?customer=${c.id}`} className="block px-6 py-3 text-center text-sm text-link underline underline-offset-2 decoration-line-strong hover:decoration-current">{t('home.all')}</a>
                 )}
               </Card>
             )}

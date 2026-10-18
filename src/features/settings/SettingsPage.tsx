@@ -18,13 +18,14 @@ import { RatesPanel } from '@/features/rates/RatesPanel'
 import { openBusiness } from '@/features/shell/BusinessSwitcher'
 import { useStore } from '@/state/store'
 import { FsAccessAdapter, type RememberedFolder } from '@/storage/fsAccess'
+import { clearUrlLanguage, setUiLanguage, type Lang } from '@/i18n'
 import { Button, Card, Checkbox, Choice, Field, Input, InputAffix, Labeled, Select, SettingRow, Textarea, cn } from '@/ui/primitives'
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section>
       <h2 className="mb-3 font-display text-2xl font-bold">{title}</h2>
-      <Card className="p-5">{children}</Card>
+      <Card className="px-6 py-5">{children}</Card>
     </section>
   )
 }
@@ -94,7 +95,7 @@ function InvoiceLook({ settings: s, update, sample }: { settings: Settings; upda
         </div>
         <p className="max-w-prose text-xs text-fg-muted">{t('look.colorHint')}</p>
       </div>
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-2 gap-6 mobile-stack">
         <PictureField label={t('look.logo')} hint={t('look.logoHint')} value={s.invoice.logo} max={[600, 200]} onChange={(v) => look({ logo: v })} />
         <PictureField label={t('look.stamp')} hint={t('look.stampHint')} value={s.invoice.stamp} max={[480, 240]} onChange={(v) => look({ stamp: v })} />
       </div>
@@ -123,14 +124,14 @@ function PriceList({ settings: s, update }: { settings: Settings; update: (patch
       <p className="max-w-prose text-xs text-fg-muted">{t('priceList.hint')}</p>
       {items.length > 0 && (
         <div className="space-y-2">
-          <div className="grid grid-cols-12 gap-2 text-xs font-medium text-fg-muted">
+          <div className="grid grid-cols-12 gap-2 text-xs font-medium text-fg-muted max-md:hidden">
             <span className={payer ? 'col-span-6' : 'col-span-7'}>{t('editor.description')}</span>
             <span className="col-span-2">{t('editor.unit')}</span>
             <span className="col-span-2 text-right">{t('editor.unitPrice')}</span>
             {payer && <span className="col-span-1">{t('editor.vat')}</span>}
           </div>
           {items.map((item, i) => (
-            <div key={i} className="grid grid-cols-12 items-center gap-2">
+            <div key={i} className="grid grid-cols-12 items-center gap-2 mobile-stack">
               <Input className={payer ? 'col-span-6' : 'col-span-7'} aria-label={t('editor.description')} value={item.description} onChange={(e) => setItem(i, { description: e.target.value })} />
               <Input className="col-span-2" aria-label={t('editor.unit')} value={item.unit} placeholder="ks" onChange={(e) => setItem(i, { unit: e.target.value })} />
               <Input className="col-span-2 text-right tabular-nums" aria-label={t('editor.unitPrice')} inputMode="decimal" defaultValue={toMajor(item.unitPrice)}
@@ -202,13 +203,16 @@ function EmailTemplates({ settings: s, update }: { settings: Settings; update: (
 export const SETTINGS_TABS = ['business', 'invoices', 'emails', 'taxes', 'rates', 'app'] as const
 export type SettingsTab = (typeof SETTINGS_TABS)[number]
 
-/** A segmented control, the same as the invoice list's status filter and the statistics view switch. */
+/**
+ * A segmented control like the invoice list's status filter, but as the page's sub-navigation it is larger and spans
+ * the full width, its tabs sharing it evenly (the owner, 2026-10-18).
+ */
 function Segmented<T extends string>({ label, value, options, onChange }: { label: string; value: T; options: [T, string][]; onChange: (v: T) => void }) {
   return (
-    <div role="tablist" aria-label={label} className="inline-flex flex-wrap gap-0.5 rounded-2xl bg-surface-3 p-[3px] dark:bg-surface-2">
+    <div role="tablist" aria-label={label} className="flex w-full flex-wrap gap-1 rounded-2xl bg-surface-3 p-1 dark:bg-surface-2">
       {options.map(([v, text]) => (
         <button key={v} type="button" role="tab" aria-selected={value === v} onClick={() => onChange(v)}
-          className={cn('rounded-lg px-3 py-1 text-sm font-medium whitespace-nowrap transition-colors focus-visible:outline-2 focus-visible:outline-link',
+          className={cn('flex-1 rounded-xl px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors focus-visible:outline-2 focus-visible:outline-link',
             value === v ? 'bg-surface text-fg dark:bg-surface-3' : 'text-fg-muted hover:text-fg')}>
           {text}
         </button>
@@ -218,7 +222,7 @@ function Segmented<T extends string>({ label, value, options, onChange }: { labe
 }
 
 export function SettingsPage() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const route = useRoute()
   // 'look' was its own tab until the owner merged it into Invoices (2026-10-18); old links still land there.
   const asked = (route.query.get('tab') === 'look' ? 'invoices' : route.query.get('tab')) as SettingsTab | null
@@ -259,7 +263,7 @@ export function SettingsPage() {
 
       {tab === 'business' && <>
         <Section title={t('settings.supplier')}>
-          <div className="grid grid-cols-6 gap-4">
+          <div className="grid grid-cols-6 gap-4 mobile-stack">
             <Field className="col-span-6" label={t('fields.name')} required error={s.supplier.name.trim() ? undefined : t('validation.name')}
               value={s.supplier.name} onChange={(e) => sup({ name: e.target.value })} />
             <Field className="col-span-3" label={t('fields.ic')} value={s.supplier.ic} onChange={(e) => sup({ ic: e.target.value })} />
@@ -276,7 +280,7 @@ export function SettingsPage() {
         </Section>
 
         <Section title={t('settings.bank')}>
-          <div className="grid grid-cols-6 gap-4">
+          <div className="grid grid-cols-6 gap-4 mobile-stack">
             <Field className="col-span-4" label={t('fields.account')} value={s.supplier.bank.account} onChange={(e) => bank({ account: e.target.value })} />
             <Field className="col-span-2" label={t('fields.bankCode')} value={s.supplier.bank.bankCode} onChange={(e) => bank({ bankCode: e.target.value })} />
             <Field className="col-span-4" label={t('fields.iban')} value={s.supplier.bank.iban} onChange={(e) => bank({ iban: e.target.value })} />
@@ -285,7 +289,7 @@ export function SettingsPage() {
         </Section>
 
         <Section title={t('settings.vat')}>
-          <div role="radiogroup" aria-label={t('settings.vat')} className="grid grid-cols-3 gap-3">
+          <div role="radiogroup" aria-label={t('settings.vat')} className="grid grid-cols-3 gap-3 mobile-stack">
             {(['nonPayer', 'payer', 'identifiedPerson'] as const).map((m) => (
               <Choice key={m} selected={s.vatMode === m} onClick={() => setVatMode(m)} title={t(`vatMode.${m}`)} hint={t(`vatMode.${m}Hint`)} />
             ))}
@@ -300,7 +304,7 @@ export function SettingsPage() {
       </>}
       {tab === 'invoices' && <>
         <Section title={t('settings.defaults')}>
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-4 gap-4 mobile-stack">
             <Labeled label={t('settings.dueDays')}>
               <InputAffix unit={t('common.days')} type="number" min={0} value={s.defaults.dueDays} onChange={(e) => defaults({ dueDays: Math.max(0, Number(e.target.value)) })} />
             </Labeled>
@@ -344,7 +348,7 @@ export function SettingsPage() {
             <Checkbox label={t('taxes.selfEmployed')} hint={t('taxes.selfEmployedHint')} checked={s.taxes.selfEmployed}
               onChange={(e) => update({ taxes: { ...s.taxes, selfEmployed: e.target.checked } })} />
             {s.taxes.selfEmployed && (
-              <div className="grid max-w-2xl grid-cols-2 gap-4">
+              <div className="grid max-w-2xl grid-cols-2 gap-4 mobile-stack">
                 <Labeled label={t('taxes.activity')} hint={t(s.taxes.activity === 'main' ? 'taxes.activityMain' : 'taxes.activitySecondary')}>
                   <Options value={s.taxes.activity} onChange={(v) => update({ taxes: { ...s.taxes, activity: v as 'main' | 'secondary' } })}
                     options={[['main', t('taxes.activities.main')], ['secondary', t('taxes.activities.secondary')]]} />
@@ -372,7 +376,9 @@ export function SettingsPage() {
           <h2 className="mb-3 font-display text-2xl font-bold">{t('settings.app')}</h2>
           <Card className="divide-y divide-rule">
             <SettingRow title={t('settings.uiLanguage')}>
-              <Options aria-label={t('settings.uiLanguage')} value={s.ui.language} onChange={(v) => update({ ui: { ...s.ui, language: v as 'cs' | 'en' } })}
+              {/* Shows the language on screen, which a ?lang= in the address may have picked; choosing one drops that and saves it. */}
+              <Options aria-label={t('settings.uiLanguage')} value={i18n.language === 'en' ? 'en' : 'cs'}
+                onChange={(v) => { clearUrlLanguage(); setUiLanguage(v as Lang); update({ ui: { ...s.ui, language: v as Lang } }) }}
                 options={[['cs', 'Čeština'], ['en', 'English']]} />
             </SettingRow>
             <SettingRow title={t('settings.theme')}>

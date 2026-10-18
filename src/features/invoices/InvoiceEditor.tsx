@@ -283,7 +283,7 @@ function Editor({ initial, isNew }: { initial: Invoice; isNew: boolean }) {
               className="font-medium text-link underline underline-offset-2 decoration-line-strong hover:decoration-current">{t('editor.unlock')}</button>
           </span>
         )}
-        <div className="ml-auto flex gap-2 [&>button]:whitespace-nowrap">
+        <div className="ml-auto flex flex-wrap justify-end gap-2 [&>button]:whitespace-nowrap">
           {draft.status === 'draft' && saved && (
             <Button variant="ghost" onClick={() => { removeInvoice(draft.id); navigate('/invoices') }}>
               <Trash2 className="size-4" /> {t('editor.delete')}
@@ -402,8 +402,8 @@ function Editor({ initial, isNew }: { initial: Invoice; isNew: boolean }) {
         </p>
       )}
 
-      <div className="grid grid-cols-3 gap-6">
-        <Card className="col-span-2 space-y-5 p-5">
+      <div className="grid grid-cols-3 gap-6 mobile-stack">
+        <Card className="col-span-2 space-y-5 px-6 py-5">
           <fieldset disabled={locked || credit || taxDoc} className="min-w-0 space-y-5">
           <Labeled label={t('invoices.customer')} required error={errorFor('invoice-customer')}>
             <CustomerPicker id="invoice-customer" customers={customers} value={draft.customerId} name={draft.customerSnapshot.name} onChange={pickCustomer}
@@ -470,7 +470,7 @@ function Editor({ initial, isNew }: { initial: Invoice; isNew: boolean }) {
           <fieldset disabled={locked} className="min-w-0">
 
           <div>
-            <div className="mb-2 grid grid-cols-12 gap-2 text-xs font-medium text-fg-muted">
+            <div className="mb-2 grid grid-cols-12 gap-2 text-xs font-medium text-fg-muted max-md:hidden">
               <span className={vatOn ? 'col-span-5' : 'col-span-6'}>{t('editor.description')}</span>
               <span className="col-span-1 text-right">{t('editor.qty')}</span>
               <span className="col-span-1">{t('editor.unit')}</span>
@@ -480,7 +480,7 @@ function Editor({ initial, isNew }: { initial: Invoice; isNew: boolean }) {
             </div>
             <div className="space-y-2">
               {draft.lines.map((l, i) => (
-                <div key={i} className="group relative grid grid-cols-12 items-center gap-2">
+                <div key={i} className="group relative grid grid-cols-12 items-center gap-2 mobile-stack">
                   <Input className={vatOn ? 'col-span-5' : 'col-span-6'} value={l.description} placeholder={t('editor.descriptionPlaceholder')}
                     autoFocus={focusLine === i} list="price-list"
                     onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addLine() } }}
@@ -569,7 +569,7 @@ function Editor({ initial, isNew }: { initial: Invoice; isNew: boolean }) {
           </Labeled>
         </Card>
 
-        <Card className="h-fit space-y-4 p-5">
+        <Card className="h-fit space-y-4 px-6 py-5">
           <fieldset disabled={locked} className="min-w-0 space-y-4">
           {draft.status === 'draft' && !credit && !draft.advanceId && (
             <div role="radiogroup" aria-labelledby="invoice-kind" className="space-y-1.5">
@@ -597,7 +597,7 @@ function Editor({ initial, isNew }: { initial: Invoice; isNew: boolean }) {
             </Labeled>
           )}
           {/* A tax document for a received payment has no due date or payment method: the money is already in. */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3 mobile-stack">
             <Labeled label={t('invoices.issued')}>
               <Input type="date" value={draft.issueDate} onChange={(e) => {
                 const days = Math.round((Date.parse(draft.dueDate) - Date.parse(draft.issueDate)) / 864e5)
@@ -641,7 +641,7 @@ function Editor({ initial, isNew }: { initial: Invoice; isNew: boolean }) {
               <Input type="date" value={draft.taxableSupplyDate ?? ''} onChange={(e) => set({ taxableSupplyDate: e.target.value || undefined, ...clearAutoRate(draft) })} />
             </Labeled>
           )}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3 mobile-stack">
             <Labeled label={t('editor.currency')}>
               <Select value={draft.currency} onChange={(e) => set({ currency: e.target.value, exchangeRate: undefined, exchangeRateSource: undefined })}>
                 {[...new Set([...CURRENCIES, draft.currency])].map((c) => <option key={c}>{c}</option>)}

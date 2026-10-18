@@ -22,7 +22,7 @@ export function RecurringInvoices({ items, on }: { items: RecurringItem[]; on: s
       <h2 className="mb-3 font-display text-2xl font-bold">{t('recurring.title', { month })}</h2>
       <Card className="overflow-hidden">
         {items.map(({ customer, state, from, invoice, last }, i) => (
-          <div key={customer.id} className={cn('grid grid-cols-[1fr_auto_auto] items-center gap-4 px-5 py-2.5 text-sm', i % 2 === 1 && 'bg-row-hover')}>
+          <div key={customer.id} className={cn('grid grid-cols-[1fr_auto_auto] items-center gap-4 px-6 py-2.5 text-sm', i % 2 === 1 && 'bg-row-hover')}>
             <div className="min-w-0">
               <a href={`#/customers/${customer.id}`} className="block truncate font-medium hover:underline">{customer.name}</a>
               <div className="truncate text-xs text-fg-muted">

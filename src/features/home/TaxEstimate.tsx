@@ -7,9 +7,9 @@ import { Card } from '@/ui/primitives'
 
 type Part = { label: string; value: number; color: string }
 
-const SIZE = 240
-const R = 98
-const STROKE = 30
+const SIZE = 280
+const R = 115
+const STROKE = 34
 const C = 2 * Math.PI * R
 const GAP = 2
 
@@ -20,7 +20,7 @@ const GAP = 2
 function TaxDonut({ parts, base, center, label }: { parts: Part[]; base: number; center: React.ReactNode; label: string }) {
   let at = 0
   return (
-    <figure className="relative size-60 shrink-0">
+    <figure className="relative size-70 max-w-full shrink-0">
       <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="size-full -rotate-90" role="img" aria-label={label}>
         <circle cx={SIZE / 2} cy={SIZE / 2} r={R} fill="none" strokeWidth={STROKE} className="stroke-surface-3" />
         {base > 0 && parts.filter((p) => p.value > 0).map((p) => {
@@ -62,7 +62,7 @@ export function TaxEstimate({ invoices, settings, on }: { invoices: Invoice[]; s
   const b = <strong className="font-semibold text-fg tabular-nums" />
 
   if (!rates || !data.est) {
-    return <Card className="p-5 text-sm text-fg-muted">{t('taxes.noRates', { year })}</Card>
+    return <Card className="px-6 py-5 text-sm text-fg-muted">{t('taxes.noRates', { year })}</Card>
   }
   const { est } = data
   const band = settings.vatMode === 'nonPayer' ? flatTaxBand(data.projected, rate) : undefined
@@ -80,7 +80,7 @@ export function TaxEstimate({ invoices, settings, on }: { invoices: Invoice[]; s
   const parts: Part[] = rows.filter((r) => r[2]).map(([label, value, color]) => ({ label: `${label}: ${kc(value)} (${pct(value)} %)`, value, color: color! }))
   const marker = (color: string) => <span aria-hidden="true" className="mr-2 inline-block size-2.5 rounded-sm align-baseline" style={{ background: color }} />
   return (
-    <Card className="p-5">
+    <Card className="px-6 py-5">
       <div className="flex items-baseline justify-between gap-4">
         <h2 className="font-medium">{t('taxes.title', { year })}</h2>
         <a href="#/settings?tab=taxes" className="text-xs text-link underline underline-offset-2 decoration-line-strong hover:decoration-current">

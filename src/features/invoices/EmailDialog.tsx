@@ -58,13 +58,13 @@ export function EmailDialog({ invoice, kind, onSent, onClose }: { invoice: Invoi
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-scrim/50 p-6 backdrop-blur-sm" onClick={onClose}>
       <Card className="animate-rise flex max-h-full w-full max-w-2xl flex-col overflow-hidden">
-        <div className="flex items-center gap-2 border-b border-line px-5 py-3" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center gap-2 border-b border-line px-6 py-3" onClick={(e) => e.stopPropagation()}>
           <Mail aria-hidden="true" className="size-4 text-fg-muted" />
           <h2 className="font-medium">{t(kind === 'reminder' ? 'email.reminderTitle' : 'email.invoiceTitle', { number: invoice.number })}</h2>
           <Button size="sm" variant="ghost" className="ml-auto" aria-label={t('common.close')} onClick={onClose}><X className="size-4" /></Button>
         </div>
-        <div className="flex-1 space-y-4 overflow-auto p-5" onClick={(e) => e.stopPropagation()}>
-          <div className="grid grid-cols-2 gap-4">
+        <div className="flex-1 space-y-4 overflow-auto px-6 py-5" onClick={(e) => e.stopPropagation()}>
+          <div className="grid grid-cols-2 gap-4 mobile-stack">
             <Field label={t('email.to')} hint={!to ? t('email.noAddress') : undefined} value={to} onChange={(e) => setTo(e.target.value)} />
             <Field label={t('email.cc')} value={cc} onChange={(e) => setCc(e.target.value)} />
           </div>
@@ -74,7 +74,7 @@ export function EmailDialog({ invoice, kind, onSent, onClose }: { invoice: Invoi
           </Labeled>
           <p className="max-w-prose text-xs text-fg-muted">{t('email.attach', { file: fileName, folder: adapter?.name ?? '' })}</p>
         </div>
-        <div className="flex flex-wrap items-center justify-end gap-2 border-t border-line px-5 py-3" onClick={(e) => e.stopPropagation()}>
+        <div className="flex flex-wrap items-center justify-end gap-2 border-t border-line px-6 py-3" onClick={(e) => e.stopPropagation()}>
           {note && <p role="status" className="mr-auto text-xs font-medium text-success">{note}</p>}
           <Button variant="ghost" onClick={() => void copy()}><Copy className="size-4" /> {t('email.copy')}</Button>
           <Button variant="secondary" onClick={() => void download()}><Download className="size-4" /> {t('email.downloadPdf')}</Button>

@@ -14,7 +14,7 @@ export function VatThreshold({ turnover }: { turnover: VatTurnover }) {
   const b = <strong className="font-semibold text-fg" />
   const { missingRate } = turnover
   return (
-    <Card className="p-5">
+    <Card className="px-6 py-5">
       <div id={VAT_THRESHOLD_ID} className="flex scroll-mt-24 items-baseline justify-between gap-4">
         <h2 className="font-medium">{t('vat.title')}</h2>
         <span className="text-sm tabular-nums text-fg-muted">

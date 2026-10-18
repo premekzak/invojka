@@ -25,6 +25,8 @@ const statusCls: Record<DisplayStatus, { label: string; dot: string }> = {
   overdue: { label: 'bg-warning-chip text-warning-chip-fg', dot: 'bg-warning' },
   paid: { label: 'bg-success-chip text-success', dot: 'bg-success' },
   cancelled: { label: 'bg-surface-2 text-fg-subtle line-through', dot: 'bg-fg-subtle' },
+  // Written off: done with, like cancelled, but not struck through, because it still counts.
+  uncollectible: { label: 'bg-surface-2 text-fg-muted', dot: 'bg-fg-subtle' },
 }
 
 export function StatusBadge({ status }: { status: DisplayStatus }) {

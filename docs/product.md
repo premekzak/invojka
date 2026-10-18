@@ -12,7 +12,7 @@ Invojka becomes a **free public app with its own website** (invojka.cz) and mark
 
 | Product | Model | Notes |
 |---|---|---|
-| [Fakturoid](https://www.fakturoid.cz/) | Paid cloud subscription (limited free tier) | Market leader for Czech freelancers |
+| [Fakturoid](https://www.fakturoid.cz/) | Paid cloud subscription (limited free tier) | Market leader for Czech freelancers. Full comparison: [competitor-fakturoid.md](competitor-fakturoid.md) |
 | [iDoklad](https://www.idoklad.cz/) | Cloud, free tier plus paid plans | Run by Solitea (Pohoda, Money) |
 
 Not researched yet: Vyfakturuj, SuperFaktura, and the invoicing modules of desktop accounting software (Pohoda, Money S3).
@@ -30,7 +30,7 @@ Not researched yet: Vyfakturuj, SuperFaktura, and the invoicing modules of deskt
 
 - No built-in sync between devices; it relies on the user's own synced folder.
 - Chrome and Edge only (File System Access API); no mobile app.
-- No server, so no automatic emailing, bank-payment matching or online access for an accountant. Exports and a pre-filled email have to cover these.
+- No server, so no automatic emailing, automatic bank connection or online access for an accountant. Reading a downloaded bank statement ([bank-import.md](bank-import.md)), exports and a pre-filled email cover these.
 
 ### First run: from download to first invoice
 
@@ -51,7 +51,7 @@ Open idea: keep the app file inside the data folder, so one folder holds everyth
 
 ### What this means for changes
 
-- Never add a server, user accounts, analytics or tracking. Network requests stay limited to currencies and dates (see Constraints below).
+- Never add a server, user accounts, analytics or tracking. Network requests stay limited to currencies and dates, plus the IČ or name a user types into the ARES lookup (see Constraints below).
 - Each feature has to work for a stranger without the owner's help: clear onboarding, no hard-coded owner details, and good empty states.
 
 ## Constraints set by the owner
@@ -59,7 +59,7 @@ Open idea: keep the app file inside the data folder, so one folder holds everyth
 - **Local data, no cloud, no database.** All data is plain JSON in a folder the user chooses. Syncing that folder (Google Drive, OneDrive) is the user's own business and doubles as a backup.
 - **Distributed as a single HTML file.** The user double-clicks `invojka.html` and there's nothing to install and no server.
 - **The UI should be nice and smooth**, and it should **guide the user to the next step**. The owner judges progress by using the app, not by reading code. A screen that "does nothing" counts as a bug.
-- **External requests are allowed as long as none of the user's data leaves the computer.** A request may contain a currency code and dates, never names, amounts or invoice contents.
+- **External requests are allowed as long as none of the user's data leaves the computer.** A request may contain a currency code and dates, never names, amounts or invoice contents. The one exception is the ARES lookup (approved 2026-10-18 with the Fakturoid list): it sends the IČ or company name the user is typing into it, which is public register data, and only at that moment.
 - It has to work for other people too, so none of these are hard-coded; each is a setting:
   - VAT payer or non-payer (plátce / neplátce DPH, plus "identified person")
   - Czech or English, for the app and separately for each invoice

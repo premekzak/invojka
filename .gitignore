@@ -14,3 +14,5 @@ desktop.ini
 # Colour scheme inspiration: images may be under copyright, so only the brief (zadani.md) is kept
 schemes/*/*
 !schemes/*/zadani.md
+
+dist-showcase

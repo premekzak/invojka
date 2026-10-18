@@ -33,3 +33,13 @@ export function computeTotals(lines: LineInput[], mode: VatMode, reverseCharge =
   const vat = byRate.reduce((s, r) => s + r.vat, 0)
   return { base, vat, total: base + vat, byRate }
 }
+
+/**
+ * The net base whose VAT at `rate` brings it to exactly `gross` (an advance received with VAT included). The VAT act
+ * computes it as gross − gross / 1.21; the base is rounded, then nudged by a haléř if the computed VAT doesn't add up.
+ */
+export function netFromGross(gross: Minor, rate: number): Minor {
+  const guess = Math.round(gross / (1 + rate / 100))
+  for (const base of [guess, guess - 1, guess + 1]) if (base + mulRound(base, rate / 100) === gross) return base
+  return guess
+}

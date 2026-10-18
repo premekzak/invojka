@@ -1,6 +1,8 @@
 import { Plus, Search } from 'lucide-react'
 import { useDeferredValue, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { today } from '@/domain/id'
+import { longUninvoiced } from '@/domain/invoice'
 import { customerStats, emptyCustomerStats } from '@/domain/stats'
 import { useStore } from '@/state/store'
 import { useFormat } from '@/ui/format'
@@ -14,21 +16,27 @@ export function CustomerList() {
   const { customers, invoices } = useStore()
   const [search, setSearch] = useState('')
   const [showArchived, setShowArchived] = useState(false)
+  // "Dlouho nefakturovaní": invoiced at least twice before, nothing in the last three months (domain/invoice.ts).
+  const [quiet, setQuiet] = useState(false)
+  const quietIds = useMemo(() => new Map(longUninvoiced(customers, invoices, today()).map((r, i) => [r.customer.id, i])), [customers, invoices])
   const q = useDeferredValue(search.trim().toLowerCase())
 
   const rows = useMemo(() => {
     const stats = customerStats(invoices)
     return customers
-      .filter((c) => (showArchived || !c.archived) && (!q || c.name.toLowerCase().includes(q) || c.ic.includes(q) || c.address.city.toLowerCase().includes(q)))
+      .filter((c) => (showArchived || !c.archived) && (!quiet || quietIds.has(c.id))
+        && (!q || c.name.toLowerCase().includes(q) || c.ic.includes(q) || c.address.city.toLowerCase().includes(q)))
       .map((c) => ({ c, s: stats.get(c.id) ?? emptyCustomerStats() }))
-      .sort((a, b) => b.s.last.localeCompare(a.s.last) || a.c.name.localeCompare(b.c.name))
-  }, [customers, invoices, q, showArchived])
+      // Quiet ones longest silence first; otherwise the most recently invoiced first.
+      .sort((a, b) => (quiet ? quietIds.get(a.c.id)! - quietIds.get(b.c.id)! : b.s.last.localeCompare(a.s.last) || a.c.name.localeCompare(b.c.name)))
+  }, [customers, invoices, q, showArchived, quiet, quietIds])
 
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
-        <h1 className="font-display text-4xl leading-[1.2] font-bold tracking-[-0.03em]">{t('customers.title')}</h1>
+        <h1 className="font-display text-4xl leading-[1.2] font-bold tracking-[-0.01em]">{t('customers.title')}</h1>
         <div className="flex items-center gap-4">
+          <Checkbox label={t('customers.quiet', { count: quietIds.size })} checked={quiet} onChange={(e) => setQuiet(e.target.checked)} />
           <Checkbox label={t('customers.showArchived')} checked={showArchived} onChange={(e) => setShowArchived(e.target.checked)} />
           <Button onClick={() => navigate('/customers/new')}><Plus className="size-4" /> {t('customers.newCustomer')}</Button>
         </div>
@@ -66,7 +74,7 @@ export function CustomerList() {
                   <div className="flex items-center justify-between gap-3">
                     <span className="whitespace-nowrap text-fg-muted">{f.date(s.last || undefined)}</span>
                     <a href={`#/invoices/new?customer=${c.id}`} onClick={(e) => e.stopPropagation()}
-                      className="inline-flex items-center gap-1 text-sm font-medium whitespace-nowrap text-accent opacity-0 group-hover:opacity-100 hover:underline focus-visible:opacity-100">
+                      className="inline-flex items-center gap-1 text-sm font-medium whitespace-nowrap text-link opacity-0 group-hover:opacity-100 hover:underline focus-visible:opacity-100">
                       <Plus className="size-4" /> {t('customers.newInvoice')}
                     </a>
                   </div>

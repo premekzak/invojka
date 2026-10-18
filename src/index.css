@@ -8,9 +8,9 @@
 
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, "Segoe UI", sans-serif;
-  /* Headlines only: Bricolage Grotesque 700 with tight tracking (the owner's choice "G2", 2026-10-17; it replaced the
-     Newsreader serif). Embedded like Inter (see loadUiFonts). */
-  --font-display: "Bricolage Grotesque", ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+  /* Headlines: Roboto 700 (the owner's trial, 2026-10-17; before it Bricolage Grotesque 700, "G2"). Roboto is a plain grotesque
+     like Inter, so headlines stand out by size and weight; light tracking only at 36 px (-0.01em). Embedded (see loadUiFonts). */
+  --font-display: "Roboto", ui-sans-serif, system-ui, "Segoe UI", sans-serif;
   /* The header navigation only: Roboto 500, 14 px, +0.02em (the owner's choice "R3", 2026-10-17). A third face, embedded like the others. */
   --font-nav: "Roboto", ui-sans-serif, system-ui, "Segoe UI", sans-serif;
 
@@ -24,7 +24,7 @@
   --radius-2xl: 6px;
 
   /* Warm paper theme (the owner's choice "F4", 2026-10-17; it replaced the grayscale Ledger): a faintly cream page, white cards,
-     warm greys, espresso text, a peach header, azure blue (hue 245) for actions and charts, and the darker orange #fa8d4e used
+     warm greys, espresso text, a peach header, a burnt orange for actions and charts (blue until 2026-10-18), and the darker orange #fa8d4e used
      sparingly (the logo's dot). Crimson for warnings and errors, green for success.
      The palette is defined below (--paper … --peach), light and dark. Code uses only these role names. */
   --color-bg: var(--paper);
@@ -60,12 +60,17 @@
   --color-fg-subtle: var(--mid);
   --color-fg-muted: var(--mid);
   --color-fg: var(--ink);
-  /* The one accent is blue: everything clickable or selected, and focus. */
+  /* The one accent (burnt orange in Warm paper): everything clickable or selected, and focus. */
   --color-accent: var(--blue);
   --color-accent-fg: var(--on-blue);
   /* Hover on accent fills: one step darker. No gradients anywhere: the owner tried them on buttons and the header band
      (2026-10-17) and found both too much. */
   --color-accent-deep: var(--blue-deep);
+  /* The accent where it is a thin line or text: links, text actions, selected edges, focus outlines, checkboxes. Same as the
+     accent unless a scheme's accent is too light to read as text (Warm paper's vivid orange): then --link is a darker step. */
+  --color-link: var(--link, var(--blue));
+  /* Text on the Home "Nová faktura" tile: accent-fg, unless a scheme paints the tile with a motif (--scheme-tile-fg). */
+  --color-tile-fg: var(--scheme-tile-fg, var(--on-blue));
   /* Identity: the receipt logo (src/ui/Logo.tsx). Light: an espresso receipt, a cream i with an orange dot. Dark: an orange receipt,
      a near-black stem and a cream dot. */
   --color-brand: var(--logo);
@@ -75,8 +80,9 @@
   /* Crimson covers errors (common: pale chips with red text) and errors (rare: solid red, white text). */
   --color-danger: var(--red);
   --color-danger-fg: var(--on-red);
-  /* Warnings (overdue, missing rates) are rust, not red (the owner's choice, 2026-10-17: red felt aggressive). Rust is much darker
-     than the identity orange, so it never reads as decoration. Real errors and delete stay crimson: they are rare. */
+  /* Warnings (overdue, missing rates) are ochre in Warm paper, not red (the owner, 2026-10-17: red felt aggressive), and not orange,
+     which is the accent. It is as dark as the accent, so a warning always carries a word or a label, never colour alone. Real errors
+     and delete stay crimson: they are rare. */
   --color-warning: var(--rust);
   --color-warning-chip: var(--rust-chip);
   --color-warning-chip-fg: var(--rust);
@@ -86,10 +92,17 @@
   --color-success-chip: var(--green-chip);
   /* Behind modals: ink (light) or the paper tone (dark), at 50%. */
   --color-scrim: var(--ink);
-  /* Chart series: this year an azure (3.1:1 on card), last year a pale blue (lightness separates them, so it is
+  /* Chart series: this year a lighter orange (3.3:1 on card), last year a pale peach (lightness separates them, so it is
      colourblind-safe; the pale bars are deliberately faint and the Table view has exact values). */
   --color-series-1: var(--chart-1);
   --color-series-2: var(--chart-2);
+  /* Categorical slots for a chart whose parts are different things (the tax donut on Home: tax, social, health). An exception
+     to the one-accent rule, the owner's choice (2026-10-18), in each scheme's own hues (Warm paper: brick, orange, olive). Every
+     scheme's set passes the dataviz validator for all pairs on its card, light and dark; Warm paper dark sits in the colour-blind
+     floor band (6.3), allowed because every part has a labelled row and 2 px gaps. Light olive is 2.3:1 on white, same relief. */
+  --color-cat-1: var(--cat-1);
+  --color-cat-2: var(--cat-2);
+  --color-cat-3: var(--cat-3);
 }
 
 @layer base {
@@ -99,30 +112,40 @@
     --paper: #f6eee8; --card: #ffffff; --hover: #faf6f3; --fill: #f8eee7; --rule: #eee6e0; --line: #e3d6ce; --field: #f9f4f0; --edge: #93857b; --mid: #695a50; --ink: #342117;
     --on-ink: #ffffff;
     --red: #b7162d; --on-red: #ffffff; --red-chip: #fedfde; --green: #1e7729; --green-chip: #e4f2e5;
-    /* Scheme "A" (2026-10-17): azure, hue 245, bluer than the owner's first #099bc1. blue is text, links and solid fills: 5.3:1 on card,
-       4.6:1 on paper and fill. Hover is blue-deep. Charts use a lighter step. */
-    --blue: #006fb5; --on-blue: #ffffff; --blue-deep: #005d9c;
-    --chart-1: #3899e2; --chart-2: #bddcf7;
-    /* Rust for warnings: 6.1:1 on paper, 5.6:1 on fill, 5.3:1 on its chip. */
-    --rust: #9e4501; --rust-chip: #ffe6d6;
+    /* The accent is a vivid orange, another shade of the header's peach (the owner, 2026-10-18: "get rid of the blue, use another
+       shade of the peach/orange", then "more orange, I don't like the brick"). An orange this bright can't be text on the light
+       page, so it is used for fills with espresso text (5.8:1; hover 4.9:1), and --link is a darker orange for text, thin edges
+       and focus (4.9:1 on paper and fill). The slot keeps its old name "blue". Charts: an orange 3.4:1 on card, last year pale peach. */
+    --blue: #f18336; --on-blue: #342117; --blue-deep: #e27429;
+    --chart-1: #de6907; --chart-2: #f7d2bd;
+    --cat-1: #a14f36; --cat-2: #e36a00; --cat-3: #9db560;
+    /* Warnings are ochre since the accent became orange (2026-10-18; before, rust #9e4501, which an orange accent would have
+       matched): 5.3:1 on paper and fill, 5.0:1 on its chip. Not red, the owner finds red aggressive. The slot keeps the name "rust". */
+    --rust: #825b0c; --rust-chip: #fbe5c3;
     /* The owner's orange, for small marks only: it reaches 2.3:1 on white, so it is never text on a light surface. */
     --orange: #fa8d4e; --logo: #342117; --on-logo: #fffaf6; --logo-dot: #fa8d4e;
-    --peach: #f28d50; --on-peach: #342117; --on-peach-muted: #4e372a;
+    /* A step darker than F4's light peach and a touch more saturated ("O1", the owner's pick, 2026-10-17): espresso text 7.7:1,
+       the muted brown 5.5:1. Flat, like everything else. */
+    --peach: #fea668; --on-peach: #342117; --on-peach-muted: #4e372a;
   }
   /* Dark: a warm near-black page, lighter cards, an espresso header, and lighter, softer accents so they don't vibrate. */
   .dark {
     --paper: #110d0b; --card: #181411; --hover: #1c1714; --fill: #221d19; --rule: #27221e; --line: #332c28; --field: #1e1915; --edge: #6f645d; --mid: #b5a89f; --ink: #f2e9e4;
     --on-ink: #110d0b;
     --red: #df676f; --on-red: #110d0b; --red-chip: #3f191b; --green: #66ac69; --green-chip: #173019;
-    --blue: #5eaceb; --on-blue: #110d0b; --blue-deep: #48a0e0;
-    --rust: #e48b53; --rust-chip: #3a1e0e;
-    --chart-1: #5eaceb; --chart-2: #2a4b66;
+    --blue: #f99549; --on-blue: #110d0b; --blue-deep: #ec873f;
+    --rust: #d8b260; --rust-chip: #392c0c;
+    --chart-1: #f99549; --chart-2: #6f3f22;
+    --cat-1: #983f4a; --cat-2: #d17414; --cat-3: #6a7300;
     --orange: #fa8d4e; --logo: #fa8d4e; --on-logo: #110d0b; --logo-dot: #fffaf6;
-    --peach: #342117; --on-peach: #f6e8df; --on-peach-muted: #d7bfaf;
+    --peach: #3c2517; --on-peach: #f6e8df; --on-peach-muted: #d7bfaf;
     /* Native controls (date pickers, select arrows, scrollbars) follow the theme. */
     color-scheme: dark;
     --color-scrim: var(--paper);
   }
+  /* Warm paper's darker orange for text and thin edges (see --blue above). Only without another scheme, which keeps link =
+     accent; in dark mode the light orange accent already reads as text. */
+  :root:not([data-scheme]):not(.dark) { --link: #a94e00; }
   body {
     /* Body (14 px) is the default, so text without a size class never falls back to the browser's 16 px. */
     @apply bg-bg text-fg text-sm antialiased;
@@ -139,6 +162,21 @@
    Rule order matters: error beats hover, focus beats error, disabled beats everything. */
 @layer components {
   /* On espresso (the footer) the logo takes its dark-mode colours, or the espresso receipt would vanish. */
+  /* Scheme motifs (the owner's choice, 2026-10-17): a scheme may paint the header band, the Home "Nová faktura" tile and the
+     footer with a gradient or pattern, set as --scheme-*-image. Without one they stay flat (Warm paper, Braníček). Text on a
+     motif must reach 4.5:1 at every point of it, which the scheme's file states. --scheme-header-pad adds a strip under the
+     header row, so a skyline along the bottom edge isn't hidden behind the logo and the pills. */
+  .scheme-header {
+    background-image: var(--scheme-header-image, none);
+    background-repeat: var(--scheme-header-repeat, repeat); background-position: var(--scheme-header-position, 0 0); background-size: var(--scheme-header-size, auto);
+    padding-bottom: var(--scheme-header-pad, 0);
+  }
+  .scheme-tile {
+    background-image: var(--scheme-tile-image, none);
+    background-repeat: var(--scheme-tile-repeat, repeat); background-position: var(--scheme-tile-position, 0 0); background-size: var(--scheme-tile-size, auto);
+  }
+  .scheme-tile:hover { background-image: var(--scheme-tile-image-hover, var(--scheme-tile-image, none)); }
+  .scheme-footer { background-image: var(--scheme-footer-image, linear-gradient(to bottom, var(--color-footer), var(--color-footer-deep))); }
   .on-espresso { --color-brand: var(--orange); --color-brand-fg: #110d0b; --color-brand-dot: #fffaf6; }
   .control {
     background: var(--color-field);
@@ -151,7 +189,7 @@
   .control[aria-invalid="true"], .control:has(> [aria-invalid="true"]) { border-color: var(--color-danger); }
   .control:focus, .control:focus-within {
     outline: none;
-    border-color: var(--color-accent);
+    border-color: var(--color-link);
   }
   .control:disabled, .control:has(> :disabled) {
     background: var(--color-surface);

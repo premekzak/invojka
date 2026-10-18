@@ -1,3 +1,5 @@
+import { LOCALES, type InvoiceLang } from './language'
+
 // Money is always an integer number of minor units (haléře, cents).
 export type Minor = number
 
@@ -12,8 +14,8 @@ export function toMinor(major: number | string): Minor {
 
 export const toMajor = (m: Minor) => m / 100
 
-export function formatMoney(m: Minor, currency: string, locale: 'cs' | 'en' = 'cs', whole = false): string {
-  return new Intl.NumberFormat(locale === 'cs' ? 'cs-CZ' : 'en-GB', {
+export function formatMoney(m: Minor, currency: string, locale: InvoiceLang = 'cs', whole = false): string {
+  return new Intl.NumberFormat(LOCALES[locale], {
     style: 'currency', currency, ...(whole && { maximumFractionDigits: 0, minimumFractionDigits: 0 }),
   }).format(toMajor(m))
 }

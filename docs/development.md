@@ -28,10 +28,12 @@ Toolchain: TypeScript 7, Vite 8, Vitest 5, React 19, Zod 4, Tailwind 4 (via `@ta
 
 - The folder dialog is native and can't be automated. In `npm run dev`, `main.tsx` exposes `window.__invojka` (**dev only**; check that `grep -c __invojka dist/invojka.html` returns `0`):
   - `seedFromCsv(vatMode?)` loads the repo's CSVs into in-memory storage and opens the app ready to use.
+  - **Before any action that saves, check that the app still runs on the test data:** `__invojka.useStore.getState()` must have `adapter.constructor.name === 'MemoryAdapter'` and `settings.supplier.name === 'Test Dodavatel'`. On 2026-10-18 the remembered real folder finished loading after a seed and a test setting was saved into the owner's folder; the race is fixed (see decisions), but the check stays.
   - `openMemory()` opens an empty in-memory folder (onboarding).
   - `check()` runs `checkData()` on the open data and prints a table of errors and warnings. Run it after a test session to see whether anything the UI did broke the data.
   - `useStore` is the store, e.g. `useStore.getState().adapter.files.get('invoices.json')`.
 - **A full reload in dev reopens the folder you last used on `localhost`, which may be your real one.** In-memory test data is then gone, and every click saves into the real files. Before clicking through a test, check `__invojka.useStore.getState().adapter.name` (`memory` for test data), and check again after editing a module that can't be hot-reloaded. On 2026-10-17 a preview switched the colour scheme in the owner's real `settings.json` this way.
+- **Vite can keep a CSS block you deleted from `src/index.css`**, even after a page reload (seen 2026-10-17 with a removed `:root:not([data-scheme])` block). The build is right; restart the dev server with `--force`. `TaskStop` on a backgrounded `npm run dev` may leave the Vite process running: free the port by stopping the process that listens on it.
 - Editing modules that aren't hot-reloadable (e.g. `src/pdf/*`, `main.tsx`) and the first use of a new dependency make Vite **reload the page, which wipes in-memory data**. Seed again.
 - Headless Chrome with `--virtual-time-budget` stalls on IndexedDB, so a `--dump-dom` of the built file shows an empty root. **That isn't an app bug.**
 
@@ -45,6 +47,12 @@ Users download `invojka.html` from [GitHub Releases](https://github.com/premekza
 4. Commit, then tag and push: `git tag v0.3.0 && git push origin main v0.3.0`.
 
 The `Release` workflow (`.github/workflows/release.yml`) then runs the tests, builds, checks that the build has no dev hooks and that the tag matches `package.json`, and publishes the release with the file attached. If a step fails, nothing is published: fix it, delete the tag (`git push origin :v0.3.0`, `git tag -d v0.3.0`) and tag again.
+
+## Showcase for testers
+
+- **What:** the app on made-up data at https://premekzak.github.io/invojka-demo/, for friends and testers (not linked from the website yet). It opens straight on the data, with no folder to pick; changes stay in the tab and a reload starts over. Search engines are told to stay away (`noindex` and `robots.txt`).
+- **Build:** `npm run build:showcase` makes `dist-showcase/index.html` (`--mode showcase`). `src/showcase/history.ts` invents about forty customers and invoices every month from 2019 to today, through the normal CSV import; `src/showcase/boot.ts` runs `anonymize()` over it (the demo-mode names) and opens it in memory. Nothing comes from the owner's data.
+- **Publish:** `bash scripts/deploy-showcase.sh` builds and force-pushes just that page to the separate public repo `premekzak/invojka-demo` (GitHub Pages from `main`). The demo names live only in the local `src/domain/demo.ts` and that repo, never in this one's history.
 
 ## Pitfalls met so far
 

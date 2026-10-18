@@ -28,6 +28,25 @@ describe('store', () => {
     expect(useStore.getState().phase.kind).toBe('ready')
   })
 
+  it('never lets a slower folder load land on top of a newer one', async () => {
+    // The remembered folder starts loading at start-up; meanwhile another folder is opened. The slow one finishes last.
+    const slow = new MemoryAdapter('slow')
+    await slow.write('settings.json', JSON.stringify({ ...settings, supplier: { ...settings.supplier, name: 'Slow' } }))
+    let release!: () => void
+    const gate = new Promise<void>((r) => { release = r })
+    const read = slow.read.bind(slow)
+    slow.read = async (f) => { await gate; return read(f) }
+    const fast = new MemoryAdapter('fast')
+    await fast.write('settings.json', JSON.stringify({ ...settings, supplier: { ...settings.supplier, name: 'Fast' } }))
+
+    const slowOpen = useStore.getState().open(slow)
+    await useStore.getState().open(fast)
+    release()
+    await slowOpen
+    expect(useStore.getState().adapter).toBe(fast)
+    expect(useStore.getState().settings?.supplier.name).toBe('Fast')
+  })
+
   it('detects a conflict and can overwrite on request', async () => {
     useStore.getState().upsertCustomer(customer)
     await useStore.getState().flush()

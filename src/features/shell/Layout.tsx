@@ -1,4 +1,4 @@
-import { FileText, Home, Settings, Users } from 'lucide-react'
+import { BarChart3, FileText, Home, Settings, Users } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useStore } from '@/state/store'
@@ -11,21 +11,22 @@ const items = [
   { key: 'home', path: '/', icon: Home },
   { key: 'invoices', path: '/invoices', icon: FileText },
   { key: 'customers', path: '/customers', icon: Users },
+  { key: 'stats', path: '/stats', icon: BarChart3 },
   { key: 'settings', path: '/settings', icon: Settings },
 ] as const
 
 export function Layout({ section, children }: { section: string; children: ReactNode }) {
   const { t } = useTranslation()
-  const { demo, exitDemo } = useStore()
+  const { demo } = useStore()
   return (
     <div className="flex min-h-screen flex-col">
       {/* The peach header band, one row (the owner's choice, 2026-10-17, replacing the sidebar): the logo on the left,
           the pages as centred pills, the business with its save tick on the right. "Nová faktura" lives on the invoice list and in Home's blue tile. */}
-      <header className="bg-header text-header-fg">
+      <header className="scheme-header bg-header text-header-fg">
         <div className="mx-auto grid max-w-6xl grid-cols-[1fr_auto_1fr] items-center gap-6 px-8 py-3">
           <a href="#/" className="flex items-center gap-2 justify-self-start" title={t('nav.home')}>
             <Logo className="size-7" />
-            <span className="font-display text-lg font-bold tracking-[-0.015em]">{t('app.name')}</span>
+            <span className="font-display text-lg font-bold">{t('app.name')}</span>
           </a>
           {/* Pills with a 12 px radius, the one place with corners this round (the owner's exception to "no pills", navigation only). */}
           <nav className="flex gap-2 font-nav font-medium tracking-[0.02em]">
@@ -44,12 +45,8 @@ export function Layout({ section, children }: { section: string; children: React
             ))}
           </nav>
           <div className="flex min-w-0 items-center gap-1 justify-self-end">
-            {demo ? (
-              <span className="flex items-center gap-2 text-xs whitespace-nowrap" title={t('demo.badgeHint')}>
-                <span className="font-medium">{t('demo.badge')}</span>
-                <button className="text-header-muted underline underline-offset-2 hover:text-header-fg" onClick={() => void exitDemo()}>{t('demo.exit')}</button>
-              </span>
-            ) : <SaveStatus />}
+            {/* Demo mode looks exactly like real data, for screenshots (the owner, 2026-10-18); it is switched off in Settings → Aplikace. */}
+            <SaveStatus />
             <BusinessSwitcher />
           </div>
         </div>
@@ -60,12 +57,12 @@ export function Layout({ section, children }: { section: string; children: React
       </main>
       {/* Espresso with a very slight gradient (the owner's request, 2026-10-17); `on-espresso` gives the logo its dark-mode
           colours (an orange receipt), which stay visible on espresso. */}
-      <footer className="on-espresso mt-16 bg-linear-to-b from-footer to-footer-deep text-footer-fg">
+      <footer className="scheme-footer on-espresso mt-16 text-footer-fg">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-8 px-8 py-8">
           <div className="flex items-center gap-3">
             <Logo className="size-7" />
             <div>
-              <div className="font-display text-lg font-bold tracking-[-0.015em]">{t('app.name')}</div>
+              <div className="font-display text-lg font-bold">{t('app.name')}</div>
               <div className="text-xs text-footer-muted">{t('app.tagline')}</div>
             </div>
           </div>

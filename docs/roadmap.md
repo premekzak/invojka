@@ -34,6 +34,11 @@
 - [ ] Walk through the user journeys in [test-plan.md](test-plan.md) in the browser and fix what they find (journeys 1–6 done 2026-10-17; journey 7, edge cases, keyboard and PDF content left)
 - [ ] First-time user check: an agent with no context follows the download-to-first-invoice path
 - [ ] Generating a PDF in the built `dist/invojka.html` opened from disk (so far tested only via the dev server)
+- [ ] **Bank statement import with a real export** (the owner, 2026-10-18: later): the owner downloads a GPC or CSV statement from their bank and reads it in Faktury → "Načíst výpis z banky"; so far tested only on made-up files built from the specification ([bank-import.md](bank-import.md))
+
+- [ ] **EET 2027:** check whether the new EET law passed and whether it covers cash invoices of Invojka's users ([czech-rules.md](czech-rules.md#cash-payments)); before December 2026
+
+- [ ] **Tax rates for 2027:** add the year to `RATES` in `src/domain/taxes.ts` in January ([czech-rules.md](czech-rules.md#sole-traders-taxes-and-insurance)); until then Home says the rates are missing
 
 ## Going public as Invojka (set 2026-10-17)
 
@@ -44,24 +49,43 @@
 - [ ] Show the app's version (e.g. in Settings), so a user can tell whether their file is the newest
 - [ ] Download page with step-by-step instructions per system and browser; test it with someone who has never seen the app
 - [ ] Remove anything owner-specific that a stranger would trip over (the CSV import is built for the previous service's export)
+- [x] **Catch crashes** (the owner, 2026-10-18; done the same day: `src/ui/ErrorBoundary.tsx` around each screen, which also covers its dialogs, and around the app): an error on one screen blanks the whole app, because nothing catches render errors (found when the export dialog hit an invalid date). Add React error boundaries around each screen and dialog that show a plain message ("Něco se pokazilo, vaše data jsou v pořádku"), a way back (reload, Přehled) and the error text to copy; data must never be saved from a broken state
 - [ ] Website on invojka.cz: download, the privacy story, comparison with Fakturoid and iDoklad, screenshots (demo mode)
 - [ ] Research the other competitors (Vyfakturuj, SuperFaktura, Pohoda, Money S3)
 - [ ] A licence for the public repo
 
+## From the Fakturoid comparison (2026-10-18)
+
+Ordered by value against effort; details in [competitor-fakturoid.md](competitor-fakturoid.md). Card payments are left out for now (the owner, 2026-10-18).
+
+- [x] **VAT registration threshold watch** for non-payers: this year's turnover against 2,000,000 Kč and 2,536,500 Kč, a card on Home and a task from 80 % (2026-10-18)
+- [x] **ARES lookup** by IČ or name: on a new customer, "Načíst z ARES" on a saved one, and in onboarding (2026-10-18)
+- [x] **Payment methods:** cash and cash on delivery besides bank transfer; no bank details or QR for them; a cash receipt (pokladní doklad); a warning above the 270,000 Kč cash limit (2026-10-18)
+- [x] **Lock issued invoices** with a per-document unlock, and **credit notes** in their own series (2026-10-18)
+- [x] **Proforma** (zálohová faktura) and a final invoice that deducts it, for non-payers (2026-10-18)
+- [x] **Tax document for a received payment** (daňový doklad k přijaté platbě) for VAT payers, and deducting it on the final invoice (2026-10-18)
+- [x] **Bank statement import** (GPC/ABO, CAMT.053, CSV) with matching by variable symbol and amount, all local (2026-10-18)
+- [x] **Reminders:** "Upomínka" on overdue invoices and "Poslat" on issued ones, a pre-filled e-mail opened in the user's mail program, editable templates, sent and reminder dates recorded (2026-10-18)
+- [x] **Insurance and tax estimate** (2026-10-18; rates for 2025 and 2026, add each new year): social and health insurance and income tax, flat-rate expenses vs the flat-rate tax; rates kept per year in `src/domain/` with tests
+- [x] **Export for the accountant:** CSV overview, ISDOC 6.0.2 (validated against the official schema), PDFs, as a ZIP or into the data folder (2026-10-18). Pohoda XML left out: Pohoda imports ISDOC
+- [x] **Recurring invoices** as a "to issue this month" list on Home, set per customer (monthly, quarterly, yearly, from a day); copied lines move their months on (2026-10-18)
+- [x] **Invoice look:** logo and stamp/signature, an optional accent colour, footer text, "Již uhrazeno, neplaťte" on paid invoices (2026-10-18)
+- [x] **More invoice languages:** German and Slovak, on the PDF, in dates and amounts, and in the e-mail templates (2026-10-18)
+- [x] **Statistics:** a Statistiky page: by issue date, DUZP or payment date, months, quarters or years, year-on-year per period, biggest customers with share and days to pay, debtors, revenue by currency, CSV download (2026-10-18)
+- [x] **Small helpers:** duplicate, discount, private note, "not invoiced for a long time", mark uncollectible, delivery note, event log, price list, tags (2026-10-18)
+- [ ] **UX from Fakturoid:** the resulting date next to the due-date shortcuts, "more options" folding rare invoice fields, a single name-or-IČO box for a new contact, summary tiles above the invoice list as filters
+
 ## Next (from the original plan)
 
-- [ ] **Deeper analytics:** top customers and their share, days until payment per customer, revenue by currency, year-over-year by customer
+- [ ] **Deeper analytics:** year-over-year by customer (top customers and their share, days until payment and revenue by currency are on the Statistiky page since 2026-10-18)
 - [ ] **Polish:** command palette (Ctrl+K), shortcuts (N = new invoice, / = search), a theme toggle in the header, date inputs in Czech format
-- [ ] **Sending:** a pre-filled email with the PDF (Gmail draft or `mailto:`), recording `sentAt`
+- [x] **Sending:** a pre-filled e-mail (`mailto:`), recording `sentAt` (2026-10-18; the PDF is attached by hand, see [email.md](email.md))
 - [ ] **Customers:** merge two customers (e.g. one company that was renamed and appears twice)
 - [ ] **Drafts nobody meant to make** (the owner, 2026-10-17): open "Upravit odběratele" from the invoice form in a dialog instead of saving a silent draft, and remind about open drafts on Home
 - [ ] **Businesses:** copy a customer from another business; show each business's own initial in the business switcher (the logo is one mark for every business since the receipt, 2026-10-17)
 
 ## Later
 
-- [ ] ARES lookup by IČ to fill in customer details (network: only the IČ is sent; check CORS first)
-- [ ] Export for the accountant: ISDOC, Pohoda XML, or a CSV of the year's invoices (`exportedAt`)
-- [ ] Recurring invoices or monthly templates
 - [ ] Firefox and Safari: a browser-storage adapter with zip export and import
 - [ ] Playwright end-to-end test of create → PDF → mark paid with `MemoryAdapter`
 - [ ] Migrations framework once `schemaVersion` 2 is needed

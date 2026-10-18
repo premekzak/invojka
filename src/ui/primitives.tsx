@@ -10,7 +10,7 @@ import { twMerge } from 'tailwind-merge'
 export const cn = (...c: ClassValue[]) => twMerge(clsx(c))
 
 const button = cva(
-  'inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium transition-all active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent',
+  'inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium transition-all active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-link',
   {
     variants: {
       variant: {
@@ -102,7 +102,7 @@ export function Field({ label, hint, error, required, className, inputClassName,
 export function Checkbox({ label, hint, className, ...p }: InputHTMLAttributes<HTMLInputElement> & { label: ReactNode; hint?: ReactNode }) {
   return (
     <label className={cn('inline-flex cursor-pointer items-start gap-2 text-sm', className)}>
-      <input type="checkbox" className="mt-0.5 size-4 shrink-0 cursor-pointer accent-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent" {...p} />
+      <input type="checkbox" className="mt-0.5 size-4 shrink-0 cursor-pointer accent-link focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-link" {...p} />
       <span className="flex flex-col gap-0.5">
         {label}
         {hint && <span className="text-xs text-fg-muted">{hint}</span>}
@@ -142,8 +142,8 @@ export function Choice({ selected, onClick, title, hint }: { selected: boolean; 
       aria-checked={selected}
       onClick={onClick}
       className={cn(
-        'w-full rounded-xl border p-4 text-left transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent',
-        selected ? 'border-accent bg-surface-2 shadow-[inset_0_0_0_1px_var(--color-accent)]' : 'border-line hover:border-line-strong',
+        'w-full rounded-xl border p-4 text-left transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-link',
+        selected ? 'border-link bg-surface-2 shadow-[inset_0_0_0_1px_var(--color-link)]' : 'border-line hover:border-line-strong',
       )}
     >
       <div className="text-sm font-medium text-fg">{title}</div>

@@ -16,8 +16,15 @@ const renameOutput = (): Plugin => ({
   },
 })
 
-export default defineConfig({
-  plugins: [react(), tailwindcss(), viteSingleFile(), renameOutput()],
+// The showcase (`--mode showcase`) is a web page on made-up data: dist-showcase/index.html, kept out of search engines.
+const noIndex = (): Plugin => ({
+  name: 'no-index',
+  transformIndexHtml: (html) => html.replace('<head>', '<head>\n    <meta name="robots" content="noindex, nofollow" />'),
+})
+
+export default defineConfig(({ mode }) => ({
+  plugins: [react(), tailwindcss(), viteSingleFile(), ...(mode === 'showcase' ? [noIndex()] : [renameOutput()])],
+  build: mode === 'showcase' ? { outDir: 'dist-showcase' } : undefined,
   resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) } },
   test: { environment: 'node', include: ['src/**/*.test.ts'] },
-})
+}))

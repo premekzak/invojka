@@ -1,15 +1,17 @@
-import { Check, Plus, Search } from 'lucide-react'
+import { Check, FileOutput, Landmark, Plus, Search } from 'lucide-react'
 import { useDeferredValue, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { today } from '@/domain/id'
-import { daysOverdue, displayStatus, invoiceTotals, type DisplayStatus } from '@/domain/invoice'
+import { amountDue, daysOverdue, displayStatus, invoiceTotals, type DisplayStatus } from '@/domain/invoice'
 import { countsAsRevenue } from '@/domain/stats'
 import { useStore } from '@/state/store'
 import { StatusBadge, useFormat } from '@/ui/format'
 import { Button, Card, Input, Select, cn } from '@/ui/primitives'
 import { navigate, type Route } from '@/ui/router'
+import { BankImport } from './BankImport'
+import { ExportDialog } from './ExportDialog'
 
-const STATUSES: DisplayStatus[] = ['draft', 'issued', 'overdue', 'paid', 'cancelled']
+const STATUSES: DisplayStatus[] = ['draft', 'issued', 'overdue', 'paid', 'cancelled', 'uncollectible']
 
 export function InvoiceList({ route }: { route: Route }) {
   const { t } = useTranslation()
@@ -21,6 +23,8 @@ export function InvoiceList({ route }: { route: Route }) {
   const status = (route.query.get('status') ?? '') as DisplayStatus | ''
   const customerId = route.query.get('customer')
   const q = useDeferredValue(search.trim().toLowerCase())
+  const [bank, setBank] = useState(false)
+  const [exporting, setExporting] = useState(false)
 
   const setStatus = (s: string) => {
     const p = new URLSearchParams(route.query)
@@ -38,7 +42,8 @@ export function InvoiceList({ route }: { route: Route }) {
       .filter(({ inv }) =>
         (!year || inv.issueDate.startsWith(year)) &&
         (!customerId || inv.customerId === customerId) &&
-        (!q || inv.number.includes(q) || inv.customerSnapshot.name.toLowerCase().includes(q) || inv.lines.some((l) => l.description.toLowerCase().includes(q))))
+        (!q || inv.number.includes(q) || inv.customerSnapshot.name.toLowerCase().includes(q) || inv.lines.some((l) => l.description.toLowerCase().includes(q))
+          || inv.tags.some((tag) => tag.toLowerCase().includes(q))))
       .sort((a, b) => b.inv.issueDate.localeCompare(a.inv.issueDate) || b.inv.number.localeCompare(a.inv.number))
   }, [invoices, on, year, customerId, q])
   const rows = useMemo(() => (status ? base.filter((r) => r.status === status) : base), [base, status])
@@ -58,7 +63,7 @@ export function InvoiceList({ route }: { route: Route }) {
 
   function markPaid(id: string) {
     const inv = invoices.find((i) => i.id === id)!
-    upsertInvoice({ ...inv, status: 'paid', paidDate: on, paidAmount: invoiceTotals(inv).total })
+    upsertInvoice({ ...inv, status: 'paid', paidDate: on, paidAmount: amountDue(inv) })
   }
 
   return (
@@ -66,12 +71,18 @@ export function InvoiceList({ route }: { route: Route }) {
       {/* The action for the whole list sits at the right end of the title row (design system: Layout). */}
       <div className="flex items-end justify-between gap-6">
         <div className="space-y-1">
-          <h1 className="font-display text-4xl leading-[1.2] font-bold tracking-[-0.03em]">{t('invoices.title')}</h1>
+          <h1 className="font-display text-4xl leading-[1.2] font-bold tracking-[-0.01em]">{t('invoices.title')}</h1>
           <p className="text-sm text-fg-muted">{t('invoices.count', { count: rows.length, total: sumByCurrency || f.money(0) })}
             {summed.length < rows.length && t('invoices.countExcludes')}</p>
         </div>
-        <Button onClick={() => navigate('/invoices/new')}><Plus className="size-4" /> {t('nav.newInvoice')}</Button>
+        <div className="flex gap-2">
+          <Button variant="secondary" onClick={() => setExporting(true)}><FileOutput className="size-4" /> {t('export.open')}</Button>
+          <Button variant="secondary" onClick={() => setBank(true)}><Landmark className="size-4" /> {t('bank.open')}</Button>
+          <Button onClick={() => navigate('/invoices/new')}><Plus className="size-4" /> {t('nav.newInvoice')}</Button>
+        </div>
       </div>
+      {bank && <BankImport onClose={() => setBank(false)} />}
+      {exporting && <ExportDialog onClose={() => setExporting(false)} />}
 
       <div className="flex gap-3">
         <div className="relative flex-1">
@@ -87,7 +98,7 @@ export function InvoiceList({ route }: { route: Route }) {
       <div role="group" aria-label={t('invoices.status')} className="inline-flex flex-wrap gap-0.5 rounded-2xl bg-surface-3 p-[3px] dark:bg-surface-2">
         {(['', ...STATUSES] as const).map((s) => (
           <button key={s} onClick={() => setStatus(s)} aria-pressed={status === s} className={cn(
-            'flex items-center gap-1.5 rounded-lg px-3 py-1 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-accent',
+            'flex items-center gap-1.5 rounded-lg px-3 py-1 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-link',
             status === s ? 'bg-surface text-fg dark:bg-surface-3' : 'text-fg-muted hover:text-fg',
           )}>
             {s ? t(`status.${s}`) : t('invoices.allStatuses')}
@@ -112,10 +123,16 @@ export function InvoiceList({ route }: { route: Route }) {
           <tbody>
             {rows.slice(0, 300).map(({ inv, status: s, totals }) => (
               <tr key={inv.id} onClick={() => navigate(`/invoices/${inv.id}`)} className="group cursor-pointer transition-colors even:bg-row-hover hover:bg-surface-2">
-                <td className="py-3 pr-4 pl-5 tabular-nums text-fg-muted">{inv.number}</td>
+                <td className="py-3 pr-4 pl-5 tabular-nums text-fg-muted">
+                  {inv.number}
+                  {inv.kind !== 'invoice' && <div className="text-xs text-fg-subtle">{t(`invoices.kindTag.${inv.kind}`)}</div>}
+                </td>
                 <td className="max-w-xs px-4 py-3">
                   <div className="truncate font-medium">{inv.customerSnapshot.name}</div>
-                  <div className="truncate text-xs text-fg-subtle">{inv.lines[0]?.description}</div>
+                  <div className="truncate text-xs text-fg-subtle">
+                    {inv.tags.length > 0 && <span className="mr-2 text-fg-muted">{inv.tags.map((tag) => `#${tag}`).join(' ')}</span>}
+                    {inv.lines[0]?.description}
+                  </div>
                 </td>
                 {/* Dates and amounts are right-aligned with tabular digits, so days, years and thousands line up. */}
                 <td className="px-4 py-3 text-right whitespace-nowrap tabular-nums text-fg-muted">{f.date(inv.issueDate)}</td>

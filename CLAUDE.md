@@ -14,9 +14,12 @@ Invojka is a local-first invoicing and analytics app in the browser. It is distr
 **The full context lives in [`docs/`](docs/README.md).** Read the relevant page before changing an area:
 - [architecture](docs/architecture.md)
 - [data model](docs/data-model.md)
-- [Czech invoicing rules](docs/invoicing-rules.md)
+- [Czech invoicing rules](docs/invoicing-rules.md) (as implemented) and [Czech rules we've learned](docs/czech-rules.md): **add every finding about Czech invoicing, VAT, taxes or accounting there**, with source and date
 - [exchange rates](docs/exchange-rates.md)
 - [CSV import](docs/csv-import.md)
+- [bank statement import](docs/bank-import.md)
+- [sending e-mails and reminders](docs/email.md)
+- [export for the accountant](docs/accounting-export.md)
 - [UI](docs/ui.md)
 - [development and pitfalls](docs/development.md)
 - [decisions](docs/decisions.md)
@@ -36,7 +39,7 @@ Invojka is a local-first invoicing and analytics app in the browser. It is distr
 - Business rules belong in `src/domain/` (pure TypeScript, unit-tested). Only `src/state/store.ts` changes data.
 - Money is an **integer in minor units**. Dates are ISO strings. IČ and DIČ are strings. Totals are always computed from lines. "Overdue" is worked out, never stored.
 - Issued invoices keep their `customerSnapshot`; only drafts follow customer edits.
-- Nothing may be loaded from a CDN, because the build must stay a single offline file. Network code lives only in `src/fx/` and may send only currencies and dates, **never user data**.
+- Nothing may be loaded from a CDN, because the build must stay a single offline file. Network code lives only in `src/fx/` (sends only currencies and dates) and `src/ares/` (sends only the IČ or name the user typed into the ARES lookup, and only when they type it), **never invoice or other user data**.
 - ČNB endpoints block browser requests (CORS). Don't try to fetch them.
 - Modals need `createPortal` to `document.body`, because the animated page container traps `position: fixed`.
 - Define components at module level, never inside other components.

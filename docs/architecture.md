@@ -20,7 +20,7 @@ index.html ─► src/main.tsx ─► App (phase switch) ─► Layout + screens
 | Features | `src/features/<area>/` | Screens and their local components. |
 | UI kit | `src/ui/` | Primitives (Button, Field, Card…), formatting, the router, BarChart. |
 | PDF | `src/pdf/` | The invoice document, fonts, labels and rendering. Lazy-loaded. |
-| Network | `src/fx/` | The only code that calls the internet (exchange rates). |
+| Network | `src/fx/`, `src/ares/` | The only code that calls the internet: exchange rates (currency and dates), and the ARES business register (only the IČ or name typed into the lookup). |
 | Import | `src/import/` | CSV import from the previous service. |
 | i18n | `src/i18n/` | App text. `en.ts` is typed against `cs.ts`, so a missing key fails the type-check. |
 
@@ -64,7 +64,7 @@ index.html ─► src/main.tsx ─► App (phase switch) ─► Layout + screens
 
 ## Demo mode
 
-- **What it's for:** screenshots and videos without showing real data. It's toggled in Settings → Aplikace → "Ukázková data" (Demo data). The header shows "Ukázková data · Vypnout" (Demo data · Turn off) instead of the save status and folder name.
+- **What it's for:** screenshots and videos without showing real data. It's toggled in Settings → Aplikace → "Ukázková data" (Demo data). Since 2026-10-18 nothing marks it (the owner wants screenshots that look real): the header shows the usual save tick and the demo supplier's name, and the in-memory folder is called "faktury". The only way out is the same switch in Settings → Aplikace, whose hint says so.
 - **Turning it on:** `store.enterDemo()` first flushes pending saves and refuses if anything is unsaved or in conflict. It then keeps the real adapter aside, runs `anonymize()` (`src/domain/demo.ts`) on the loaded data, and swaps in a `MemoryAdapter`. Autosave, PDF saving and every edit go to memory only.
 - **What `anonymize()` changes:** it's pure and deterministic (fixed seed). It replaces names, IČ and DIČ (valid check digits), addresses, contacts, bank details (a valid account and IBAN), line descriptions ("za <month> <year>" is kept), notes and order numbers. It invents all amounts: each month gets a made-up revenue (gentle growth over the years plus random variation), split across that month's invoices. Neither the amounts nor the chart heights reflect real revenue or how many invoices there were; only months with no invoices stay empty. Paid amounts equal the new totals. It keeps dates, invoice numbers, statuses, currencies and VAT settings. Customer IDs stay, so links work.
 - **Turning it off:** `store.exitDemo()` discards the demo copy and reloads the real folder. `reload()` does nothing while demo mode is on, and `open()` always leaves it.
@@ -78,6 +78,7 @@ index.html ─► src/main.tsx ─► App (phase switch) ─► Layout + screens
   - `#/invoices?status=&customer=&year=` (the invoice list)
   - `#/invoices/new?customer=` and `#/invoices/:id` (the invoice editor)
   - `#/customers`, `#/customers/new` and `#/customers/:id`
+  - `#/stats`
   - `#/settings`
 - The screen element is keyed by the full route, so it remounts on navigation. Editors build their initial state once per mount, so later store updates (autosave) never reset a form.
 - A new invoice's URL is replaced with `#/invoices/<id>` after its first save (`history.replaceState`), so Back doesn't create a duplicate.

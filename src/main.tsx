@@ -1,11 +1,15 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { App } from './App'
+import { ErrorBoundary } from './ui/ErrorBoundary'
 import './i18n'
 import './index.css'
 import { loadUiFonts } from './pdf/fonts'
 
 loadUiFonts()
+
+// The public showcase build opens on made-up data in memory (src/showcase/boot.ts).
+if (import.meta.env.MODE === 'showcase') void import('./showcase/boot').then((m) => m.bootShowcase())
 
 // Dev-only hooks so browser automation can run the app against in-memory storage (no folder dialog).
 if (import.meta.env.DEV) {
@@ -43,6 +47,9 @@ if (import.meta.env.DEV) {
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    {/* The last line of defence; each screen also has its own boundary (App.tsx), so the header stays usable. */}
+    <ErrorBoundary>
+      <App />
+    </ErrorBoundary>
   </StrictMode>,
 )

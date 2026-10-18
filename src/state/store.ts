@@ -134,6 +134,9 @@ export const useStore = create<State>()((set, get) => {
       dirty.clear()
       try {
         const data = await loadAll(adapter)
+        // Another folder was opened while this one loaded (e.g. the remembered folder at start-up racing a newer open):
+        // its data must not land on top of the newer folder, or edits would be saved into the wrong one.
+        if (get().adapter !== adapter) return
         set({ ...data, saveState: 'saved', savedAt: undefined, conflictFile: undefined, phase: data.settings ? { kind: 'ready' } : { kind: 'onboarding' } })
       } catch (e) {
         set({ phase: { kind: 'error', message: (e as Error).message } })

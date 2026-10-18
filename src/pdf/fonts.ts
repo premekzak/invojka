@@ -4,12 +4,12 @@ import interRegular from '@expo-google-fonts/inter/400Regular/Inter_400Regular.t
 import interSemiBold from '@expo-google-fonts/inter/600SemiBold/Inter_600SemiBold.ttf?inline'
 // UI-only faces use small woff2 web subsets (latin + latin-ext covers Czech):
 // Inter 500 for labels and names (without it `font-medium` falls back to 400),
-// Bricolage Grotesque 700 for all headlines (one display weight keeps the file small),
-// Roboto 500 for the header navigation only (the owner's choice "R3", 2026-10-17).
+// Roboto 500 for the header navigation (the owner's choice "R3") and Roboto 700 for all headlines (the owner's trial,
+// 2026-10-17; it replaced Bricolage Grotesque, so the UI has two faces).
 import interMediumLatin from '@fontsource/inter/files/inter-latin-500-normal.woff2?inline'
 import interMediumLatinExt from '@fontsource/inter/files/inter-latin-ext-500-normal.woff2?inline'
-import displayLatin from '@fontsource/bricolage-grotesque/files/bricolage-grotesque-latin-700-normal.woff2?inline'
-import displayLatinExt from '@fontsource/bricolage-grotesque/files/bricolage-grotesque-latin-ext-700-normal.woff2?inline'
+import displayLatin from '@fontsource/roboto/files/roboto-latin-700-normal.woff2?inline'
+import displayLatinExt from '@fontsource/roboto/files/roboto-latin-ext-700-normal.woff2?inline'
 import navLatin from '@fontsource/roboto/files/roboto-latin-500-normal.woff2?inline'
 import navLatinExt from '@fontsource/roboto/files/roboto-latin-ext-500-normal.woff2?inline'
 
@@ -28,7 +28,7 @@ export function loadUiFonts() {
     new FontFace('Inter', `url(${fonts.regular})`, { weight: '400' }),
     new FontFace('Inter', `url(${fonts.semiBold})`, { weight: '600' }),
     ...subset('Inter', '500', interMediumLatin, interMediumLatinExt),
-    ...subset('Bricolage Grotesque', '700', displayLatin, displayLatinExt),
+    ...subset('Roboto', '700', displayLatin, displayLatinExt),
     ...subset('Roboto', '500', navLatin, navLatinExt),
   ]
   for (const face of faces) void face.load().then((f) => document.fonts.add(f)).catch(() => {})

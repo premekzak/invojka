@@ -43,7 +43,7 @@ export function RevenueCharts({ today }: { today: string }) {
   return (
     <div className="grid grid-cols-5 gap-x-6 gap-y-4">
       <section className="col-span-3">
-        <h2 className="mb-3 font-display text-2xl font-bold tracking-[-0.015em]">{t('home.byMonth')}</h2>
+        <h2 className="mb-3 font-display text-2xl font-bold">{t('home.byMonth')}</h2>
         <Card className="p-5">
           <BarChart
             categories={months}
@@ -64,7 +64,7 @@ export function RevenueCharts({ today }: { today: string }) {
         </Card>
       </section>
       <section className="col-span-2">
-        <h2 className="mb-3 font-display text-2xl font-bold tracking-[-0.015em]">{t('home.byYear')}</h2>
+        <h2 className="mb-3 font-display text-2xl font-bold">{t('home.byYear')}</h2>
         <Card className="p-5">
           <BarChart
             categories={yearly.years.map(String)}
@@ -85,8 +85,8 @@ export function RevenueCharts({ today }: { today: string }) {
           {missing.count > 0 && <span>{t('home.missingRate', { count: missing.count, currencies: missing.currencies.join(', ') })}</span>}
           {missing.count > 0 && !rates.run.busy && (
             <>
-              <button className="font-medium text-accent underline underline-offset-2 decoration-line-strong hover:decoration-current" onClick={() => void rates.fillFromEcb()}>{t('rates.fillNow')}</button>
-              <a href="#/settings" className="hover:underline">{t('rates.otherOptions')}</a>
+              <button className="font-medium text-link underline underline-offset-2 decoration-line-strong hover:decoration-current" onClick={() => void rates.fillFromEcb()}>{t('rates.fillNow')}</button>
+              <a href="#/settings?tab=rates" className="hover:underline">{t('rates.otherOptions')}</a>
             </>
           )}
           <RunResult run={rates.run} />

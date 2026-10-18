@@ -122,6 +122,11 @@ export function importCsv(customersCsv: string, invoicesCsv: string, vatMode: Va
 
     invoices.push({
       id: makeId(),
+      kind: 'invoice',
+      correctionReason: '',
+      reminders: [],
+      privateNote: '',
+      tags: [],
       number,
       variableSymbol: r['Variabilní symbol'] || number,
       orderNumber: r['Číslo objednávky'] ?? '',
@@ -134,6 +139,7 @@ export function importCsv(customersCsv: string, invoicesCsv: string, vatMode: Va
       paidAmount: paid ? toMinor(r['Uhrazená částka'] || r['Celkem']) : undefined,
       currency,
       language: currency === 'CZK' ? 'cs' : 'en',
+      paymentMethod: 'bank',
       vatMode,
       reverseCharge: false,
       lines: [{ description: r['Popis'] ?? '', quantity: 1, unit: '', unitPrice: total, vatRate: 0 }],

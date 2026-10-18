@@ -9,6 +9,8 @@ import { computeTotals } from './vat'
  * amounts are invented per invoice (not derived from the real ones), so charts show no real trend.
  * Dates, numbers, statuses and currencies are kept.
  * Deterministic (fixed seed), so the same data gives the same demo every time.
+ *
+ * The names here are generic; a local copy may swap in its own cast for showcases (never committed).
  */
 export interface DemoData {
   settings: Settings
@@ -16,20 +18,26 @@ export interface DemoData {
   invoices: Invoice[]
 }
 
+const SUPPLIER = 'Jana Svobodová'
+/** Names given to the first Czech customers before the BRANDS × TRADES combinations; empty here. */
+const FEATURED: string[] = []
 const BRANDS = ['Horizont', 'Lipa', 'Vltava', 'Kompas', 'Orion', 'Javor', 'Sokol', 'Atlas', 'Polaris', 'Merkur', 'Topas', 'Granit',
   'Safír', 'Klen', 'Rubín', 'Nova', 'Iris', 'Oblak', 'Brána', 'Most', 'Jantar', 'Kormorán', 'Modřín', 'Zenit']
-const TRADES = ['Digital', 'Studio', 'Media', 'Consulting', 'Systems', 'Trade', 'Group', 'Partners', 'Tech', 'Solutions', 'Design', 'Logistik']
+const TRADES = ['Digital', 'Studio', 'Media', 'Poradna', 'Systems', 'Trade', 'Group', 'Partners', 'Tech', 'Solutions', 'Design', 'Logistik']
 const CZ_FORMS = ['s.r.o.', 's.r.o.', 'a.s.', 'spol. s r.o.']
 const PEOPLE = ['Jana Svobodová', 'Petr Dvořák', 'Lucie Černá', 'Tomáš Procházka', 'Eva Kučerová', 'Martin Veselý', 'Tereza Horáková',
   'Jakub Marek', 'Kateřina Pokorná', 'Ondřej Král', 'Barbora Růžičková', 'Filip Beneš']
 const STREETS = ['Lipová', 'Nádražní', 'Školní', 'Husova', 'Palackého', 'Komenského', 'Masarykova', 'Zahradní', 'Polní', 'Sadová', 'Tyršova', 'Jiráskova']
 const CZ_CITIES: [string, string][] = [['Praha', '110 00'], ['Brno', '602 00'], ['Ostrava', '702 00'], ['Plzeň', '301 00'], ['Olomouc', '779 00'],
   ['Liberec', '460 01'], ['České Budějovice', '370 01'], ['Hradec Králové', '500 02'], ['Pardubice', '530 02'], ['Zlín', '760 01']]
-const FOREIGN: [RegExp, string, string, string][] = [
-  [/zéland/i, 'Auckland', '1010', 'Ltd'], [/irsk/i, 'Dublin', 'D02', 'Ltd'], [/švýcar/i, 'Zürich', '8001', 'AG'],
-  [/maďar/i, 'Budapest', '1051', 'Kft.'], [/kypr/i, 'Limassol', '3036', 'Ltd'], [/sloven/i, 'Bratislava', '811 01', 's.r.o.'],
-  [/němec|german/i, 'Berlin', '10115', 'GmbH'], [/rakous|austri/i, 'Wien', '1010', 'GmbH'],
+/** Country pattern, city, postcode, company form, and the name of the first customer there. */
+const FOREIGN: [RegExp, string, string, string, string][] = [
+  [/zéland/i, 'Auckland', '1010', 'Ltd', ''], [/irsk/i, 'Dublin', 'D02', 'Ltd', ''],
+  [/švýcar/i, 'Zürich', '8001', 'AG', ''], [/maďar/i, 'Budapest', '1051', 'Kft.', ''],
+  [/kypr/i, 'Limassol', '3036', 'Ltd', ''], [/sloven/i, 'Bratislava', '811 01', 's.r.o.', ''],
+  [/němec|german/i, 'Berlin', '10115', 'GmbH', ''], [/rakous|austri/i, 'Wien', '1010', 'GmbH', ''],
 ]
+const FOREIGN_DEFAULT = ''
 const SERVICES = ['Konzultace', 'Správa webu', 'Grafický návrh', 'Vývoj aplikace', 'Online marketing', 'Analýza dat', 'Copywriting',
   'Školení týmu', 'Technická podpora', 'Správa kampaní', 'Údržba systému', 'Fotografie produktů', 'Návrh loga', 'SEO audit']
 
@@ -81,10 +89,18 @@ export function anonymize(data: DemoData, seed = 20260930): DemoData {
 
   // One fake company per real customer, in a stable order so names don't depend on list order.
   let nextBrand = int(BRANDS.length * TRADES.length)
+  let nextFeatured = 0
+  const usedForeign = new Set<string>()
   const companyName = (country: string) => {
+    const foreign = isCzech(country) ? undefined : FOREIGN.find(([re]) => re.test(country))
+    const featured = isCzech(country) ? FEATURED[nextFeatured++] : (foreign?.[4] ?? FOREIGN_DEFAULT)
+    if (featured && !usedForeign.has(featured)) {
+      if (!isCzech(country)) usedForeign.add(featured)
+      return featured
+    }
     const i = nextBrand++ % (BRANDS.length * TRADES.length)
-    const form = isCzech(country) ? CZ_FORMS[int(CZ_FORMS.length)] : (FOREIGN.find(([re]) => re.test(country))?.[3] ?? 'Ltd')
-    return `${BRANDS[i % BRANDS.length]} ${TRADES[Math.floor(i / BRANDS.length) % TRADES.length]} ${form}`
+    const form = isCzech(country) ? CZ_FORMS[int(CZ_FORMS.length)] : (foreign?.[3] ?? 'Ltd')
+    return `${BRANDS[i % BRANDS.length]} ${TRADES[(i * 7 + Math.floor(i / BRANDS.length)) % TRADES.length]} ${form}`
   }
 
   const fakeParty = (country: string, hadDic: boolean) => {
@@ -94,7 +110,12 @@ export function anonymize(data: DemoData, seed = 20260930): DemoData {
   }
 
   const byCustomer = new Map<string, ReturnType<typeof fakeParty>>()
-  const customers = [...data.customers].sort((a, b) => a.id.localeCompare(b.id)).map((c): Customer => {
+  // The first featured name goes to the Czech customer with the most invoices, so it shows up often.
+  const invoiceCount = new Map<string, number>()
+  for (const inv of data.invoices) if (inv.customerId) invoiceCount.set(inv.customerId, (invoiceCount.get(inv.customerId) ?? 0) + 1)
+  const top = data.customers.filter((c) => isCzech(c.address.country))
+    .reduce<Customer | undefined>((best, c) => ((invoiceCount.get(c.id) ?? 0) > (best ? invoiceCount.get(best.id) ?? 0 : -1) ? c : best), undefined)
+  const customers = [...data.customers].sort((a, b) => Number(b.id === top?.id) - Number(a.id === top?.id) || a.id.localeCompare(b.id)).map((c): Customer => {
     const p = fakeParty(c.address.country, !!c.dic)
     byCustomer.set(c.id, p)
     const person = PEOPLE[int(PEOPLE.length)]!
@@ -176,7 +197,7 @@ export function anonymize(data: DemoData, seed = 20260930): DemoData {
   const s = data.settings
   const acc = s.supplier.bank.account ? account() : ''
   const bankCode = s.supplier.bank.bankCode ? '0800' : ''
-  const owner = PEOPLE[0]!
+  const owner = SUPPLIER
   const supIc = ic()
   const settings: Settings = {
     ...s,
@@ -197,6 +218,9 @@ export function anonymize(data: DemoData, seed = 20260930): DemoData {
       },
     },
     defaults: { ...s.defaults, note: '' },
+    // The owner's logo, stamp, footer and own e-mail texts would give them away in screenshots.
+    invoice: { ...s.invoice, logo: undefined, stamp: undefined, footer: '' },
+    emailTemplates: undefined,
   }
 
   return { settings, customers, invoices }

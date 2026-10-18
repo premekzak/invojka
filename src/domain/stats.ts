@@ -1,11 +1,14 @@
-import { displayStatus, invoiceTotals, totalCzk } from './invoice'
+import { differenceInCalendarDays, parseISO } from 'date-fns'
+import { displayStatus, dueCzk, invoiceTotals, totalCzk } from './invoice'
 import type { Invoice } from './schema'
 
 /**
  * Invoices that count as revenue: issued or paid, by issue date. Every screen that shows revenue uses this,
- * so Home, the charts and the customers show the same numbers.
+ * so Home, the charts and the customers show the same numbers. A proforma isn't revenue: its final invoice is.
  */
-export const countsAsRevenue = (inv: Invoice) => inv.status === 'issued' || inv.status === 'paid'
+export const countsAsRevenue = (inv: Invoice) =>
+  // The payer's tax document for an advance isn't counted either: the final invoice carries the full amount.
+  inv.kind !== 'proforma' && inv.kind !== 'advanceTaxDoc' && (inv.status === 'issued' || inv.status === 'paid')
 const counts = countsAsRevenue
 
 export interface RevenueSeries {
@@ -70,9 +73,11 @@ export function customerStats(invoices: Invoice[]): Map<string, CustomerStats> {
   for (const inv of invoices) {
     if (!inv.customerId || !counts(inv)) continue
     const s = stats.get(inv.customerId) ?? emptyCustomerStats()
-    s.count++
+    // Credit notes change the amounts but aren't invoices to count.
+    const isInvoice = inv.kind !== 'creditNote'
+    if (isInvoice) s.count++
     if (inv.status === 'paid') {
-      s.paidCount++
+      if (isInvoice) s.paidCount++
       const czk = totalCzk(inv)
       if (czk !== undefined) s.paid += czk
       else s.paidUnconverted[inv.currency] = (s.paidUnconverted[inv.currency] ?? 0) + invoiceTotals(inv).total
@@ -87,6 +92,7 @@ export interface HomeStats {
   /** This year's revenue so far and the same period of last year, CZK minor units. */
   revenue: number
   revenueLast: number
+  /** Invoices only; credit notes count in `revenue` but not here. */
   countThisYear: number
   /** Issued and unpaid, of which overdue. */
   outstanding: number
@@ -107,13 +113,149 @@ export function homeStats(invoices: Invoice[], on: string): HomeStats {
     if (!counts(inv)) continue
     const czk = totalCzk(inv) ?? 0
     if (totalCzk(inv) === undefined) { s.missingRate.count++; currencies.add(inv.currency) }
-    if (inv.issueDate.startsWith(`${year}-`)) { s.revenue += czk; s.countThisYear++ }
+    if (inv.issueDate.startsWith(`${year}-`)) { s.revenue += czk; if (inv.kind !== 'creditNote') s.countThisYear++ }
     if (inv.issueDate.startsWith(`${lastYear}-`) && inv.issueDate <= sameDayLastYear) s.revenueLast += czk
-    if (inv.status === 'issued') {
-      s.outstanding += czk
-      if (displayStatus(inv, on) === 'overdue') { s.overdueSum += czk; s.overdueCount++ }
+    if (inv.status === 'issued' && !inv.uncollectible) {
+      // A final invoice waits only for what the advance didn't cover; a written-off one waits for nothing.
+      const due = dueCzk(inv) ?? 0
+      s.outstanding += due
+      if (displayStatus(inv, on) === 'overdue') { s.overdueSum += due; s.overdueCount++ }
     }
   }
   s.missingRate.currencies = [...currencies].sort()
   return s
+}
+
+// ---------------------------------------------------------------------------------------------------- statistics page
+
+/**
+ * Which date puts an invoice into a period: its issue date (like revenue everywhere else), its DUZP (the VAT period;
+ * the issue date for documents without one) or its payment date (money received, cash basis).
+ */
+export type StatsBasis = 'issue' | 'taxable' | 'paid'
+export type StatsGrain = 'month' | 'quarter'
+
+/** Money received for a paid document, in CZK: what was paid, so a final invoice adds only its balance. */
+function receivedCzk(inv: Invoice): number | undefined {
+  const paid = inv.paidAmount ?? invoiceTotals(inv).total - (inv.advanceAmount ?? 0)
+  return inv.currency === 'CZK' ? paid : inv.exchangeRate ? Math.round(paid * inv.exchangeRate) : undefined
+}
+
+/** The documents counted on each basis, with their date and CZK amount (undefined without a rate). */
+function basisEntries(invoices: Invoice[], basis: StatsBasis): { inv: Invoice; date: string; czk: number | undefined }[] {
+  if (basis === 'paid') {
+    // Money received: paid invoices, credit notes and proformas (an advance comes in on the proforma); a tax document
+    // for a payment repeats its proforma.
+    return invoices.filter((i) => i.status === 'paid' && i.paidDate && i.kind !== 'advanceTaxDoc')
+      .map((inv) => ({ inv, date: inv.paidDate!, czk: receivedCzk(inv) }))
+  }
+  return invoices.filter(countsAsRevenue)
+    .map((inv) => ({ inv, date: basis === 'taxable' ? inv.taxableSupplyDate ?? inv.issueDate : inv.issueDate, czk: totalCzk(inv) }))
+}
+
+export interface PeriodStats extends RevenueSeries {
+  /** Documents per period (invoices only, like Home's count). */
+  counts: number[]
+}
+
+/** Revenue of one year per month (12) or quarter (4) on the chosen basis, CZK minor units. */
+export function periodStats(invoices: Invoice[], year: number, basis: StatsBasis, grain: StatsGrain): PeriodStats {
+  const size = grain === 'month' ? 12 : 4
+  const values = new Array<number>(size).fill(0)
+  const counts = new Array<number>(size).fill(0)
+  const currencies = new Set<string>()
+  let missing = 0
+  for (const { inv, date, czk } of basisEntries(invoices, basis)) {
+    if (!date.startsWith(`${year}-`)) continue
+    const month = Number(date.slice(5, 7)) - 1
+    const k = grain === 'month' ? month : Math.floor(month / 3)
+    if (czk === undefined) { missing++; currencies.add(inv.currency); continue }
+    values[k] += czk
+    if (inv.kind === 'invoice') counts[k]++
+  }
+  return { values, counts, missingRate: { count: missing, currencies: [...currencies].sort() } }
+}
+
+export interface CustomerRank {
+  customerId: string
+  name: string
+  /** CZK minor units on the chosen basis in the year. */
+  revenue: number
+  /** Share of the year's total, 0–1. */
+  share: number
+  count: number
+  /** Average days from issue to payment of the invoices paid in the year, undefined when none. */
+  daysToPay?: number
+}
+
+/** The year's biggest customers on the chosen basis, with their share and how fast they pay. */
+export function topCustomers(invoices: Invoice[], year: number, basis: StatsBasis): CustomerRank[] {
+  const by = new Map<string, CustomerRank & { days: number[] }>()
+  let total = 0
+  for (const { inv, date, czk } of basisEntries(invoices, basis)) {
+    if (!date.startsWith(`${year}-`) || czk === undefined || !inv.customerId) continue
+    const r = by.get(inv.customerId) ?? { customerId: inv.customerId, name: inv.customerSnapshot.name, revenue: 0, share: 0, count: 0, days: [] }
+    r.revenue += czk
+    total += czk
+    if (inv.kind === 'invoice') r.count++
+    by.set(inv.customerId, r)
+  }
+  // How fast they pay: invoices paid this year, whatever the basis.
+  for (const inv of invoices) {
+    if (inv.kind !== 'invoice' || inv.status !== 'paid' || !inv.paidDate?.startsWith(`${year}-`) || !inv.customerId) continue
+    by.get(inv.customerId)?.days.push(differenceInCalendarDays(parseISO(inv.paidDate), parseISO(inv.issueDate)))
+  }
+  return [...by.values()]
+    .map(({ days, ...r }) => ({ ...r, share: total ? r.revenue / total : 0, daysToPay: days.length ? Math.round(days.reduce((a, b) => a + b, 0) / days.length) : undefined }))
+    .sort((a, b) => b.revenue - a.revenue)
+}
+
+export interface Debtor { customerId: string | null; name: string; overdue: number; count: number; oldestDays: number }
+
+/** Customers with overdue invoices as of `on`, the most owed first (CZK minor units of what's still due). */
+export function debtors(invoices: Invoice[], on: string): Debtor[] {
+  const by = new Map<string, Debtor>()
+  for (const inv of invoices) {
+    if (displayStatus(inv, on) !== 'overdue' || inv.kind === 'proforma') continue
+    const key = inv.customerId ?? inv.customerSnapshot.name
+    const d = by.get(key) ?? { customerId: inv.customerId, name: inv.customerSnapshot.name, overdue: 0, count: 0, oldestDays: 0 }
+    d.overdue += dueCzk(inv) ?? 0
+    d.count++
+    d.oldestDays = Math.max(d.oldestDays, differenceInCalendarDays(parseISO(on), parseISO(inv.dueDate)))
+    by.set(key, d)
+  }
+  return [...by.values()].sort((a, b) => b.overdue - a.overdue)
+}
+
+/** The year's revenue (by issue date) in each invoice currency, in that currency's minor units. */
+export function revenueByCurrency(invoices: Invoice[], year: number): { currency: string; amount: number; czk?: number }[] {
+  const by = new Map<string, { amount: number; czk?: number }>()
+  for (const inv of invoices) {
+    if (!countsAsRevenue(inv) || !inv.issueDate.startsWith(`${year}-`)) continue
+    const r = by.get(inv.currency) ?? { amount: 0, czk: 0 }
+    r.amount += invoiceTotals(inv).total
+    const czk = totalCzk(inv)
+    r.czk = czk === undefined || r.czk === undefined ? undefined : r.czk + czk
+    by.set(inv.currency, r)
+  }
+  return [...by.entries()].map(([currency, r]) => ({ currency, ...r })).sort((a, b) => (b.czk ?? 0) - (a.czk ?? 0))
+}
+
+/** Revenue per year on the chosen basis, every year from the first document to `lastYear` (gaps as 0). */
+export function yearStats(invoices: Invoice[], basis: StatsBasis, lastYear: number): { years: number[] } & PeriodStats {
+  const entries = basisEntries(invoices, basis)
+  const first = entries.reduce((m, e) => Math.min(m, Number(e.date.slice(0, 4))), lastYear)
+  const years = Array.from({ length: lastYear - first + 1 }, (_, i) => first + i)
+  const values = new Array<number>(years.length).fill(0)
+  const counts = new Array<number>(years.length).fill(0)
+  const currencies = new Set<string>()
+  let missing = 0
+  for (const { inv, date, czk } of entries) {
+    const k = Number(date.slice(0, 4)) - first
+    if (k < 0 || k >= years.length) continue
+    if (czk === undefined) { missing++; currencies.add(inv.currency); continue }
+    values[k] += czk
+    if (inv.kind === 'invoice') counts[k]++
+  }
+  return { years, values, counts, missingRate: { count: missing, currencies: [...currencies].sort() } }
 }

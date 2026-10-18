@@ -3,14 +3,22 @@ import { useMemo } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { daySlot, pickDaily, yearTrend } from '@/domain/greeting'
 import { today } from '@/domain/id'
-import { displayStatus, invoiceTotals } from '@/domain/invoice'
+import { advanceTaxDocDeadline, advanceTaxDocOf, displayStatus, finalInvoiceOf, invoiceTotals } from '@/domain/invoice'
 import { homeStats } from '@/domain/stats'
+import { VAT_LIMIT, VAT_LIMIT_IMMEDIATE, vatThresholdLevel, vatTurnover } from '@/domain/vatThreshold'
 import { useStore } from '@/state/store'
 import { StatusBadge, useFormat } from '@/ui/format'
 import { Card, cn } from '@/ui/primitives'
 import { RevenueCharts } from './RevenueCharts'
+import { recurringStatus } from '@/domain/recurring'
+import { RECURRING_ID, RecurringInvoices } from './RecurringInvoices'
+import { TaxEstimate } from './TaxEstimate'
+import { VAT_THRESHOLD_ID, VatThreshold } from './VatThreshold'
 
-type Task = { key: string; title: string; detail: string; action: string; href: string; warning?: boolean }
+/** `href` opens another screen; `scrollTo` is the id of a section further down Home. */
+type Task = { key: string; title: string; detail: string; action: string; href?: string; scrollTo?: string; warning?: boolean }
+
+const taskAction = 'inline-flex h-8 items-center rounded-lg border border-line bg-surface-2 px-3 text-sm font-medium whitespace-nowrap transition-colors hover:bg-surface-3'
 
 /** Things that need checking, built from the data; an empty list shows "Vše v pořádku". A plain white box like the other
  *  tables, so it reads as information, unlike the solid "Nová faktura" tile beside it (the owner's choice "K2", 2026-10-17). */
@@ -40,7 +48,10 @@ function Tasks({ tasks }: { tasks: Task[] }) {
             <div className={cn('font-medium', task.warning && 'text-warning')}>{task.title}</div>
             <div className="text-xs text-fg-muted">{task.detail}</div>
           </div>
-          <a href={task.href} className="inline-flex h-8 items-center rounded-lg border border-line bg-surface-2 px-3 text-sm font-medium whitespace-nowrap transition-colors hover:bg-surface-3">{task.action}</a>
+          {task.href ? <a href={task.href} className={taskAction}>{task.action}</a> : (
+            <button type="button" className={taskAction}
+              onClick={() => document.getElementById(task.scrollTo!)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>{task.action}</button>
+          )}
         </div>
       ))}
     </Card>
@@ -61,13 +72,16 @@ function Summary({ revenue, revenueLast, count, outstanding, overdueSum, overdue
     : overdueCount === 0 ? <Trans i18nKey="home.waiting" values={{ amount: f.moneyWhole(outstanding) }} components={{ b }} />
     : <Trans i18nKey={overdueSum >= outstanding ? 'home.waitingAllOverdue' : 'home.waitingSomeOverdue'} count={overdueCount}
         values={{ amount: f.moneyWhole(outstanding), overdue: f.moneyWhole(overdueSum) }} components={{ b, r }} />
+  // All paid: one line, the short "all paid" at its end. Something unpaid: the money waiting gets a line of its own, so it
+  // isn't lost at the end of the year's summary (the owner, 2026-10-17). Each line is a sentence or two, so it may run
+  // wider than 65ch on purpose.
   return (
-    <p className="max-w-prose text-lg leading-normal text-fg-muted">
+    <p className="text-lg leading-normal text-fg-muted">
       {count === 0 ? t('home.summaryNone') : (
         <><Trans i18nKey="home.summary" count={count} values={{ amount: f.moneyWhole(revenue) }} components={{ b }} />
           <Trans i18nKey={trendKey[trend]} values={{ pct }} components={{ b }} /></>
-      )}{' '}
-      {payment}
+      )}
+      {outstanding > 0 ? <><br />{payment}</> : <>{' '}{payment}</>}
     </p>
   )
 }
@@ -79,6 +93,11 @@ export function Home() {
   const on = today()
 
   const stats = useMemo(() => homeStats(invoices, on), [invoices, on])
+  // The VAT registration limit matters only to someone who isn't a payer yet.
+  const year = Number(on.slice(0, 4))
+  const vat = useMemo(() => settings!.vatMode === 'payer' ? undefined
+    : { now: vatTurnover(invoices, year), last: vatTurnover(invoices, year - 1) }, [settings, invoices, year])
+  const vatLevel = vat && vatThresholdLevel(vat.now.domestic)
 
   // Chosen once per visit to Home: it follows the time of day but doesn't flip while you look at it.
   const greeting = useMemo(() => {
@@ -91,27 +110,51 @@ export function Home() {
   const s = settings!.supplier
   const missing = [
     !s.ic && t('fields.ic'),
+    // A VAT payer's tax documents must carry their DIČ (§ 29(1)(b) of the VAT act).
+    settings!.vatMode === 'payer' && !s.dic && t('fields.dic'),
     !s.address.street && t('fields.street'),
     !s.email && t('fields.email'),
     !s.bank.account && !s.bank.iban && t('fields.account'),
   ].filter(Boolean)
 
   const noEmail = customers.filter((c) => !c.archived && !c.email).length
-  const tasks: Task[] = [
+  const recurring = useMemo(() => recurringStatus(customers, invoices, on), [customers, invoices, on])
+  const recurringDue = recurring.filter((r) => r.state === 'due').length
+  // A paid proforma is half done: a VAT payer owes its tax document within 15 days, and the work still needs its invoice.
+  const payer = settings!.vatMode === 'payer'
+  const paidProformas = invoices.filter((i) => i.kind === 'proforma' && i.status === 'paid' && !finalInvoiceOf(invoices, i.id))
+  const needTaxDoc = payer ? paidProformas.filter((i) => !advanceTaxDocOf(invoices, i.id)) : []
+  const unsettled = paidProformas.filter((i) => !needTaxDoc.includes(i))
+  const firstDeadline = needTaxDoc.map(advanceTaxDocDeadline).sort()[0]
+  const tasks = ([
     stats.overdueCount > 0 && { key: 'overdue', warning: true, title: t('home.taskOverdue', { count: stats.overdueCount }),
       detail: t('home.taskOverdueDetail', { amount: f.moneyWhole(stats.overdueSum) }), action: t('home.taskShow'), href: '#/invoices?status=overdue' },
+    vat && vat.last.domestic > VAT_LIMIT && { key: 'vatLast', warning: true, title: t('home.taskVatLastYear'),
+      detail: t('home.taskVatLastYearDetail', { amount: f.moneyWhole(vat.last.domestic), limit: f.moneyWhole(VAT_LIMIT), year }),
+      action: t('home.taskSettings'), href: '#/settings?tab=business' },
+    vatLevel && vatLevel !== 'ok' && { key: 'vat', warning: vatLevel !== 'near', title: t(`home.taskVat_${vatLevel}`),
+      detail: t(`home.taskVatDetail_${vatLevel}`, { amount: f.moneyWhole(vat.now.domestic), limit: f.moneyWhole(VAT_LIMIT), immediate: f.moneyWhole(VAT_LIMIT_IMMEDIATE), next: year + 1 }),
+      action: t('home.taskShow'), scrollTo: VAT_THRESHOLD_ID },
+    recurringDue > 0 && { key: 'recurring', title: t('home.taskRecurring', { count: recurringDue }), detail: t('home.taskRecurringDetail'),
+      action: t('home.taskShow'), scrollTo: RECURRING_ID },
+    needTaxDoc.length > 0 && { key: 'taxDocs', warning: firstDeadline! <= on, title: t('home.taskTaxDoc', { count: needTaxDoc.length }),
+      detail: t('home.taskTaxDocDetail', { numbers: needTaxDoc.map((i) => i.number).join(', '), date: f.date(firstDeadline!) }),
+      action: t('editor.advanceTaxDoc'), href: needTaxDoc.length === 1 ? `#/invoices/new?advanceFor=${needTaxDoc[0]!.id}` : `#/invoices/${needTaxDoc[0]!.id}` },
+    unsettled.length > 0 && { key: 'proformas', title: t('home.taskProforma', { count: unsettled.length }),
+      detail: t('home.taskProformaDetail', { numbers: unsettled.map((i) => i.number).join(', ') }),
+      action: t('editor.finalInvoice'), href: unsettled.length === 1 ? `#/invoices/new?settles=${unsettled[0]!.id}` : `#/invoices/${unsettled[0]!.id}` },
     stats.missingRate.count > 0 && { key: 'rates', title: t('home.taskRates', { count: stats.missingRate.count }),
-      detail: t('home.taskRatesDetail', { currencies: stats.missingRate.currencies.join(', ') }), action: t('home.taskFill'), href: '#/settings' },
+      detail: t('home.taskRatesDetail', { currencies: stats.missingRate.currencies.join(', ') }), action: t('home.taskFill'), href: '#/settings?tab=rates' },
     missing.length > 0 && { key: 'profile', title: t('home.taskProfile'), detail: t('home.taskProfileDetail', { fields: missing.join(', ') }),
-      action: t('home.taskFill'), href: '#/settings' },
+      action: t('home.taskFill'), href: '#/settings?tab=business' },
     noEmail > 0 && { key: 'customers', title: t('home.taskCustomers', { count: noEmail }), detail: t('home.taskCustomersDetail'),
       action: t('home.taskCheck'), href: '#/customers' },
-  ].filter((x): x is Task => !!x)
+  ] as (Task | false | undefined)[]).filter((x): x is Task => !!x)
 
   return (
     <div className="space-y-10">
       <header className="space-y-3">
-        <h1 className="font-display text-4xl leading-[1.2] font-bold tracking-[-0.03em]">{greeting}</h1>
+        <h1 className="font-display text-4xl leading-[1.2] font-bold tracking-[-0.01em]">{greeting}</h1>
         <Summary revenue={stats.revenue} revenueLast={stats.revenueLast} count={stats.countThisYear}
           outstanding={stats.outstanding} overdueSum={stats.overdueSum} overdueCount={stats.overdueCount} />
       </header>
@@ -119,23 +162,29 @@ export function Home() {
       {/* Two different things side by side (the owner's choice "K2", 2026-10-17): the permanent "Nová faktura" tile, a solid
           accent block that reads as the main button, and a white table of things to check, which shrinks to "Vše v pořádku". */}
       <div className="grid grid-cols-[17.5rem_1fr] items-stretch gap-5">
-        <a href="#/invoices/new" className="flex min-h-48 flex-col justify-between gap-4 rounded-2xl bg-accent p-5 text-accent-fg transition-colors hover:bg-accent-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">
+        <a href="#/invoices/new" className="scheme-tile flex min-h-48 flex-col justify-between gap-4 rounded-2xl bg-accent p-5 text-tile-fg transition-colors hover:bg-accent-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-link">
           <Plus className="size-11" strokeWidth={2.25} />
           <div>
             <div className="text-lg font-semibold">{t('nav.newInvoice')}</div>
-            <div className="mt-0.5 text-xs text-accent-fg/90">{t('home.tileNewHint')}</div>
+            <div className="mt-0.5 text-xs text-tile-fg/90">{t('home.tileNewHint')}</div>
           </div>
         </a>
         <Tasks tasks={tasks} />
       </div>
 
+      {recurring.length > 0 && <RecurringInvoices items={recurring} on={on} />}
+
       <RevenueCharts today={on} />
+
+      {vat && <VatThreshold turnover={vat.now} />}
+
+      {settings!.taxes.selfEmployed && <TaxEstimate invoices={invoices} settings={settings!} on={on} />}
 
       {recent.length > 0 && (
         <section>
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="font-display text-2xl font-bold tracking-[-0.015em]">{t('home.recent')}</h2>
-            <a href="#/invoices" className="text-sm text-accent underline underline-offset-2 decoration-line-strong hover:decoration-current">{t('home.all')}</a>
+            <h2 className="font-display text-2xl font-bold">{t('home.recent')}</h2>
+            <a href="#/invoices" className="text-sm text-link underline underline-offset-2 decoration-line-strong hover:decoration-current">{t('home.all')}</a>
           </div>
           <Card className="overflow-hidden [&>a:nth-child(even)]:bg-row-hover">
             {recent.map((inv) => (

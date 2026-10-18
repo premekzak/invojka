@@ -1,15 +1,18 @@
 import { Archive, ArchiveRestore, ArrowLeft, FilePlus2, Trash2 } from 'lucide-react'
 import { useMemo, useState, type ReactNode } from 'react'
+import { aresByIc, normalizeIc, type AresParty } from '@/ares/ares'
 import { useTranslation } from 'react-i18next'
 import { newId, today } from '@/domain/id'
 import { displayStatus, invoiceTotals, snapshotOf } from '@/domain/invoice'
+import { INVOICE_LANGS, LANG_NAMES } from '@/domain/language'
 import { CURRENCIES } from '@/domain/money'
 import type { Customer } from '@/domain/schema'
 import { customerStats, emptyCustomerStats, type CustomerStats } from '@/domain/stats'
 import { useStore } from '@/state/store'
 import { StatusBadge, useFormat } from '@/ui/format'
-import { Button, Card, Checkbox, Field, Labeled, Select, Textarea } from '@/ui/primitives'
+import { Button, Card, Checkbox, cn, Field, Labeled, Select, Textarea } from '@/ui/primitives'
 import { navigate, type Route } from '@/ui/router'
+import { AresLookup } from './AresLookup'
 
 /** What a customer paid: CZK, plus any amount without an exchange rate in its own currency ("8 500 Kč + 1 500 NZ$"). */
 export function formatPaid(f: ReturnType<typeof useFormat>, s: CustomerStats): string {
@@ -57,6 +60,23 @@ function CustomerForm({ initial, isNew }: { initial: Customer; isNew: boolean })
   )
   const stats = useMemo(() => customerStats(invoices).get(c.id) ?? emptyCustomerStats(), [invoices, c.id])
 
+  // ARES: a new customer starts with the lookup box; a saved one with an IČ can reload its details.
+  const [aresNote, setAresNote] = useState<{ text: string; ok: boolean }>()
+  const fromAres = (p: AresParty) => {
+    set({ name: p.name, ic: p.ic, dic: p.dic, address: p.address })
+    setAresNote({ text: t('ares.filled'), ok: true })
+  }
+  const validIc = normalizeIc(c.ic)
+  async function reloadFromAres() {
+    try {
+      const p = await aresByIc(validIc!)
+      if (p) fromAres(p)
+      else setAresNote({ text: t('ares.notFound', { ic: validIc }), ok: false })
+    } catch {
+      setAresNote({ text: t('ares.error'), ok: false })
+    }
+  }
+
   function save(next: Partial<Customer> = {}) {
     const cust = { ...c, ...next, name: c.name.trim() }
     upsertCustomer(cust)
@@ -80,7 +100,7 @@ function CustomerForm({ initial, isNew }: { initial: Customer; isNew: boolean })
     <div className="space-y-6">
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="sm" onClick={() => history.back()}><ArrowLeft className="size-4" /></Button>
-        <h1 className="font-display text-4xl leading-[1.2] font-bold tracking-[-0.03em]">{saved ? saved.name : t('customers.newTitle')}</h1>
+        <h1 className="font-display text-4xl leading-[1.2] font-bold tracking-[-0.01em]">{saved ? saved.name : t('customers.newTitle')}</h1>
         {c.archived && <span className="rounded bg-surface-3 px-2 py-0.5 text-xs text-fg-muted">{t('customers.archived')}</span>}
         <div className="ml-auto flex gap-2">
           {saved && mine.length === 0 && (
@@ -106,12 +126,18 @@ function CustomerForm({ initial, isNew }: { initial: Customer; isNew: boolean })
       <div className="grid grid-cols-3 gap-6">
         <div className="col-span-2 space-y-10">
           <section>
-            <h2 className="mb-3 font-display text-2xl font-bold tracking-[-0.015em]">{t('customers.details')}</h2>
+            <h2 className="mb-3 font-display text-2xl font-bold">{t('customers.details')}</h2>
             <Card className="p-5">
               <div className="grid grid-cols-6 gap-4">
+                {!saved && <AresLookup className="col-span-6" autoFocus={!c.name} onPick={fromAres} />}
+                {aresNote && <p role="status" className={cn('col-span-6 -mt-1 text-xs font-medium', aresNote.ok ? 'text-success' : 'text-fg-muted')}>{aresNote.text}</p>}
                 <Field className="col-span-6" id="customer-name" label={t('fields.name')} required error={showErrors ? nameError : undefined}
-                  value={c.name} autoFocus={isNew} onChange={(e) => set({ name: e.target.value })} onBlur={() => setShowErrors(true)} />
-                <Field className="col-span-3" label={t('fields.ic')} value={c.ic} onChange={(e) => set({ ic: e.target.value.replace(/\s/g, '') })} />
+                  value={c.name} onChange={(e) => set({ name: e.target.value })} onBlur={() => setShowErrors(true)} />
+                <Field className="col-span-3" label={t('fields.ic')} value={c.ic} onChange={(e) => set({ ic: e.target.value.replace(/\s/g, '') })}
+                  hint={saved && validIc ? (
+                    <button type="button" onClick={() => void reloadFromAres()}
+                      className="font-medium text-link underline underline-offset-2 decoration-line-strong hover:decoration-current">{t('ares.refresh')}</button>
+                  ) : undefined} />
                 <Field className="col-span-3" label={t('fields.dic')} value={c.dic} onChange={(e) => set({ dic: e.target.value.replace(/\s/g, '').toUpperCase() })} />
                 <Field className="col-span-6" label={t('fields.street')} value={c.address.street} onChange={(e) => addr({ street: e.target.value })} />
                 <Field className="col-span-2" label={t('fields.zip')} value={c.address.zip} onChange={(e) => addr({ zip: e.target.value })} />
@@ -127,7 +153,7 @@ function CustomerForm({ initial, isNew }: { initial: Customer; isNew: boolean })
             </Card>
           </section>
           <section>
-            <h2 className="mb-3 font-display text-2xl font-bold tracking-[-0.015em]">{t('customers.invoiceDefaults')}</h2>
+            <h2 className="mb-3 font-display text-2xl font-bold">{t('customers.invoiceDefaults')}</h2>
             <Card className="p-5">
               <div className="grid grid-cols-6 items-end gap-4">
                 <div className="col-span-2">
@@ -139,13 +165,34 @@ function CustomerForm({ initial, isNew }: { initial: Customer; isNew: boolean })
                 <div className="col-span-2">
                   <Sel label={t('editor.language')} value={c.defaultLanguage ?? ''} onChange={(v) => set({ defaultLanguage: (v || undefined) as Customer['defaultLanguage'] })}>
                     <option value="">{t('customers.fromSettings')}</option>
-                    <option value="cs">Čeština</option>
-                    <option value="en">English</option>
+                    {INVOICE_LANGS.map((l) => <option key={l} value={l}>{LANG_NAMES[l]}</option>)}
                   </Sel>
                 </div>
                 <Checkbox className="col-span-2 h-10 items-center" label={t('editor.reverseCharge')} checked={c.reverseCharge}
                   onChange={(e) => set({ reverseCharge: e.target.checked })} />
               </div>
+              {/* Regular invoicing: Home then lists this customer as due each period (domain/recurring.ts). */}
+              <div className="mt-4 grid grid-cols-6 items-end gap-4">
+                <Checkbox className="col-span-2 h-10 items-center" label={t('recurring.enable')} checked={!!c.recurring}
+                  onChange={(e) => set({ recurring: e.target.checked ? { every: 'month', day: 1 } : undefined })} />
+                {c.recurring && (
+                  <>
+                    <div className="col-span-2">
+                      <Sel label={t('recurring.everyLabel')} value={c.recurring.every} onChange={(v) => set({ recurring: { ...c.recurring!, every: v as 'month' | 'quarter' | 'year' } })}>
+                        <option value="month">{t('recurring.everyOption.month')}</option>
+                        <option value="quarter">{t('recurring.everyOption.quarter')}</option>
+                        <option value="year">{t('recurring.everyOption.year')}</option>
+                      </Sel>
+                    </div>
+                    <div className="col-span-2">
+                      <Sel label={t('recurring.dayLabel')} value={String(c.recurring.day)} onChange={(v) => set({ recurring: { ...c.recurring!, day: Number(v) } })}>
+                        {Array.from({ length: 28 }, (_, i) => <option key={i + 1} value={i + 1}>{t('recurring.dayOption', { day: i + 1 })}</option>)}
+                      </Sel>
+                    </div>
+                  </>
+                )}
+              </div>
+              {c.recurring && <p className="mt-1.5 max-w-prose text-xs text-fg-muted">{t('recurring.enableHint')}</p>}
               <Labeled className="mt-4" label={t('customers.note')}>
                 <Textarea value={c.note} onChange={(e) => set({ note: e.target.value })} />
               </Labeled>
@@ -154,7 +201,7 @@ function CustomerForm({ initial, isNew }: { initial: Customer; isNew: boolean })
         </div>
 
         <section>
-          <h2 className="mb-3 font-display text-2xl font-bold tracking-[-0.015em]">{t('invoices.title')}</h2>
+          <h2 className="mb-3 font-display text-2xl font-bold">{t('invoices.title')}</h2>
           <div className="space-y-5">
             <Card className="grid grid-cols-2 gap-4 p-5">
               <div>
@@ -177,7 +224,7 @@ function CustomerForm({ initial, isNew }: { initial: Customer; isNew: boolean })
                   </a>
                 ))}
                 {mine.length > 12 && (
-                  <a href={`#/invoices?customer=${c.id}`} className="block px-5 py-3 text-center text-sm text-accent underline underline-offset-2 decoration-line-strong hover:decoration-current">{t('home.all')}</a>
+                  <a href={`#/invoices?customer=${c.id}`} className="block px-5 py-3 text-center text-sm text-link underline underline-offset-2 decoration-line-strong hover:decoration-current">{t('home.all')}</a>
                 )}
               </Card>
             )}

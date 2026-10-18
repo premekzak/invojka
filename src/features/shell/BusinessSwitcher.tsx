@@ -76,15 +76,15 @@ export function BusinessSwitcher() {
                 <span className="block truncate">{f.label}</span>
                 {f.label !== f.adapter.name && <span className="block truncate text-xs text-fg-muted">{f.adapter.name}</span>}
               </span>
-              {f.current && <Check className="size-4 shrink-0 text-accent" />}
+              {f.current && <Check className="size-4 shrink-0 text-link" />}
             </button>
           ))}
           <div className="my-1 border-t border-rule" />
           <button role="menuitem" className="flex w-full items-start gap-2 rounded-lg px-3 py-2 text-left text-sm transition-colors hover:bg-row-hover"
             onClick={() => { setOpen(false); setAdding(true) }}>
-            <Plus className="mt-0.5 size-4 shrink-0 text-accent" />
+            <Plus className="mt-0.5 size-4 shrink-0 text-link" />
             <span className="min-w-0">
-              <span className="block text-accent">{t('business.add')}</span>
+              <span className="block text-link">{t('business.add')}</span>
               <span className="block text-xs text-fg-muted">{t('business.addHint')}</span>
             </span>
           </button>

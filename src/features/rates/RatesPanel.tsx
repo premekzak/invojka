@@ -52,7 +52,7 @@ export function RatesPanel() {
           {years.length > 0 && (
             <p className="flex flex-wrap gap-x-2 gap-y-1 text-xs">
               {years.map((y) => (
-                <a key={y} href={CNB_YEAR(y)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-0.5 text-accent underline underline-offset-2 decoration-line-strong hover:decoration-current">
+                <a key={y} href={CNB_YEAR(y)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-0.5 text-link underline underline-offset-2 decoration-line-strong hover:decoration-current">
                   {y} <ExternalLink className="size-3" />
                 </a>
               ))}

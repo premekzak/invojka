@@ -41,7 +41,7 @@ export function Welcome({ remembered }: { remembered?: FsAccessAdapter }) {
         <div className="mb-6 flex items-center gap-3">
           <Logo className="size-10" />
           <div>
-            <h1 className="font-display text-4xl leading-[1.2] font-bold tracking-[-0.03em]">{t('app.name')}</h1>
+            <h1 className="font-display text-4xl leading-[1.2] font-bold tracking-[-0.01em]">{t('app.name')}</h1>
             <p className="text-sm text-fg-muted">{t('app.tagline')}</p>
           </div>
         </div>

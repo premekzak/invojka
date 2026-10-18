@@ -13,7 +13,7 @@ const customer: Customer = {
 const invoice = (patch: Partial<Invoice> = {}): Invoice => ({
   id: patch.number ?? '20260001', number: '20260001', variableSymbol: '20260001', orderNumber: '', customerId: 'c1',
   customerSnapshot: { name: 'Acme', ic: '', dic: '', address: { street: '', zip: '', city: '', country: '' } },
-  issueDate: '2026-03-01', dueDate: '2026-03-15', currency: 'CZK', language: 'cs', vatMode: 'nonPayer', reverseCharge: false,
+  issueDate: '2026-03-01', dueDate: '2026-03-15', currency: 'CZK', language: 'cs', paymentMethod: 'bank', kind: 'invoice', correctionReason: '', reminders: [], privateNote: '', tags: [], vatMode: 'nonPayer', reverseCharge: false,
   lines: [{ description: 'Work', quantity: 1, unit: '', unitPrice: 100000, vatRate: 0 }], note: '', status: 'issued',
   ...patch,
 })

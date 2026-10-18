@@ -3,14 +3,14 @@ import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import type { Invoice } from '@/domain/schema'
-import { pdfPath, renderInvoicePdf } from '@/pdf'
+import { pdfPath, renderPdf, type PdfKind } from '@/pdf'
 import { useStore } from '@/state/store'
 import { Button, Card } from '@/ui/primitives'
 
-export async function savePdfToFolder(inv: Invoice): Promise<string> {
+export async function savePdfToFolder(inv: Invoice, kind: PdfKind = 'invoice'): Promise<string> {
   const { adapter, settings } = useStore.getState()
-  const blob = await renderInvoicePdf(inv, settings!)
-  const path = pdfPath(inv)
+  const blob = await renderPdf(inv, settings!, kind)
+  const path = pdfPath(inv, kind)
   await adapter!.writeBinary(path, blob)
   return path
 }
@@ -22,7 +22,8 @@ export function downloadBlob(blob: Blob, name: string) {
   setTimeout(() => URL.revokeObjectURL(url), 10_000)
 }
 
-export function PdfPreview({ invoice, onClose }: { invoice: Invoice; onClose: () => void }) {
+/** The invoice's PDF, or with `kind="receipt"` its cash receipt. */
+export function PdfPreview({ invoice, kind = 'invoice', onClose }: { invoice: Invoice; kind?: PdfKind; onClose: () => void }) {
   const { t } = useTranslation()
   const settings = useStore((s) => s.settings!)
   const adapter = useStore((s) => s.adapter)
@@ -34,7 +35,7 @@ export function PdfPreview({ invoice, onClose }: { invoice: Invoice; onClose: ()
   useEffect(() => {
     let revoked = false
     let objectUrl: string | undefined
-    renderInvoicePdf(invoice, settings)
+    renderPdf(invoice, settings, kind)
       .then((b) => {
         if (revoked) return
         objectUrl = URL.createObjectURL(b)
@@ -46,7 +47,7 @@ export function PdfPreview({ invoice, onClose }: { invoice: Invoice; onClose: ()
       revoked = true
       if (objectUrl) URL.revokeObjectURL(objectUrl)
     }
-  }, [invoice, settings])
+  }, [invoice, settings, kind])
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
@@ -54,7 +55,7 @@ export function PdfPreview({ invoice, onClose }: { invoice: Invoice; onClose: ()
     return () => window.removeEventListener('keydown', onKey)
   }, [onClose])
 
-  const fileName = pdfPath(invoice).split('/').pop()!
+  const fileName = pdfPath(invoice, kind).split('/').pop()!
 
   // Portal: the page container animates with a transform, which would otherwise trap this fixed overlay inside it.
   return createPortal(
@@ -65,7 +66,7 @@ export function PdfPreview({ invoice, onClose }: { invoice: Invoice; onClose: ()
           {savedTo && <span className="text-xs text-success">{t('pdf.savedTo', { path: `${adapter?.name}/${savedTo}` })}</span>}
           <div className="ml-auto flex gap-2">
             <Button size="sm" variant="secondary" disabled={!blob} onClick={async () => {
-              try { setSavedTo(await savePdfToFolder(invoice)) } catch (e) { setError((e as Error).message) }
+              try { setSavedTo(await savePdfToFolder(invoice, kind)) } catch (e) { setError((e as Error).message) }
             }}>
               <FolderDown className="size-4" /> {t('pdf.saveToFolder')}
             </Button>

@@ -59,7 +59,7 @@ export function NewBusinessDialog({ onClose }: { onClose: () => void }) {
       <Card className="animate-rise w-full max-w-lg p-8">
         <form onSubmit={submit} onClick={(e) => e.stopPropagation()} className="space-y-6">
           <div className="flex items-start justify-between gap-4">
-            <h2 className="font-display text-2xl font-bold tracking-[-0.015em]">{t('business.dialogTitle')}</h2>
+            <h2 className="font-display text-2xl font-bold">{t('business.dialogTitle')}</h2>
             <Button type="button" size="sm" variant="ghost" onClick={onClose} title={t('common.cancel')}><X className="size-4" /></Button>
           </div>
           <p className="text-sm text-fg-muted">{t('business.dialogIntro')}</p>
@@ -84,7 +84,7 @@ export function NewBusinessDialog({ onClose }: { onClose: () => void }) {
               <FolderPlus className="size-5" /> {t('business.choosePlace')}
             </Button>
             <button type="button" disabled={busy} onClick={() => void open(() => FsAccessAdapter.pick())}
-              className="w-full text-center text-sm text-accent underline underline-offset-2 decoration-line-strong hover:decoration-current">
+              className="w-full text-center text-sm text-link underline underline-offset-2 decoration-line-strong hover:decoration-current">
               {t('business.existing')}
             </button>
           </div>

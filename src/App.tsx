@@ -4,6 +4,7 @@ import { CustomerDetail } from '@/features/customers/CustomerDetail'
 import { CustomerList } from '@/features/customers/CustomerList'
 import { Home } from '@/features/home/Home'
 import { InvoiceEditor } from '@/features/invoices/InvoiceEditor'
+import { StatsPage } from '@/features/stats/StatsPage'
 import { InvoiceList } from '@/features/invoices/InvoiceList'
 import { Onboarding } from '@/features/onboarding/Onboarding'
 import { Welcome } from '@/features/onboarding/Welcome'
@@ -12,6 +13,7 @@ import { Layout } from '@/features/shell/Layout'
 import { setUiLanguage } from '@/i18n'
 import { useStore } from '@/state/store'
 import { FsAccessAdapter, isSupported } from '@/storage/fsAccess'
+import { ErrorBoundary } from '@/ui/ErrorBoundary'
 import { Button, Card } from '@/ui/primitives'
 import { useRoute } from '@/ui/router'
 
@@ -44,9 +46,12 @@ export function App() {
 
   // On start: reopen the remembered folder directly if permission is still granted, otherwise offer one-click reconnect.
   useEffect(() => {
+    if (import.meta.env.MODE === 'showcase') return // opens on made-up data instead (src/showcase/boot.ts)
     if (!isSupported()) return setPhase({ kind: 'noFolder' })
     FsAccessAdapter.remembered()
       .then((r) => {
+        // Something was opened in the meantime (a folder the user picked, demo data): don't replace it.
+        if (useStore.getState().adapter) return
         if (r?.granted) return open(r.adapter)
         setRemembered(r?.adapter)
         setPhase(r ? { kind: 'needsPermission', folder: r.adapter.name } : { kind: 'noFolder' })
@@ -66,7 +71,7 @@ export function App() {
       return (
         <div className="grid min-h-screen place-items-center p-6">
           <Card className="max-w-lg p-8">
-            <h1 className="font-display text-2xl font-bold tracking-[-0.015em] text-danger">{t('error.title')}</h1>
+            <h1 className="font-display text-2xl font-bold text-danger">{t('error.title')}</h1>
             <p className="mt-2 font-mono text-sm break-words text-fg-muted">{phase.message}</p>
             <div className="mt-6 flex gap-2">
               <Button onClick={() => void reload()}>{t('error.retry')}</Button>
@@ -88,8 +93,10 @@ function Screens() {
     : section === 'invoices' ? <InvoiceList route={route} />
     : section === 'customers' && id ? <CustomerDetail route={route} />
     : section === 'customers' ? <CustomerList />
+    : section === 'stats' ? <StatsPage />
     : section === 'settings' ? <SettingsPage />
     : <Home />
-  // Keyed by the full route so each screen starts fresh (e.g. /invoices/new twice in a row).
-  return <Layout section={section}><div key={route.path.join('/') + route.query}>{page}</div></Layout>
+  // Keyed by the full route so each screen starts fresh (e.g. /invoices/new twice in a row); the boundary resets with it,
+  // so a crash on one screen never blanks the app and moving to another screen leaves it behind.
+  return <Layout section={section}><div key={route.path.join('/') + route.query}><ErrorBoundary>{page}</ErrorBoundary></div></Layout>
 }

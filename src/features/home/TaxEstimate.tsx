@@ -1,0 +1,141 @@
+import { useMemo } from 'react'
+import { Trans, useTranslation } from 'react-i18next'
+import type { Invoice, Settings } from '@/domain/schema'
+import { cashIncome, estimate, flatTaxBand, projectYear, RATES } from '@/domain/taxes'
+import { useFormat } from '@/ui/format'
+import { Card } from '@/ui/primitives'
+
+type Part = { label: string; value: number; color: string }
+
+const SIZE = 240
+const R = 98
+const STROKE = 30
+const C = 2 * Math.PI * R
+const GAP = 2
+
+/**
+ * Where the income goes: tax, social and health as coloured arcs, what's left as the bare track (the owner asked for a pie
+ * here, 2026-10-18). Scaled to the income, or to the payments when they exceed it. The rows beside it are the legend.
+ */
+function TaxDonut({ parts, base, center, label }: { parts: Part[]; base: number; center: React.ReactNode; label: string }) {
+  let at = 0
+  return (
+    <figure className="relative size-60 shrink-0">
+      <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="size-full -rotate-90" role="img" aria-label={label}>
+        <circle cx={SIZE / 2} cy={SIZE / 2} r={R} fill="none" strokeWidth={STROKE} className="stroke-surface-3" />
+        {base > 0 && parts.filter((p) => p.value > 0).map((p) => {
+          const len = (p.value / base) * C
+          const arc = (
+            <circle key={p.label} cx={SIZE / 2} cy={SIZE / 2} r={R} fill="none" strokeWidth={STROKE} stroke={p.color}
+              strokeDasharray={`${Math.max(len - GAP, 0.5)} ${C}`} strokeDashoffset={-at}>
+              <title>{p.label}</title>
+            </circle>
+          )
+          at += len
+          return arc
+        })}
+      </svg>
+      <figcaption className="absolute inset-0 flex flex-col items-center justify-center gap-0.5 px-12 text-center">{center}</figcaption>
+    </figure>
+  )
+}
+
+/**
+ * This year's tax and insurance as a sole trader would owe them for the whole year at the pace so far, and what the
+ * flat-rate tax would cost instead (like Fakturoid's "Průběžný výpočet odvodů"). An estimate, and says so.
+ */
+export function TaxEstimate({ invoices, settings, on }: { invoices: Invoice[]; settings: Settings; on: string }) {
+  const { t } = useTranslation()
+  const f = useFormat()
+  const year = Number(on.slice(0, 4))
+  const rates = RATES[year]
+  const rate = settings.taxes.expenseRate
+  const data = useMemo(() => {
+    const { income, missingRate } = cashIncome(invoices, year)
+    const projected = projectYear(income, on)
+    const { activity, taxpayerCredit } = settings.taxes
+    // The main activity always claims the allowance here; a secondary one only when the user says so.
+    const opts = { activity, taxpayerCredit: activity === 'main' || taxpayerCredit }
+    return { income, missingRate, projected, est: rates && estimate(projected, rate, rates, opts) }
+  }, [invoices, year, on, rate, rates, settings.taxes])
+  const kc = (n: number) => f.moneyWhole(n * 100)
+  const b = <strong className="font-semibold text-fg tabular-nums" />
+
+  if (!rates || !data.est) {
+    return <Card className="p-5 text-sm text-fg-muted">{t('taxes.noRates', { year })}</Card>
+  }
+  const { est } = data
+  const band = settings.vatMode === 'nonPayer' ? flatTaxBand(data.projected, rate) : undefined
+  const flat = band && rates.flatTaxMonthly[band - 1]! * 12
+  const rows: [string, number, string?][] = [
+    [t('taxes.income'), est.income],
+    [t('taxes.expenses', { rate }), -est.expenses],
+    [t('taxes.tax'), est.tax, 'var(--color-cat-1)'],
+    [t('taxes.social'), est.social, 'var(--color-cat-2)'],
+    [t('taxes.health'), est.health, 'var(--color-cat-3)'],
+  ]
+  const left = est.income - est.total
+  const base = Math.max(est.income, est.total)
+  const pct = (n: number) => (base > 0 ? Math.round((n / base) * 100) : 0)
+  const parts: Part[] = rows.filter((r) => r[2]).map(([label, value, color]) => ({ label: `${label}: ${kc(value)} (${pct(value)} %)`, value, color: color! }))
+  const marker = (color: string) => <span aria-hidden="true" className="mr-2 inline-block size-2.5 rounded-sm align-baseline" style={{ background: color }} />
+  return (
+    <Card className="p-5">
+      <div className="flex items-baseline justify-between gap-4">
+        <h2 className="font-medium">{t('taxes.title', { year })}</h2>
+        <a href="#/settings?tab=taxes" className="text-xs text-link underline underline-offset-2 decoration-line-strong hover:decoration-current">
+          {t(`taxes.activities.${settings.taxes.activity}`)} · {t('taxes.settings', { rate })}
+        </a>
+      </div>
+      {/* Text and rows on the left, the donut centred in the right half (the owner: "plenty of room on the right"). */}
+      <div className="grid items-center gap-x-10 gap-y-6 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+        <div>
+          <p className="mt-1 max-w-prose text-sm text-fg-muted">
+            <Trans i18nKey="taxes.pace" values={{ income: kc(data.income), projected: kc(data.projected) }} components={{ b }} />
+          </p>
+          <dl className="mt-4 grid max-w-md grid-cols-[1fr_auto] gap-x-6 gap-y-1.5 text-sm">
+            {rows.map(([label, value, color]) => (
+              <div key={label} className="contents">
+                <dt className="text-fg-muted">{color ? marker(color) : <span className="mr-2 inline-block w-2.5" />}{label}</dt>
+                <dd className="text-right tabular-nums">{kc(value)}</dd>
+              </div>
+            ))}
+            <dt className="border-t border-line pt-1.5 font-semibold"><span className="mr-2 inline-block w-2.5" />{t('taxes.total')}</dt>
+            <dd className="border-t border-line pt-1.5 text-right font-semibold tabular-nums">{kc(est.total)}</dd>
+            <dt className="text-fg-muted">{marker('var(--color-surface-3)')}{t('taxes.left')}</dt>
+            <dd className="text-right tabular-nums">{kc(Math.max(left, 0))}</dd>
+          </dl>
+          {settings.taxes.activity === 'secondary' && (
+            <p className="mt-3 max-w-prose text-xs text-fg-muted">
+              {est.social === 0 ? t('taxes.secondaryNoSocial', { limit: kc(rates.secondaryThreshold) }) : t('taxes.secondarySocial', { limit: kc(rates.secondaryThreshold) })}
+              {' '}{t('taxes.secondaryHealth')}
+            </p>
+          )}
+          {settings.vatMode === 'nonPayer' && (
+            <p className="mt-4 max-w-prose text-sm">
+              {flat
+                ? <Trans i18nKey={flat < est.total ? 'taxes.flatCheaper' : 'taxes.flatDearer'}
+                    values={{ band, amount: kc(flat), diff: kc(Math.abs(est.total - flat)) }} components={{ b }} />
+                : t('taxes.flatOver')}
+              {flat && settings.taxes.activity === 'secondary' && <span className="text-fg-muted"> {t('taxes.flatSecondary')}</span>}
+            </p>
+          )}
+          <p className="mt-3 max-w-prose text-xs text-fg-muted">
+            {t('taxes.disclaimer', { year })}
+            {data.missingRate > 0 && <> {t('taxes.missingRate', { count: data.missingRate })}</>}
+          </p>
+        </div>
+        <div className="flex justify-center">
+          <TaxDonut parts={parts} base={base} label={t('taxes.chart')}
+            center={left >= 0
+              ? <>
+                  <span className="text-xs text-fg-muted">{t('taxes.left')}</span>
+                  <span className="text-2xl font-semibold tabular-nums">{kc(left)}</span>
+                  <span className="text-xs text-fg-muted">{t('taxes.leftShare', { pct: pct(left) })}</span>
+                </>
+              : <span className="text-sm font-medium text-fg-muted">{t('taxes.overIncome')}</span>} />
+        </div>
+      </div>
+    </Card>
+  )
+}

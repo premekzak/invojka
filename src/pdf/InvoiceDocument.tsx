@@ -1,29 +1,21 @@
 import { Document, Font, Image, Page, StyleSheet, Text, View } from '@react-pdf/renderer'
-import { format, parseISO } from 'date-fns'
+import { formatDocDate, LOCALES } from '@/domain/language'
 import { formatMoney } from '@/domain/money'
+import { paysByBank } from '@/domain/payment'
 import type { Invoice, Settings } from '@/domain/schema'
 import { chargesVat, computeTotals, lineBase } from '@/domain/vat'
 import { fonts } from './fonts'
 import { invoiceLabels } from './labels'
+import { PDF_COLORS } from './palette'
 
 Font.register({ family: 'Inter', fonts: [{ src: fonts.regular, fontWeight: 400 }, { src: fonts.semiBold, fontWeight: 600 }] })
 // Czech words must not be hyphenated by the English default.
 Font.registerHyphenationCallback((word) => [word])
 
-// The PDF stays neutral (the owner's choice): warm ink greys like the app, no accent colour.
-// Grayscale phase (2026-10-01): the cancelled and paid stamps are ink too; they were #a8322b and #37703a.
-// Every colour on the PDF comes from here.
-const C = {
-  ink: '#1f1c18',
-  muted: '#5c554c',
-  line: '#e4e0d7',
-  box: '#f5f3ee',
-  paper: '#ffffff',
-  danger: '#1f1c18',
-  success: '#1f1c18',
-}
+// Every colour on the PDF comes from the shared palette (also used by Settings for the colour swatches).
+export const C = PDF_COLORS
 
-const s = StyleSheet.create({
+export const s = StyleSheet.create({
   page: { fontFamily: 'Inter', fontSize: 9, color: C.ink, padding: 40, paddingBottom: 60, lineHeight: 1.4 },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 28 },
   title: { fontSize: 20, fontWeight: 600, lineHeight: 1.2 },
@@ -66,17 +58,32 @@ export interface InvoicePdfProps {
 export function InvoiceDocument({ invoice: inv, settings, qr }: InvoicePdfProps) {
   const L = invoiceLabels[inv.language]
   const sup = settings.supplier
+  const look = settings.invoice
+  const accent = C.accents[look.color]
   const vatOn = chargesVat(inv.vatMode, inv.reverseCharge)
   const isPayer = inv.vatMode === 'payer'
   const totals = computeTotals(inv.lines, inv.vatMode, inv.reverseCharge)
   // Intl uses a narrow no-break space for grouping in Czech; a regular no-break space renders reliably in every font.
   const money = (m: number) => formatMoney(m, inv.currency, inv.language).replace(/ /g, ' ')
-  const date = (iso?: string) => (iso ? format(parseISO(iso), inv.language === 'cs' ? 'd. M. yyyy' : 'd MMM yyyy') : '')
-  const qty = (n: number) => n.toLocaleString(inv.language === 'cs' ? 'cs-CZ' : 'en-GB', { maximumFractionDigits: 3 })
+  const date = (iso?: string) => (iso ? formatDocDate(iso, inv.language) : '')
+  const qty = (n: number) => n.toLocaleString(LOCALES[inv.language], { maximumFractionDigits: 3 })
   const addr = (a: { street: string; zip: string; city: string; country: string }) =>
     [a.street, [a.zip, a.city].filter(Boolean).join(' '), a.country].filter(Boolean)
 
+  // Cash and cash on delivery print no bank details; cash on delivery keeps the payment reference, which carriers use.
+  const bank = paysByBank(inv)
+  const methodLabel = { bank: L.bankTransfer, cash: L.cash, cod: L.cod }[inv.paymentMethod]
+
+  const credit = inv.kind === 'creditNote'
+  const proforma = inv.kind === 'proforma'
+  const taxDoc = inv.kind === 'advanceTaxDoc'
+  const title = taxDoc ? L.advanceTaxDoc : proforma ? L.proforma : credit ? (isPayer ? L.creditNoteTax : L.creditNote) : isPayer && !inv.reverseCharge ? L.taxInvoice : L.invoice
+  // A final invoice deducts the advance paid on its proforma; the box shows what's left.
+  const advance = inv.advanceAmount ?? 0
+
   const notes = [
+    proforma && L.notTaxDocument,
+    credit && inv.correctionReason && `${L.reason}: ${inv.correctionReason}`,
     inv.vatMode === 'nonPayer' && L.nonPayer,
     inv.vatMode === 'identifiedPerson' && L.identifiedPerson,
     inv.reverseCharge && L.reverseCharge,
@@ -84,15 +91,17 @@ export function InvoiceDocument({ invoice: inv, settings, qr }: InvoicePdfProps)
   ].filter(Boolean) as string[]
 
   return (
-    <Document title={`${L.invoice} ${inv.number}`} author={sup.name} creator="Invojka" producer="Invojka" language={inv.language}>
+    <Document title={`${title} ${inv.number}`} author={sup.name} creator="Invojka" producer="Invojka" language={inv.language}>
       <Page size="A4" style={s.page}>
         <View style={s.header}>
           <View>
-            <Text style={s.title}>{isPayer && !inv.reverseCharge ? L.taxInvoice : L.invoice}</Text>
+            <Text style={[s.title, { color: accent }]}>{title}</Text>
             <Text style={s.number}>{inv.number}</Text>
             {inv.status === 'cancelled' ? <Text style={{ marginTop: 6, color: C.danger, fontWeight: 600, letterSpacing: 1 }}>{L.cancelled}</Text> : null}
           </View>
-          <Text style={{ fontSize: 11, fontWeight: 600, color: C.ink, maxWidth: 220, textAlign: 'right' }}>{sup.name}</Text>
+          {look.logo
+            ? <Image src={look.logo} style={{ maxWidth: 180, maxHeight: 60, objectFit: 'contain' }} />
+            : <Text style={{ fontSize: 11, fontWeight: 600, color: C.ink, maxWidth: 220, textAlign: 'right' }}>{sup.name}</Text>}
         </View>
 
         <View style={s.parties}>
@@ -116,19 +125,22 @@ export function InvoiceDocument({ invoice: inv, settings, qr }: InvoicePdfProps)
         <View style={s.meta}>
           <View style={s.metaCol}>
             <View style={s.metaRow}><Text style={s.metaKey}>{L.issueDate}</Text><Text style={s.metaVal}>{date(inv.issueDate)}</Text></View>
-            <View style={s.metaRow}><Text style={s.metaKey}>{L.dueDate}</Text><Text style={s.metaVal}>{date(inv.dueDate)}</Text></View>
+            {/* A tax document for a received payment has no due date; its tax date is the day the money came in (§ 29(1)(h)). */}
+            {!taxDoc ? <View style={s.metaRow}><Text style={s.metaKey}>{L.dueDate}</Text><Text style={s.metaVal}>{date(inv.dueDate)}</Text></View> : null}
             {isPayer && inv.taxableSupplyDate ? (
-              <View style={s.metaRow}><Text style={s.metaKey}>{L.taxableSupplyDate}</Text><Text style={s.metaVal}>{date(inv.taxableSupplyDate)}</Text></View>
+              <View style={s.metaRow}><Text style={s.metaKey}>{taxDoc ? L.paymentReceived : L.taxableSupplyDate}</Text><Text style={s.metaVal}>{date(inv.taxableSupplyDate)}</Text></View>
             ) : null}
-            <View style={s.metaRow}><Text style={s.metaKey}>{L.paymentMethod}</Text><Text style={s.metaVal}>{L.bankTransfer}</Text></View>
+            <View style={s.metaRow}><Text style={s.metaKey}>{L.paymentMethod}</Text><Text style={s.metaVal}>{methodLabel}</Text></View>
           </View>
           <View style={s.metaCol}>
-            {sup.bank.account ? (
+            {bank && sup.bank.account ? (
               <View style={s.metaRow}><Text style={s.metaKey}>{L.account}</Text><Text style={s.metaVal}>{sup.bank.account}/{sup.bank.bankCode}</Text></View>
             ) : null}
-            {sup.bank.iban ? <View style={s.metaRow}><Text style={s.metaKey}>{L.iban}</Text><Text style={s.metaVal}>{sup.bank.iban.replace(/(.{4})/g, '$1 ').trim()}</Text></View> : null}
-            {sup.bank.swift ? <View style={s.metaRow}><Text style={s.metaKey}>{L.swift}</Text><Text style={s.metaVal}>{sup.bank.swift}</Text></View> : null}
-            {inv.variableSymbol ? <View style={s.metaRow}><Text style={s.metaKey}>{L.vs}</Text><Text style={s.metaVal}>{inv.variableSymbol}</Text></View> : null}
+            {bank && sup.bank.iban ? <View style={s.metaRow}><Text style={s.metaKey}>{L.iban}</Text><Text style={s.metaVal}>{sup.bank.iban.replace(/(.{4})/g, '$1 ').trim()}</Text></View> : null}
+            {bank && sup.bank.swift ? <View style={s.metaRow}><Text style={s.metaKey}>{L.swift}</Text><Text style={s.metaVal}>{sup.bank.swift}</Text></View> : null}
+            {inv.paymentMethod !== 'cash' && inv.variableSymbol ? <View style={s.metaRow}><Text style={s.metaKey}>{L.vs}</Text><Text style={s.metaVal}>{inv.variableSymbol}</Text></View> : null}
+            {taxDoc && inv.advanceNumber ? <View style={s.metaRow}><Text style={s.metaKey}>{L.forProforma}</Text><Text style={s.metaVal}>{inv.advanceNumber}</Text></View> : null}
+            {credit && inv.correctsNumber ? <View style={s.metaRow}><Text style={s.metaKey}>{L.corrects}</Text><Text style={s.metaVal}>{inv.correctsNumber}</Text></View> : null}
             {inv.orderNumber ? <View style={s.metaRow}><Text style={s.metaKey}>{L.orderNumber}</Text><Text style={s.metaVal}>{inv.orderNumber}</Text></View> : null}
           </View>
         </View>
@@ -175,12 +187,25 @@ export function InvoiceDocument({ invoice: inv, settings, qr }: InvoicePdfProps)
                 </View>
               </>
             ) : null}
-            <View style={s.toPay}>
-              <Text>{L.toPay}</Text>
-              <Text style={s.toPayAmount}>{money(totals.total)}</Text>
+            {advance ? (
+              <>
+                <View style={[s.sumRow, { marginTop: 4 }]}><Text style={{ color: C.muted }}>{L.total}</Text><Text>{money(totals.total)}</Text></View>
+                {/* A payer's final invoice deducts the advance's base and VAT per rate, as its tax document stated them. */}
+                {(inv.advanceVat ?? []).filter((r) => r.vat).map((r) => (
+                  <View key={r.rate} style={s.sumRow}>
+                    <Text style={{ color: C.muted }}>{L.advanceDeducted} {r.rate} %</Text>
+                    <Text>{money(-r.base)} / {money(-r.vat)}</Text>
+                  </View>
+                ))}
+                <View style={s.sumRow}><Text style={{ color: C.muted }}>{L.advancePaid} {inv.advanceTaxDocNumber ?? inv.advanceNumber}</Text><Text>{money(-advance)}</Text></View>
+              </>
+            ) : null}
+            <View style={[s.toPay, { backgroundColor: accent }]}>
+              <Text>{taxDoc ? L.received : credit ? L.difference : advance ? L.balanceDue : L.toPay}</Text>
+              <Text style={s.toPayAmount}>{money(totals.total - advance)}</Text>
             </View>
-            {inv.status === 'paid' ? (
-              <Text style={{ textAlign: 'right', marginTop: 4, color: C.success, fontWeight: 600 }}>{L.paid} {date(inv.paidDate)}</Text>
+            {inv.status === 'paid' && !taxDoc ? (
+              <Text style={{ textAlign: 'right', marginTop: 4, color: C.success, fontWeight: 600 }}>{L.paidDoNotPay.replace('{date}', date(inv.paidDate))}</Text>
             ) : null}
           </View>
         </View>
@@ -191,9 +216,18 @@ export function InvoiceDocument({ invoice: inv, settings, qr }: InvoicePdfProps)
           </View>
         )}
 
-        <View style={s.footer} fixed>
-          <Text>{L.issuedBy}: {[sup.name, sup.email, sup.phone].filter(Boolean).join(' · ')}</Text>
-          <Text render={({ pageNumber, totalPages }) => (totalPages > 1 ? `${pageNumber} / ${totalPages}` : sup.web)} />
+        {look.stamp ? (
+          <View style={{ alignItems: 'flex-end', marginTop: 16 }} wrap={false}>
+            <Image src={look.stamp} style={{ maxWidth: 160, maxHeight: 80, objectFit: 'contain' }} />
+          </View>
+        ) : null}
+
+        <View style={[s.footer, { flexDirection: 'column', gap: 2 }]} fixed>
+          {look.footer ? <Text>{look.footer}</Text> : null}
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+            <Text>{L.issuedBy}: {[sup.name, sup.email, sup.phone].filter(Boolean).join(' · ')}</Text>
+            <Text render={({ pageNumber, totalPages }) => (totalPages > 1 ? `${pageNumber} / ${totalPages}` : sup.web)} />
+          </View>
         </View>
       </Page>
     </Document>

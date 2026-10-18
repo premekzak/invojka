@@ -83,11 +83,16 @@ index.html ─► src/main.tsx ─► App (phase switch) ─► Layout + screens
 - The screen element is keyed by the full route, so it remounts on navigation. Editors build their initial state once per mount, so later store updates (autosave) never reset a form.
 - A new invoice's URL is replaced with `#/invoices/<id>` after its first save (`history.replaceState`), so Back doesn't create a duplicate.
 
+**Exceptions at start-up:**
+- The showcase build (`--mode showcase`) never looks for a remembered folder: `main.tsx` imports `src/showcase/boot.ts`, which opens a `MemoryAdapter` with made-up data and goes straight to `ready`.
+- **UI language:** `src/i18n/index.ts` picks `?lang=cs|en` from the page address first, then the remembered language (localStorage), then the browser's. A `?lang=` is never saved and wins over `settings.json` while it is there; choosing a language in Settings removes it from the address (`clearUrlLanguage()`).
+
 ## Single-file build
 
 - `vite-plugin-singlefile` inlines everything: JS, CSS, fonts and the lazily-imported PDF engine.
 - The source template is `index.html`. A small plugin in `vite.config.ts` renames the output to `dist/invojka.html`.
 - Nothing may be loaded from a CDN at runtime.
+- A second build, `npm run build:showcase`, writes `dist-showcase/index.html` with a `noindex` meta for the public showcase (see [development.md](development.md#showcase-for-testers)); `dist-showcase` is git-ignored.
 - The output is about 2.7 MB (1 MB gzipped). Most of it is two Inter TTFs and `@react-pdf/renderer`.
 
 ## Overlays

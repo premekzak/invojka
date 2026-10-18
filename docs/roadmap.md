@@ -50,6 +50,9 @@
 - [ ] Download page with step-by-step instructions per system and browser; test it with someone who has never seen the app
 - [ ] Remove anything owner-specific that a stranger would trip over (the CSV import is built for the previous service's export)
 - [x] **Catch crashes** (the owner, 2026-10-18; done the same day: `src/ui/ErrorBoundary.tsx` around each screen, which also covers its dialogs, and around the app): an error on one screen blanks the whole app, because nothing catches render errors (found when the export dialog hit an invalid date). Add React error boundaries around each screen and dialog that show a plain message ("Něco se pokazilo, vaše data jsou v pořádku"), a way back (reload, Přehled) and the error text to copy; data must never be saved from a broken state
+- [x] **Showcase for testers** on GitHub Pages (2026-10-18): https://premekzak.github.io/invojka-demo/ (`?lang=en` for English), made-up data, redeployed only when the owner asks (`scripts/deploy-showcase.sh`)
+- [x] **Phones don't fall apart** (2026-10-18): a desktop-app notice, a menu button instead of tabs, stacked grids, sideways-scrolling tables. Not a mobile version: phones can't open a folder
+- [x] **`?lang=` in the address** picks the UI language without saving it (2026-10-18)
 - [ ] Website on invojka.cz: download, the privacy story, comparison with Fakturoid and iDoklad, screenshots (demo mode)
 - [ ] Research the other competitors (Vyfakturuj, SuperFaktura, Pohoda, Money S3)
 - [ ] A licence for the public repo
@@ -84,8 +87,22 @@ Ordered by value against effort; details in [competitor-fakturoid.md](competitor
 - [ ] **Drafts nobody meant to make** (the owner, 2026-10-17): open "Upravit odběratele" from the invoice form in a dialog instead of saving a silent draft, and remind about open drafts on Home
 - [ ] **Businesses:** copy a customer from another business; show each business's own initial in the business switcher (the logo is one mark for every business since the receipt, 2026-10-17)
 
+## Phones and other browsers (the owner, 2026-10-18)
+
+Phones can't use Invojka for real because mobile browsers can't open a folder (no `showDirectoryPicker` in Chrome on Android or Safari on iOS), and a downloaded HTML file barely opens there. In order of value against effort:
+
+- [ ] **Browser-storage adapter** (OPFS or IndexedDB) behind the existing storage adapter, with zip export and import of the whole data folder. It also makes Firefox and Safari on a computer work
+- [ ] **Hosted version** as an installable PWA (e.g. invojka.cz/app): the same build served as static files with a service worker for offline use. No server logic and no account; data stays in the browser. Phones need it because they can't open the downloaded file
+- [ ] **Read-only view on the phone:** open a zip exported on the computer (or the files picked from Google Drive or iCloud through the system file picker) to see who hasn't paid. Nothing is written, so two copies can't drift apart
+- [ ] **Phone design** for the screens used on the go: invoice list, invoice detail, mark paid; the invoice editor last (its 12-column lines)
+- [ ] **Share the PDF** through the system share sheet (Web Share API) instead of a download
+- [ ] **Open question for the owner: editing on both the computer and the phone.** No service lets a phone browser open a folder, so every option means Invojka itself sends data over the network. Today's rules forbid that (network code only in `src/fx/` and `src/ares/`), so it needs a decision in [decisions.md](decisions.md) before any work. Options, best fit for the privacy promise first:
+  1. **Device to device over WebRTC** on the same Wi-Fi (recommended first): data goes straight from the computer to the phone, encrypted, and is never stored on anyone's server. Pairing by a QR code (no server) or a free signalling server such as PeerJS (sees only that two devices connect, not the data). Both devices must be on at the same time, so it's a "send to phone" action, not live sync
+  2. **Encrypted backup in the user's own cloud:** encrypted in the browser with the user's passphrase, uploaded as one blob, so the provider sees only ciphertext. Dropbox fits best (2 GB free, an app folder, OAuth with PKCE from the browser, no server); OneDrive (Microsoft Graph, 5 GB) and Google Drive (`drive.file` scope) work the same way. A forgotten passphrase loses the cloud copy; the app must be registered with each provider, which ties us to their rules and free tiers. OAuth doesn't work from `file://`, so this needs the hosted version
+  3. **Plain Google Drive or Dropbox files** without encryption: simplest, but the provider can read the invoices, which weakens "your data never leaves your computer"
+  - Ruled out: Syncthing (syncs folders, even on Android, but the phone browser still can't open them; iOS only through a paid app); WebDAV and Nextcloud (often blocked by CORS in the browser, and only for technical users)
+
 ## Later
 
-- [ ] Firefox and Safari: a browser-storage adapter with zip export and import
 - [ ] Playwright end-to-end test of create → PDF → mark paid with `MemoryAdapter`
 - [ ] Migrations framework once `schemaVersion` 2 is needed

@@ -30,6 +30,10 @@ After each journey, run `__invojka.check()`: it must show no errors.
 6. **Settings.** Switch the VAT mode, the language, the theme and the numbering pattern, then check that new invoices follow them and old ones don't change.
 7. **More businesses and demo mode.** Add a business, switch between businesses, enter and leave demo mode: nothing leaks from one into another.
 
+8. **Phone width.** At 390 px (see [development.md](development.md#testing-in-a-real-browser) for the frame trick): the desktop-app notice shows and closes, the menu button opens the pages and closes after a choice or Escape, no screen scrolls sideways, tables scroll inside their box.
+9. **Language in the address.** `?lang=en` with Czech saved: the welcome screen and the app are English, Settings shows English; choosing Čeština there removes `?lang=` and saves it.
+10. **Showcase.** `npm run build:showcase` and open `dist-showcase/index.html` over a local server: it opens on made-up data with no folder dialog, Home shows the things to check (overdue, VAT limit, regular invoices, a proforma, missing rates, customers without e-mail), and a reload starts over.
+
 ### Edge cases worth one pass each
 
 A line of 0 Kč or with quantity 0, a negative line (a discount), very long customer names and descriptions, a customer with no address, an invoice dated next year, 31 January plus a month, the language switched halfway through editing, two tabs open on the same folder.

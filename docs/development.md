@@ -35,6 +35,9 @@ Toolchain: TypeScript 7, Vite 8, Vitest 5, React 19, Zod 4, Tailwind 4 (via `@ta
 - **A full reload in dev reopens the folder you last used on `localhost`, which may be your real one.** In-memory test data is then gone, and every click saves into the real files. Before clicking through a test, check `__invojka.useStore.getState().adapter.name` (`memory` for test data), and check again after editing a module that can't be hot-reloaded. On 2026-10-17 a preview switched the colour scheme in the owner's real `settings.json` this way.
 - **Vite can keep a CSS block you deleted from `src/index.css`**, even after a page reload (seen 2026-10-17 with a removed `:root:not([data-scheme])` block). The build is right; restart the dev server with `--force`. `TaskStop` on a backgrounded `npm run dev` may leave the Vite process running: free the port by stopping the process that listens on it.
 - Editing modules that aren't hot-reloadable (e.g. `src/pdf/*`, `main.tsx`) and the first use of a new dependency make Vite **reload the page, which wipes in-memory data**. Seed again.
+- **`window.__invojka` appears a moment after the page loads** (it is imported lazily). In scripted tests wait for it, e.g. `for (let i = 0; i < 30 && !window.__invojka; i++) await new Promise(r => setTimeout(r, 200))`, before calling `seedFromCsv()`.
+- **Phone width:** resizing the browser window from automation is unreliable (it may not apply, or apply late and stick). Load the app into a same-origin frame instead: `document.body.innerHTML = '<iframe id="ph" src="/?m=1#/" style="width:390px;height:780px">'`, then seed through `ph.contentWindow.__invojka`. Check for sideways overflow with `document.documentElement.scrollWidth > innerWidth` inside the frame. The desktop-app notice is remembered per visit in `sessionStorage` (`invojka.desktopNoticeSeen`).
+- **Language:** add `?lang=en` before the `#` to see the English UI without touching the saved setting.
 - Headless Chrome with `--virtual-time-budget` stalls on IndexedDB, so a `--dump-dom` of the built file shows an empty root. **That isn't an app bug.**
 
 ## Releasing
@@ -56,6 +59,8 @@ The `Release` workflow (`.github/workflows/release.yml`) then runs the tests, bu
 - **Publish:** `bash scripts/deploy-showcase.sh` builds and force-pushes just that page to the separate public repo `premekzak/invojka-demo` (GitHub Pages from `main`). The demo names live only in the local `src/domain/demo.ts` and that repo, never in this one's history.
 
 ## Pitfalls met so far
+
+- **Scripted edits of Czech text:** a Python heredoc passed through the Bash tool can mangle diacritics and backslashes in regular expressions. Write the script to a file first and run that file. A regex replacing quoted strings must match one string at a time (`'([^']*)'`), or it can swallow the commas between array items (it broke the greeting arrays once, 2026-10-18).
 
 - **Dates come from `today()` in `id.ts`, never `toISOString()`.** That is UTC: in Czechia, after midnight it still gives yesterday, so new invoices were dated a day early and overdue switched an hour or two late.
 - **`file://` works:** Chrome treats `file://` as a secure context, and `showDirectoryPicker` plus IndexedDB work there (checked).

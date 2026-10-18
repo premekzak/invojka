@@ -172,20 +172,25 @@
 @layer components {
   /* On espresso (the footer) the logo takes its dark-mode colours, or the espresso receipt would vanish. */
   /* Scheme motifs (the owner's choice, 2026-10-17): a scheme may paint the header band, the Home "Nová faktura" tile and the
-     footer with a gradient or pattern, set as --scheme-*-image. Without one they stay flat (Warm paper, Braníček). Text on a
+     footer with a gradient or pattern, set as --scheme-*-image. Without one they stay flat (Warm paper). Text on a
      motif must reach 4.5:1 at every point of it, which the scheme's file states. --scheme-header-pad adds a strip under the
-     header row, so a skyline along the bottom edge isn't hidden behind the logo and the pills. */
+     header row, so a skyline or a printed border along the bottom edge isn't hidden behind the logo and the tabs; the current
+     tab reaches down through the strip (a shadow of its own colour), so it still runs straight into the page. */
   .scheme-header {
     background-image: var(--scheme-header-image, none);
     background-repeat: var(--scheme-header-repeat, repeat); background-position: var(--scheme-header-position, 0 0); background-size: var(--scheme-header-size, auto);
     padding-bottom: var(--scheme-header-pad, 0);
   }
+  .scheme-header nav [aria-current="page"] { box-shadow: 0 var(--scheme-header-pad, 0) 0 var(--color-bg); }
   .scheme-tile {
     background-image: var(--scheme-tile-image, none);
     background-repeat: var(--scheme-tile-repeat, repeat); background-position: var(--scheme-tile-position, 0 0); background-size: var(--scheme-tile-size, auto);
   }
   .scheme-tile:hover { background-image: var(--scheme-tile-image-hover, var(--scheme-tile-image, none)); }
-  .scheme-footer { background-image: var(--scheme-footer-image, linear-gradient(to bottom, var(--color-footer), var(--color-footer-deep))); }
+  .scheme-footer {
+    background-image: var(--scheme-footer-image, linear-gradient(to bottom, var(--color-footer), var(--color-footer-deep)));
+    background-repeat: var(--scheme-footer-repeat, repeat); background-position: var(--scheme-footer-position, 0 0); background-size: var(--scheme-footer-size, auto);
+  }
   .on-espresso { --color-brand: var(--orange); --color-brand-fg: #110d0b; --color-brand-dot: #fffaf6; }
   .control {
     background: var(--color-field);

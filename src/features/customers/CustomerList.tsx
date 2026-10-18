@@ -36,9 +36,9 @@ export function CustomerList() {
       <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
         <h1 className="font-display text-4xl leading-[1.2] font-bold tracking-[-0.01em]">{t('customers.title')}</h1>
         <div className="flex flex-wrap items-center justify-end gap-x-4 gap-y-2">
+          <Button onClick={() => navigate('/customers/new')}><Plus className="size-4" /> {t('customers.newCustomer')}</Button>
           <Checkbox label={t('customers.quiet', { count: quietIds.size })} checked={quiet} onChange={(e) => setQuiet(e.target.checked)} />
           <Checkbox label={t('customers.showArchived')} checked={showArchived} onChange={(e) => setShowArchived(e.target.checked)} />
-          <Button onClick={() => navigate('/customers/new')}><Plus className="size-4" /> {t('customers.newCustomer')}</Button>
         </div>
       </div>
       <div className="relative">

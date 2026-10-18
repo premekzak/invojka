@@ -103,6 +103,12 @@ function CustomerForm({ initial, isNew }: { initial: Customer; isNew: boolean })
         <h1 className="font-display text-4xl leading-[1.2] font-bold tracking-[-0.01em]">{saved ? saved.name : t('customers.newTitle')}</h1>
         {c.archived && <span className="rounded bg-surface-3 px-2 py-0.5 text-xs text-fg-muted">{t('customers.archived')}</span>}
         <div className="ml-auto flex flex-wrap justify-end gap-2">
+          <Button disabled={!dirty} onClick={trySave}>{t('common.save')}</Button>
+          {saved && (
+            <Button variant="secondary" onClick={() => navigate(`/invoices/new?customer=${c.id}`)}>
+              <FilePlus2 className="size-4" /> {t('customers.newInvoice')}
+            </Button>
+          )}
           {saved && mine.length === 0 && (
             <Button variant="ghost" onClick={() => { removeCustomer(c.id); navigate('/customers') }}>
               <Trash2 className="size-4" /> {t('editor.delete')}
@@ -114,12 +120,6 @@ function CustomerForm({ initial, isNew }: { initial: Customer; isNew: boolean })
               {c.archived ? t('customers.unarchive') : t('customers.archive')}
             </Button>
           )}
-          {saved && (
-            <Button variant="secondary" onClick={() => navigate(`/invoices/new?customer=${c.id}`)}>
-              <FilePlus2 className="size-4" /> {t('customers.newInvoice')}
-            </Button>
-          )}
-          <Button disabled={!dirty} onClick={trySave}>{t('common.save')}</Button>
         </div>
       </div>
 

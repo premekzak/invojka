@@ -33,6 +33,7 @@ Invojka is a local-first invoicing and analytics app in the browser. It is distr
 - `npm run build` runs `tsc -b`, then the single-file build.
 - `npm test` runs Vitest. For one file: `npx vitest run src/domain/vat.test.ts`, and add `-t "<name>"` for one test.
 - `npm run typecheck`
+- `npm run build:showcase` builds the public showcase on made-up data; `bash scripts/deploy-showcase.sh` publishes it to https://premekzak.github.io/invojka-demo/ (separate repo). Redeploy only when the owner asks.
 
 ## Rules that are easy to break
 

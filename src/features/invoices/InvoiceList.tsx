@@ -68,7 +68,7 @@ export function InvoiceList({ route }: { route: Route }) {
 
   return (
     <div className="space-y-5">
-      {/* The action for the whole list sits at the right end of the title row (design system: Layout). */}
+      {/* The actions sit in the title row, the main one first (the owner, 2026-10-18; design system: Layout). */}
       <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
         <div className="space-y-1">
           <h1 className="font-display text-4xl leading-[1.2] font-bold tracking-[-0.01em]">{t('invoices.title')}</h1>
@@ -76,9 +76,9 @@ export function InvoiceList({ route }: { route: Route }) {
             {summed.length < rows.length && t('invoices.countExcludes')}</p>
         </div>
         <div className="flex flex-wrap justify-end gap-2">
+          <Button onClick={() => navigate('/invoices/new')}><Plus className="size-4" /> {t('nav.newInvoice')}</Button>
           <Button variant="secondary" onClick={() => setExporting(true)}><FileOutput className="size-4" /> {t('export.open')}</Button>
           <Button variant="secondary" onClick={() => setBank(true)}><Landmark className="size-4" /> {t('bank.open')}</Button>
-          <Button onClick={() => navigate('/invoices/new')}><Plus className="size-4" /> {t('nav.newInvoice')}</Button>
         </div>
       </div>
       {bank && <BankImport onClose={() => setBank(false)} />}

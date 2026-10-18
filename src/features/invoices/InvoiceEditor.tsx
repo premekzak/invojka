@@ -284,22 +284,16 @@ function Editor({ initial, isNew }: { initial: Invoice; isNew: boolean }) {
           </span>
         )}
         <div className="ml-auto flex flex-wrap justify-end gap-2 [&>button]:whitespace-nowrap">
-          {draft.status === 'draft' && saved && (
-            <Button variant="ghost" onClick={() => { removeInvoice(draft.id); navigate('/invoices') }}>
-              <Trash2 className="size-4" /> {t('editor.delete')}
-            </Button>
+          {/* The main action first, then the secondary ones, Delete, and the more menu last (the owner, 2026-10-18). */}
+          {draft.status === 'draft' ? (
+            <>
+              <Button onClick={guarded(() => void issue())}><Send className="size-4" /> {t('editor.issue')}</Button>
+              <Button variant="secondary" disabled={!dirty} onClick={guarded(() => save())}>{t('editor.saveDraft')}</Button>
+            </>
+          ) : (
+            // Locked, only the note, rate and paid date can change; Save shows up once one of them does.
+            (!locked || dirty) && <Button disabled={!dirty} onClick={guarded(saveChanges)}>{t('common.save')}</Button>
           )}
-          <MoreMenu items={([
-            draft.status === 'issued' && { key: 'cancel', icon: <Ban className="size-4" />, label: t('editor.cancel'), onClick: () => save({ status: 'cancelled' }) },
-            draft.status === 'cancelled' && { key: 'restore', icon: <RotateCcw className="size-4" />, label: t('editor.restore'), onClick: () => save({ status: 'issued' }) },
-            draft.kind === 'invoice' && (draft.status === 'issued' || draft.status === 'paid') && { key: 'credit', icon: <FileMinus2 className="size-4" />, label: t('editor.creditNote'), onClick: startCreditNote },
-            draft.status === 'issued' && status !== 'overdue' && (draft.kind === 'invoice' || proforma) && { key: 'remind', icon: <BellRing className="size-4" />, label: t('email.remind'), onClick: () => setEmail('reminder') },
-            draft.status === 'paid' && { key: 'unpaid', icon: <X className="size-4" />, label: t('editor.markUnpaid'), onClick: () => save({ status: 'issued', paidDate: undefined, paidAmount: undefined }) },
-            draft.kind === 'invoice' && !!saved && { key: 'copy', icon: <Copy className="size-4" />, label: t('editor.duplicate'), onClick: () => { if (dirty && canSave) save(); navigate(`/invoices/new?copy=${draft.id}`) } },
-            draft.kind === 'invoice' && draft.status !== 'draft' && { key: 'delivery', icon: <Truck className="size-4" />, label: t('editor.deliveryNote'), onClick: () => setDeliveryNote(cleaned()) },
-            draft.kind === 'invoice' && draft.status === 'issued' && !draft.uncollectible && { key: 'writeOff', icon: <CircleSlash className="size-4" />, label: t('editor.writeOff'), onClick: () => save({ uncollectible: today() }) },
-            draft.uncollectible && draft.status === 'issued' && { key: 'unWriteOff', icon: <RotateCcw className="size-4" />, label: t('editor.unWriteOff'), onClick: () => save({ uncollectible: undefined }) },
-          ] as (MoreItem | false)[]).filter((x): x is MoreItem => !!x)} />
           {/* Sending happens in the user's own mail program; an overdue one gets a reminder instead (docs/email.md). */}
           {draft.status === 'issued' && !draft.uncollectible && (draft.kind === 'invoice' || proforma) && (
             <Button variant="secondary" onClick={() => setEmail(status === 'overdue' ? 'reminder' : 'invoice')}>
@@ -319,15 +313,22 @@ function Editor({ initial, isNew }: { initial: Invoice; isNew: boolean }) {
               <ReceiptText className="size-4" /> {t('editor.receipt')}
             </Button>
           )}
-          {draft.status === 'draft' ? (
-            <>
-              <Button variant="secondary" disabled={!dirty} onClick={guarded(() => save())}>{t('editor.saveDraft')}</Button>
-              <Button onClick={guarded(() => void issue())}><Send className="size-4" /> {t('editor.issue')}</Button>
-            </>
-          ) : (
-            // Locked, only the note, rate and paid date can change; Save shows up once one of them does.
-            (!locked || dirty) && <Button disabled={!dirty} onClick={guarded(saveChanges)}>{t('common.save')}</Button>
+          {draft.status === 'draft' && saved && (
+            <Button variant="ghost" onClick={() => { removeInvoice(draft.id); navigate('/invoices') }}>
+              <Trash2 className="size-4" /> {t('editor.delete')}
+            </Button>
           )}
+          <MoreMenu items={([
+            draft.status === 'issued' && { key: 'cancel', icon: <Ban className="size-4" />, label: t('editor.cancel'), onClick: () => save({ status: 'cancelled' }) },
+            draft.status === 'cancelled' && { key: 'restore', icon: <RotateCcw className="size-4" />, label: t('editor.restore'), onClick: () => save({ status: 'issued' }) },
+            draft.kind === 'invoice' && (draft.status === 'issued' || draft.status === 'paid') && { key: 'credit', icon: <FileMinus2 className="size-4" />, label: t('editor.creditNote'), onClick: startCreditNote },
+            draft.status === 'issued' && status !== 'overdue' && (draft.kind === 'invoice' || proforma) && { key: 'remind', icon: <BellRing className="size-4" />, label: t('email.remind'), onClick: () => setEmail('reminder') },
+            draft.status === 'paid' && { key: 'unpaid', icon: <X className="size-4" />, label: t('editor.markUnpaid'), onClick: () => save({ status: 'issued', paidDate: undefined, paidAmount: undefined }) },
+            draft.kind === 'invoice' && !!saved && { key: 'copy', icon: <Copy className="size-4" />, label: t('editor.duplicate'), onClick: () => { if (dirty && canSave) save(); navigate(`/invoices/new?copy=${draft.id}`) } },
+            draft.kind === 'invoice' && draft.status !== 'draft' && { key: 'delivery', icon: <Truck className="size-4" />, label: t('editor.deliveryNote'), onClick: () => setDeliveryNote(cleaned()) },
+            draft.kind === 'invoice' && draft.status === 'issued' && !draft.uncollectible && { key: 'writeOff', icon: <CircleSlash className="size-4" />, label: t('editor.writeOff'), onClick: () => save({ uncollectible: today() }) },
+            draft.uncollectible && draft.status === 'issued' && { key: 'unWriteOff', icon: <RotateCcw className="size-4" />, label: t('editor.unWriteOff'), onClick: () => save({ uncollectible: undefined }) },
+          ] as (MoreItem | false)[]).filter((x): x is MoreItem => !!x)} />
         </div>
       </div>
       {unlocked && draft.status !== 'draft' && (

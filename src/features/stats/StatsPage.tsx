@@ -18,7 +18,7 @@ type View = StatsGrain | 'years'
 const pct = (a: number, b: number) => (b ? `${a >= b ? '+' : ''}${Math.round(((a - b) / b) * 100)} %` : '–')
 const sum = (xs: number[]) => xs.reduce((a, b) => a + b, 0)
 
-/** A segmented control, the same as the invoice list's status filter: the chosen part is a white segment on a tinted track. */
+/** A segmented control, the same as the settings tabs: the chosen part is a white segment on a tinted track. */
 function Segmented<T extends string>({ label, value, options, onChange }: { label: string; value: T; options: [T, string][]; onChange: (v: T) => void }) {
   return (
     <div role="radiogroup" aria-label={label} className="inline-flex gap-0.5 rounded-2xl bg-track p-[3px]">

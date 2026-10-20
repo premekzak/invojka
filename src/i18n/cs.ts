@@ -482,9 +482,9 @@ const cs = {
     copied: 'Zkopírováno',
   },
   invoices: {
-    title: 'Faktury', search: 'Hledat číslo, odběratele, popis…', allYears: 'Všechny roky', allStatuses: 'Všechny faktury',
+    title: 'Faktury', search: 'Hledat číslo, odběratele, popis…', allYears: 'Všechny roky', allStatuses: 'Vše', customerFilter: 'Odběratel: {{name}}', clearCustomer: 'Zrušit filtr odběratele', unknownCustomer: 'smazaný odběratel',
     number: 'Číslo', customer: 'Odběratel', issued: 'Vystaveno', due: 'Splatnost', total: 'Celkem', status: 'Stav',
-    markPaid: 'Označit jako zaplacené', empty: 'Žádné faktury neodpovídají filtru.', count_one: '{{count}} faktura · {{total}}', count_few: '{{count}} faktury · {{total}}', count_other: '{{count}} faktur · {{total}}',
+    markPaid: 'Označit jako zaplacené', empty: 'Žádné faktury neodpovídají filtru.', count_one: '{{count}} faktura', count_few: '{{count}} faktury', count_other: '{{count}} faktur',
     countExcludes: ' · bez konceptů a stornovaných',
     kindTag: { creditNote: 'opravný doklad', proforma: 'zálohová faktura', advanceTaxDoc: 'daňový doklad k platbě' },
     daysOverdue_one: '{{count}} den po splatnosti', daysOverdue_few: '{{count}} dny po splatnosti', daysOverdue_other: '{{count}} dní po splatnosti',

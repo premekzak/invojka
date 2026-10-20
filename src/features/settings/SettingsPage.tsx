@@ -258,7 +258,7 @@ export function TaxSettings({ settings: s, update }: { settings: Settings; updat
 }
 
 /**
- * A segmented control like the invoice list's status filter, but as the page's sub-navigation it is larger and spans
+ * A segmented control like the statistics view switch, but as the page's sub-navigation it is larger and spans
  * the full width, its tabs sharing it evenly (the owner, 2026-10-18).
  */
 function Segmented<T extends string>({ label, value, options, onChange }: { label: string; value: T; options: [T, string][]; onChange: (v: T) => void }) {

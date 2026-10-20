@@ -470,9 +470,9 @@ const en: Messages = {
     copied: 'Copied',
   },
   invoices: {
-    title: 'Invoices', search: 'Search number, customer, description…', allYears: 'All years', allStatuses: 'All invoices',
+    title: 'Invoices', search: 'Search number, customer, description…', allYears: 'All years', allStatuses: 'All', customerFilter: 'Customer: {{name}}', clearCustomer: 'Clear the customer filter', unknownCustomer: 'a deleted customer',
     number: 'Number', customer: 'Customer', issued: 'Issued', due: 'Due', total: 'Total', status: 'Status',
-    markPaid: 'Mark paid', empty: 'No invoices match the filter.', count_one: '{{count}} invoice · {{total}}', count_few: '{{count}} invoices · {{total}}', count_other: '{{count}} invoices · {{total}}',
+    markPaid: 'Mark paid', empty: 'No invoices match the filter.', count_one: '{{count}} invoice', count_few: '{{count}} invoices', count_other: '{{count}} invoices',
     kindTag: { creditNote: 'credit note', proforma: 'proforma', advanceTaxDoc: 'tax document for payment' },
     countExcludes: ' · drafts and cancelled not included',
     daysOverdue_one: '{{count}} day overdue', daysOverdue_few: '{{count}} days overdue', daysOverdue_other: '{{count}} days overdue',

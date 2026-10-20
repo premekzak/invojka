@@ -1,4 +1,4 @@
-import { Check, FileOutput, Landmark, Plus, Search } from 'lucide-react'
+import { Check, FileOutput, Landmark, Plus, Search, X } from 'lucide-react'
 import { useDeferredValue, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { today } from '@/domain/id'
@@ -16,7 +16,7 @@ const STATUSES: DisplayStatus[] = ['draft', 'issued', 'overdue', 'paid', 'cancel
 export function InvoiceList({ route }: { route: Route }) {
   const { t } = useTranslation()
   const f = useFormat()
-  const { invoices, upsertInvoice } = useStore()
+  const { invoices, customers, upsertInvoice } = useStore()
   const on = today()
   const [search, setSearch] = useState(route.query.get('q') ?? '')
   const [year, setYear] = useState(route.query.get('year') ?? '')
@@ -26,12 +26,15 @@ export function InvoiceList({ route }: { route: Route }) {
   const [bank, setBank] = useState(false)
   const [exporting, setExporting] = useState(false)
 
-  const setStatus = (s: string) => {
+  const setQuery = (key: string, value: string) => {
     const p = new URLSearchParams(route.query)
-    if (s) p.set('status', s)
-    else p.delete('status')
+    if (value) p.set(key, value)
+    else p.delete(key)
     navigate(`/invoices${p.size ? `?${p}` : ''}`)
   }
+  const setStatus = (s: string) => setQuery('status', s)
+  const customerName = customerId ? (customers.find((c) => c.id === customerId)?.name
+    ?? invoices.find((i) => i.customerId === customerId)?.customerSnapshot.name ?? t('invoices.unknownCustomer')) : undefined
 
   const years = useMemo(() => [...new Set(invoices.map((i) => i.issueDate.slice(0, 4)))].sort().reverse(), [invoices])
 
@@ -52,13 +55,22 @@ export function InvoiceList({ route }: { route: Route }) {
     for (const r of base) m.set(r.status, (m.get(r.status) ?? 0) + 1)
     return m
   }, [base])
+  // The status tabs only when they can tell invoices apart: with one status in the year (all paid, say) "Vše" and that
+  // status would show the same list. Judged without the search, so the tabs don't come and go while typing; a chosen
+  // status that has no invoices keeps them, so there is a way back to all.
+  const showStatuses = useMemo(() => {
+    const seen = new Set(invoices
+      .filter((inv) => (!year || inv.issueDate.startsWith(year)) && (!customerId || inv.customerId === customerId))
+      .map((inv) => displayStatus(inv, on)))
+    return seen.size > 1 || (!!status && !seen.has(status))
+  }, [invoices, on, year, customerId, status])
 
   // The total counts what Home counts (issued and paid). Only when you filter drafts or cancelled ones does it add those up.
   const summed = useMemo(() => (status === 'draft' || status === 'cancelled' ? rows : rows.filter((r) => countsAsRevenue(r.inv))), [rows, status])
   const sumByCurrency = useMemo(() => {
     const m = new Map<string, number>()
     for (const r of summed) m.set(r.inv.currency, (m.get(r.inv.currency) ?? 0) + r.totals.total)
-    return [...m.entries()].map(([c, v]) => f.money(v, c)).join(' + ')
+    return [...m.entries()].map(([c, v]) => f.money(v, c))
   }, [summed, f])
 
   function markPaid(id: string) {
@@ -69,12 +81,8 @@ export function InvoiceList({ route }: { route: Route }) {
   return (
     <div className="space-y-5">
       {/* The actions sit in the title row, the main one first (the owner, 2026-10-18; design system: Layout). */}
-      <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
-        <div className="space-y-1">
-          <h1 className="font-display text-4xl leading-[1.2] font-bold tracking-[-0.01em]">{t('invoices.title')}</h1>
-          <p className="text-sm text-fg-muted">{t('invoices.count', { count: rows.length, total: sumByCurrency || f.money(0) })}
-            {summed.length < rows.length && t('invoices.countExcludes')}</p>
-        </div>
+      <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+        <h1 className="font-display text-4xl leading-[1.2] font-bold tracking-[-0.01em]">{t('invoices.title')}</h1>
         <div className="flex flex-wrap justify-end gap-2">
           <Button onClick={() => navigate('/invoices/new')}><Plus className="size-4" /> {t('nav.newInvoice')}</Button>
           <Button variant="secondary" onClick={() => setExporting(true)}><FileOutput className="size-4" /> {t('export.open')}</Button>
@@ -84,28 +92,41 @@ export function InvoiceList({ route }: { route: Route }) {
       {bank && <BankImport onClose={() => setBank(false)} />}
       {exporting && <ExportDialog onClose={() => setExporting(false)} />}
 
-      <div className="flex gap-3">
-        <div className="relative flex-1">
-          <Search className="absolute top-3 left-3 size-4 text-fg-subtle" />
-          <Input className="pl-9" aria-label={t('invoices.search')} placeholder={t('invoices.search')} value={search} onChange={(e) => setSearch(e.target.value)} autoFocus />
+      {/* One row of filters, 32 px like the statistics filters (the owner picked "A" of the canvas variants, 2026-10-20):
+          search, the statuses as quiet text tabs, the year at the right end. A status with no invoices is hidden unless it is
+          the chosen one, so the row only offers what is there. No autofocus: the page is mostly for looking through. */}
+      <div className="flex flex-wrap items-center gap-x-7 gap-y-3">
+        <div className="relative w-72 max-md:w-full">
+          <Search className="absolute top-2 left-3 size-4 text-fg-subtle" />
+          <Input className="h-8 pl-9" aria-label={t('invoices.search')} placeholder={t('invoices.search')} value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
-        <Select className="w-auto" aria-label={t('invoices.allYears')} value={year} onChange={(e) => setYear(e.target.value)}>
+        {showStatuses && <div role="group" aria-label={t('invoices.status')} className="flex h-8 flex-wrap gap-x-5">
+          {(['', ...STATUSES] as const).filter((s) => !s || status === s || (counts.get(s) ?? 0) > 0).map((s) => (
+            <button key={s} onClick={() => setStatus(s)} aria-pressed={status === s} className={cn(
+              'flex items-center gap-1.5 border-b-2 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-link',
+              status === s ? 'border-link text-fg' : 'border-transparent text-fg-muted hover:text-fg',
+            )}>
+              {s ? t(`status.${s}`) : t('invoices.allStatuses')}
+              <span className="font-normal tabular-nums text-fg-muted">{counts.get(s) ?? 0}</span>
+            </button>
+          ))}
+        </div>}
+        <Select className="ml-auto h-8 w-auto py-0" aria-label={t('invoices.allYears')} value={year} onChange={(e) => setYear(e.target.value)}>
           <option value="">{t('invoices.allYears')}</option>
           {years.map((y) => <option key={y}>{y}</option>)}
         </Select>
       </div>
-      {/* A segmented control (the owner's choice "T-C", 2026-10-17): the chosen status is a white segment on a tinted track. */}
-      <div role="group" aria-label={t('invoices.status')} className="inline-flex flex-wrap gap-0.5 rounded-2xl bg-track p-[3px]">
-        {(['', ...STATUSES] as const).map((s) => (
-          <button key={s} onClick={() => setStatus(s)} aria-pressed={status === s} className={cn(
-            'flex items-center gap-1.5 rounded-lg px-3 py-1 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-link',
-            status === s ? 'bg-surface text-fg' : 'text-fg-muted hover:text-fg',
-          )}>
-            {s ? t(`status.${s}`) : t('invoices.allStatuses')}
-            <span className="font-normal tabular-nums text-fg-muted">{counts.get(s) ?? 0}</span>
+      {/* Coming from a customer filters the list by them; the chip says so and takes the filter off. Its own line, so the
+          filter row never wraps around it. */}
+      {customerName && (
+        <div className="-mt-2"><span className="inline-flex h-8 items-center gap-1 rounded-lg border border-line bg-surface-2 pr-1 pl-3 text-sm">
+          {t('invoices.customerFilter', { name: customerName })}
+          <button type="button" onClick={() => setQuery('customer', '')} title={t('invoices.clearCustomer')} aria-label={t('invoices.clearCustomer')}
+            className="flex size-6 items-center justify-center rounded-md text-fg-muted transition-colors hover:bg-surface-3 hover:text-fg focus-visible:outline-2 focus-visible:outline-link">
+            <X className="size-3.5" />
           </button>
-        ))}
-      </div>
+        </span></div>
+      )}
 
       <Card className="overflow-x-auto">
         <table className="w-full text-sm max-md:min-w-[36rem]">
@@ -159,6 +180,22 @@ export function InvoiceList({ route }: { route: Route }) {
               </tr>
             ))}
           </tbody>
+          {/* The count and total close the table as its last row, under the amounts (the owner, 2026-10-20: not important
+              enough to sit under the title). */}
+          {rows.length > 0 && (
+            <tfoot>
+              <tr>
+                <td colSpan={4} className="py-3 pr-4 pl-6 align-top text-fg-muted">
+                  {t('invoices.count', { count: rows.length })}{summed.length < rows.length && t('invoices.countExcludes')}
+                </td>
+                {/* One line per currency, so several never wrap mid-sum. */}
+                <td className="px-4 py-3 text-right font-medium whitespace-nowrap tabular-nums">
+                  {sumByCurrency.length ? sumByCurrency.map((s) => <div key={s}>{s}</div>) : f.money(0)}
+                </td>
+                <td />
+              </tr>
+            </tfoot>
+          )}
         </table>
         {rows.length === 0 && <p className="p-10 text-center text-sm text-fg-muted">{t('invoices.empty')}</p>}
       </Card>

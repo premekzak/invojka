@@ -2,7 +2,7 @@ import { BarChart3, FileText, Home, Menu, Settings, Users, X } from 'lucide-reac
 import { useEffect, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useStore } from '@/state/store'
-import { Logo } from '@/ui/Logo'
+import { Logo, WORDMARK } from '@/ui/Logo'
 import { cn } from '@/ui/primitives'
 import { BusinessSwitcher } from './BusinessSwitcher'
 import { ConflictBanner, SaveStatus } from './SaveStatus'
@@ -31,7 +31,7 @@ function MobileMenu({ section, onClose }: { section: string; onClose: () => void
       {items.map(({ key, path, icon: Icon }) => (
         <a key={key} href={`#${path}`} onClick={onClose} aria-current={section === key ? 'page' : undefined}
           className={cn('flex items-center gap-3 px-4 py-3 text-sm transition-colors',
-            section === key ? 'bg-surface-2 text-fg' : 'text-fg-muted hover:bg-row-hover hover:text-fg')}>
+            section === key ? 'bg-surface-2 text-fg' : 'text-fg-muted hover:bg-tint hover:text-fg')}>
           <Icon className="size-4" /> {t(`nav.${key}`)}
         </a>
       ))}
@@ -55,7 +55,7 @@ export function Layout({ section, children }: { section: string; children: React
         <div className="mx-auto grid max-w-6xl grid-cols-[1fr_auto_auto] gap-x-3 px-4 md:h-12 md:grid-cols-[1fr_auto_1fr] md:gap-x-6 md:px-8">
           <a href="#/" className="flex h-12 items-center gap-2 justify-self-start" title={t('nav.home')}>
             <Logo className="size-6" />
-            <span className="font-display text-lg font-bold">{t('app.name')}</span>
+            <span className="font-display text-lg font-bold">{WORDMARK}</span>
           </a>
           {/* Tabs (the owner, 2026-10-18, replacing pills): the current one takes the page colour and page text, top to bottom,
               so it runs straight into the page below. */}
@@ -99,7 +99,7 @@ export function Layout({ section, children }: { section: string; children: React
           <div className="flex items-center gap-3">
             <Logo className="size-7" />
             <div>
-              <div className="font-display text-lg font-bold">{t('app.name')}</div>
+              <div className="font-display text-lg font-bold">{WORDMARK}</div>
               <div className="text-xs text-footer-muted">{t('app.tagline')}</div>
             </div>
           </div>

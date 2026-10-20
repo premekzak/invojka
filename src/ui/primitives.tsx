@@ -16,7 +16,7 @@ const button = cva(
       variant: {
         primary: 'bg-accent text-accent-fg hover:bg-accent-deep',
         secondary: 'bg-surface-2 text-fg hover:bg-surface-3 border border-line',
-        ghost: 'text-fg-muted hover:bg-surface-2 hover:text-fg',
+        ghost: 'text-fg-muted hover:bg-tint hover:text-fg',
         danger: 'bg-danger text-danger-fg hover:bg-danger/90',
       },
       size: { sm: 'h-8 px-3', md: 'h-10 px-4', lg: 'h-12 px-6' },
@@ -129,8 +129,10 @@ export function ErrorSummary({ title, errors }: { title: string; errors: { id: s
   )
 }
 
+/** A white box with a hairline edge in `rule` (the owner's choice "A", 2026-10-19; boxes had no edge before), drawn as a ring
+ *  outside the box, so nothing inside moves and striped rows run to the edge under it. */
 export function Card({ className, children }: { className?: string; children: ReactNode }) {
-  return <div className={cn('rounded-2xl bg-surface', className)}>{children}</div>
+  return <div className={cn('rounded-2xl bg-surface ring-1 ring-rule', className)}>{children}</div>
 }
 
 /** One radio option as a card. Wrap a set in `role="radiogroup"` with an `aria-label`. */

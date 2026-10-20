@@ -59,7 +59,7 @@ export function CustomerList() {
           </thead>
           <tbody>
             {rows.map(({ c, s }) => (
-              <tr key={c.id} onClick={() => navigate(`/customers/${c.id}`)} className="group cursor-pointer transition-colors even:bg-row-hover hover:bg-surface-2">
+              <tr key={c.id} onClick={() => navigate(`/customers/${c.id}`)} className="group cursor-pointer transition-colors even:bg-row-hover hover:bg-tint">
                 <td className="px-4 py-3">
                   <div className="font-medium">{c.name} {c.archived && <span className="ml-1 text-xs font-normal text-fg-subtle">({t('customers.archived')})</span>}</div>
                   <div className="text-xs text-fg-subtle">{c.email}</div>

@@ -65,8 +65,12 @@ export const copyShift = (lastIssued: string, on: string) => {
   return months > 0 && months <= 12 ? months : 0
 }
 
+/** Numbers taken in the invoice series: the invoices' own, and the last one issued before Invojka (`continueFrom`). */
+export const usedNumbers = (settings: Settings, invoices: Invoice[]) =>
+  [...invoices.map((i) => i.number), ...(settings.numbering.continueFrom ? [settings.numbering.continueFrom] : [])]
+
 export function newInvoice(settings: Settings, invoices: Invoice[], customer?: Customer, on = today()): Invoice {
-  const number = nextNumber(settings.numbering.pattern, on, invoices.map((i) => i.number))
+  const number = nextNumber(settings.numbering.pattern, on, usedNumbers(settings, invoices))
   const last = customer && latestFor(invoices, customer.id)
   const vatRate = settings.vatMode === 'payer' ? settings.defaultVatRate : 0
   return {
@@ -125,7 +129,7 @@ export function latestFor(invoices: Invoice[], customerId: string): Invoice | un
  * that kind's series, and a proforma has no DUZP because it isn't a tax document.
  */
 export function withKind(inv: Invoice, kind: InvoiceKind, settings: Settings, invoices: Invoice[]): Invoice {
-  const number = nextNumber(patternFor(settings, kind), inv.issueDate, invoices.filter((i) => i.id !== inv.id).map((i) => i.number))
+  const number = nextNumber(patternFor(settings, kind), inv.issueDate, usedNumbers(settings, invoices.filter((i) => i.id !== inv.id)))
   return {
     ...inv,
     kind,
@@ -140,7 +144,7 @@ export function withKind(inv: Invoice, kind: InvoiceKind, settings: Settings, in
  * with the advance deducted. When the advance covers it all, issuing it marks it paid (see `issuedStatus`).
  */
 export function newFinalInvoice(settings: Settings, invoices: Invoice[], proforma: Invoice, on = today()): Invoice {
-  const number = nextNumber(settings.numbering.pattern, on, invoices.map((i) => i.number))
+  const number = nextNumber(settings.numbering.pattern, on, usedNumbers(settings, invoices))
   const total = invoiceTotals(proforma).total
   // A payer deducts what the tax document for the advance says, base and VAT per rate (see `newAdvanceTaxDoc`).
   const taxDoc = advanceTaxDocOf(invoices, proforma.id)

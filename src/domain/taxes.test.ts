@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { newInvoice } from './invoice'
 import { SCHEMA_VERSION, Settings, type Invoice } from './schema'
-import { cashIncome, estimate, flatTaxBand, projectYear, RATES } from './taxes'
+import { cashIncome, checkFlatBand, estimate, flatTaxBand, flatTaxMonthly, projectYear, RATES } from './taxes'
 
 const r = RATES[2026]!
 
@@ -55,6 +55,21 @@ describe('sole trader estimate', () => {
     expect(flatTaxBand(2_000_001, 80)).toBeUndefined()
   })
 
+  it('adds up the flat tax as Finanční správa publishes it, band 1 lowered for 2026', () => {
+    expect([1, 2, 3].map((b) => flatTaxMonthly(RATES[2025]!, b as 1 | 2 | 3))).toEqual([8_716, 16_745, 27_139])
+    expect([1, 2, 3].map((b) => flatTaxMonthly(RATES[2026]!, b as 1 | 2 | 3))).toEqual([9_162, 16_745, 27_139])
+  })
+
+  it('checks whether the income fits the band the sole trader pays', () => {
+    const r = RATES[2026]!
+    expect(checkFlatBand(900_000, 1, 40, r)).toEqual({ state: 'ok' })
+    // A doctor in band 1 earning 1.2 M must move to band 2 and pay the difference for the year.
+    expect(checkFlatBand(1_200_000, 1, 40, r)).toEqual({ state: 'higher', band: 2, diff: (16_745 - 9_162) * 12 })
+    // A trade in band 2 earning 1.2 M fits band 1 and can get the overpayment back.
+    expect(checkFlatBand(1_200_000, 2, 60, r)).toEqual({ state: 'lower', band: 1, diff: (16_745 - 9_162) * 12 })
+    expect(checkFlatBand(2_100_000, 3, 80, r)).toEqual({ state: 'out' })
+  })
+
   it('projects the year at the pace so far', () => {
     expect(projectYear(100_000, '2026-12-31')).toBe(100_000)
     expect(projectYear(100_000, '2026-07-02')).toBe(Math.round(100_000 * 365 / 183))
@@ -84,5 +99,11 @@ describe('income as tax records count it', () => {
     ], 2026)
     expect(income).toBe(10_000 + 4_000 + 2_500 + 10_000 - 1_000 + 10_000)
     expect(missingRate).toBe(1)
+  })
+
+  it('adds the income received before Invojka, in its year only', () => {
+    const opening = { year: 2026, income: 120_000_00, turnover: 150_000_00 }
+    expect(cashIncome([doc({})], 2026, opening).income).toBe(130_000)
+    expect(cashIncome([doc({ paidDate: '2025-05-01' })], 2025, opening).income).toBe(10_000)
   })
 })

@@ -92,7 +92,7 @@ export function BarChart({ categories, series, formatAxis, formatValue, partial,
             <span className="size-2.5 rounded-sm" style={{ background: s.color }} /> {s.label}
           </span>
         ))}
-        <button onClick={() => setTable((t) => !t)} className="rounded px-1.5 py-0.5 text-fg-subtle transition-colors hover:bg-surface-2 hover:text-fg">
+        <button onClick={() => setTable((t) => !t)} className="rounded px-1.5 py-0.5 text-fg-subtle transition-colors hover:bg-tint hover:text-fg">
           {table ? chartLabel : tableLabel}
         </button>
       </div>

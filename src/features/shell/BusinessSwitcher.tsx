@@ -69,7 +69,7 @@ export function BusinessSwitcher() {
         <div role="menu" className="animate-rise absolute top-full right-0 z-30 mt-1 w-72 rounded-xl border border-line bg-surface p-1 text-fg">
           {list.map((f) => (
             <button key={f.adapter.name + f.label} role="menuitem"
-              className={cn('flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm transition-colors hover:bg-row-hover', f.current && 'font-medium')}
+              className={cn('flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm transition-colors hover:bg-tint', f.current && 'font-medium')}
               onClick={async () => (f.current ? setOpen(false) : report(await openBusiness(f.adapter), f.adapter.name))}
             >
               <span className="min-w-0 flex-1">
@@ -80,7 +80,7 @@ export function BusinessSwitcher() {
             </button>
           ))}
           <div className="my-1 border-t border-rule" />
-          <button role="menuitem" className="flex w-full items-start gap-2 rounded-lg px-3 py-2 text-left text-sm transition-colors hover:bg-row-hover"
+          <button role="menuitem" className="flex w-full items-start gap-2 rounded-lg px-3 py-2 text-left text-sm transition-colors hover:bg-tint"
             onClick={() => { setOpen(false); setAdding(true) }}>
             <Plus className="mt-0.5 size-4 shrink-0 text-link" />
             <span className="min-w-0">

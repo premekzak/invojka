@@ -46,6 +46,10 @@
 - [x] Rename the code, build output, UI texts, PDF labels and docs from Invoicer to Invojka, with a fallback for the renamed storage keys (2026-10-17)
 - [ ] **Effortless first run** (main focus, see [product.md](product.md#first-run-from-download-to-first-invoice)): an unsupported-browser guide, a "move me out of Downloads" hint, a data-folder step that suggests a concrete place, a bookmark or shortcut hint, and an update check
 - [x] Downloads on GitHub Releases, built and published by a workflow on each version tag (2026-10-17; v0.2.0)
+- [x] **Onboarding by where the user comes from** (2026-10-19): just starting, Fakturoid import (supplier, VAT and numbering from the export), iDoklad import, or the last invoice number from elsewhere; a taxes step
+- [x] This year before Invojka without an import (2026-10-20): turnover and income as one figure each, for the VAT limit and the tax estimate
+- [x] First-steps checklist on Home after onboarding (2026-10-20): first customer → first invoice → logo and stamp → bookmark
+- [x] Import from Settings too (2026-10-20): adding history later, or a second export, without duplicates
 - [ ] Show the app's version (e.g. in Settings), so a user can tell whether their file is the newest
 - [ ] Download page with step-by-step instructions per system and browser; test it with someone who has never seen the app
 - [ ] Remove anything owner-specific that a stranger would trip over (the CSV import is built for the previous service's export)
@@ -70,11 +74,12 @@ Ordered by value against effort; details in [competitor-fakturoid.md](competitor
 - [x] **Bank statement import** (GPC/ABO, CAMT.053, CSV) with matching by variable symbol and amount, all local (2026-10-18)
 - [x] **Reminders:** "Upomínka" on overdue invoices and "Poslat" on issued ones, a pre-filled e-mail opened in the user's mail program, editable templates, sent and reminder dates recorded (2026-10-18)
 - [x] **Insurance and tax estimate** (2026-10-18; rates for 2025 and 2026, add each new year): social and health insurance and income tax, flat-rate expenses vs the flat-rate tax; rates kept per year in `src/domain/` with tests
+- [x] **Flat-rate tax as a regime** (2026-10-19): the regime and band in Settings, fixed payments on Home, a check that this year's income fits the band with the 10 January notice, a task when it outgrows it, and a comparison with a tax return
 - [x] **Export for the accountant:** CSV overview, ISDOC 6.0.2 (validated against the official schema), PDFs, as a ZIP or into the data folder (2026-10-18). Pohoda XML left out: Pohoda imports ISDOC
 - [x] **Recurring invoices** as a "to issue this month" list on Home, set per customer (monthly, quarterly, yearly, from a day); copied lines move their months on (2026-10-18)
 - [x] **Invoice look:** logo and stamp/signature, an optional accent colour, footer text, "Již uhrazeno, neplaťte" on paid invoices (2026-10-18)
 - [x] **More invoice languages:** German and Slovak, on the PDF, in dates and amounts, and in the e-mail templates (2026-10-18)
-- [x] **Statistics:** a Statistiky page: by issue date, DUZP or payment date, months, quarters or years, year-on-year per period, biggest customers with share and days to pay, debtors, revenue by currency, CSV download (2026-10-18)
+- [x] **Statistics:** a Statistiky page: by issue date, DUZP or payment date, months, quarters or years, year-on-year per period, biggest customers with share and days to pay, debtors, revenue by currency, CSV download (2026-10-18); filter by customer and share bars in the ranking (2026-10-19)
 - [x] **Small helpers:** duplicate, discount, private note, "not invoiced for a long time", mark uncollectible, delivery note, event log, price list, tags (2026-10-18)
 - [ ] **UX from Fakturoid:** the resulting date next to the due-date shortcuts, "more options" folding rare invoice fields, a single name-or-IČO box for a new contact, summary tiles above the invoice list as filters
 

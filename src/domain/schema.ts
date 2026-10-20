@@ -9,7 +9,7 @@ const lang = z.enum(['cs', 'en'])
 /** An invoice can also be printed in German or Slovak; the app itself speaks Czech and English (domain/language.ts). */
 const invoiceLang = z.enum(INVOICE_LANGS)
 /** Colour schemes, in the order Settings offers them; each but 'warm' has a file in src/schemes/. */
-export const SCHEMES = ['warm', 'branicek', 'modrotisk', 'praha', 'kolac'] as const
+export const SCHEMES = ['warm', 'tyrkys', 'branicek', 'modrotisk', 'praha', 'kolac'] as const
 /** Accent colours offered for the invoice PDF; the values are in pdf/palette.ts. */
 export const INVOICE_COLORS = ['neutral', 'blue', 'teal', 'green', 'wine', 'orange'] as const
 /** How the customer pays: bank transfer, cash, or cash on delivery (dobírka). Only 'bank' prints the account and QR. */
@@ -56,6 +56,11 @@ export const Settings = z.object({
     proformaPattern: z.string().default('Z{YYYY}{NNNN}'),
     /** VAT payers' tax documents for a received advance (daňový doklad k přijaté platbě). */
     advanceTaxDocPattern: z.string().default('ZD{YYYY}{NNNN}'),
+    /**
+     * The last invoice number issued elsewhere (another service, Excel), set in onboarding without an import: the
+     * invoice series goes on after it instead of starting at 1 in the middle of a year.
+     */
+    continueFrom: z.string().default(''),
   }).prefault({}),
   defaults: z.object({
     dueDays: z.number().int().min(0).default(14),
@@ -83,6 +88,23 @@ export const Settings = z.object({
     /** Secondary activity only: the basic personal allowance claimed here rather than at work. */
     taxpayerCredit: z.boolean().default(false),
     expenseRate: z.union([z.literal(80), z.literal(60), z.literal(40), z.literal(30)]).default(60),
+    /**
+     * A tax return with flat-rate expenses, the flat-rate tax regime (paušální daň, non-payers of VAT only), tax records
+     * with real expenses, or accounts. Invojka estimates only the first two; see domain/taxes.ts.
+     */
+    regime: z.enum(['standard', 'flat', 'records', 'accounts']).default('standard'),
+    /** The flat-tax band the sole trader registered for (chosen by last year's income). */
+    flatBand: z.union([z.literal(1), z.literal(2), z.literal(3)]).default(1),
+  }).prefault({}),
+  /**
+   * What the year held before Invojka, typed in onboarding by someone who invoiced elsewhere: money received (without a
+   * payer's VAT) and turnover to Czech customers, CZK minor units. Added to Home's tax estimate and VAT limit for that
+   * year only; year 0 is none.
+   */
+  opening: z.object({
+    year: z.number().int().default(0),
+    income: minor.default(0),
+    turnover: minor.default(0),
   }).prefault({}),
   /** Saved items to put on invoices quickly (ceník): picked by their description in the editor. */
   priceList: z.array(z.object({
@@ -101,6 +123,11 @@ export const Settings = z.object({
     theme: z.enum(['system', 'light', 'dark']).default('system'),
     /** Colour scheme (docs/ui.md#colour-schemes); 'warm' is Warm paper, the default. Light and dark come from `theme`. */
     scheme: z.enum(SCHEMES).default('warm'),
+    /**
+     * The first-steps checklist on Home: the steps ticked by hand (those Invojka can't see, like a bookmark). Onboarding
+     * sets it to []; missing means hidden, so it never appears for someone who set up before it existed or closed it.
+     */
+    firstSteps: z.array(z.string()).optional(),
   }).prefault({}),
 })
 export type Settings = z.infer<typeof Settings>

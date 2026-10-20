@@ -11,7 +11,7 @@
   :root[data-scheme="branicek"] {
     /* Tax donut parts, in this scheme's hues; all pairs pass the dataviz validator on this card. */
     --cat-1: #3b7f51; --cat-2: #b68a33; --cat-3: #d6111c;
-    --paper: #f3f0e4; --card: #fffdf9; --hover: #faf8f0; --fill: #f1edde; --rule: #e9e6db; --line: #dcd8c8; --field: #faf8ef; --edge: #7e836f; --mid: #555e4d; --ink: #102719;
+    --paper: #f3f0e4; --card: #fffdf9; --hover: #faf8f0; --fill: #f1edde; --rule: #e9e6db; --line: #dcd8c8; --field: #faf8ef; --edge: #7e836f; --mid: #555e4d; --ink: #102719; --tint: #f9f5e6; --track: #c1eacb;
     --on-ink: #fffdf9;
     --red: #b7191c; --on-red: #fffdf9; --red-chip: #ffdedb; --green: #346d26; --green-chip: #d9f0d3;
     /* The accent slot ("blue") is bottle green: 6.2:1 on paper. */
@@ -41,7 +41,7 @@
   :root.dark[data-scheme="branicek"] {
     /* Tax donut parts, in this scheme's hues; all pairs pass the dataviz validator on this card. */
     --cat-1: #327f48; --cat-2: #b48931; --cat-3: #d91821;
-    --paper: #140e0a; --card: #1c1612; --hover: #201915; --fill: #231c18; --rule: #27201b; --line: #342c26; --field: #1e1814; --edge: #7d7268; --mid: #bab0a0; --ink: #f1ebdb;
+    --paper: #140e0a; --card: #1c1612; --hover: #201915; --fill: #231c18; --rule: #27201b; --line: #342c26; --field: #1e1814; --edge: #7d7268; --mid: #bab0a0; --ink: #f1ebdb; --tint: #281e18; --track: #1f3627;
     --on-ink: #140e0a;
     --red: #e66e68; --on-red: #140e0a; --red-chip: #421c19; --green: #7eba71; --green-chip: #1b2f17;
     --blue: #76be86; --on-blue: #140e0a; --blue-deep: #66af77;

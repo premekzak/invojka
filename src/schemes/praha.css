@@ -21,7 +21,7 @@
   :root[data-scheme="praha"] {
     /* Tax donut parts, in this scheme's hues; all pairs pass the dataviz validator on this card. */
     --cat-1: #7853b1; --cat-2: #e86c50; --cat-3: #d9a524;
-    --paper: #f1eef8; --card: #fefdff; --hover: #f8f7fd; --fill: #eeeaf7; --rule: #e7e4ee; --line: #d7d3e0; --field: #f8f6fe; --edge: #7f7e91; --mid: #585871; --ink: #181d37;
+    --paper: #f1eef8; --card: #fefdff; --hover: #f8f7fd; --fill: #eeeaf7; --rule: #e7e4ee; --line: #d7d3e0; --field: #f8f6fe; --edge: #7f7e91; --mid: #585871; --ink: #181d37; --tint: #f7f2ff; --track: #e7d5ff;
     --on-ink: #fefdff; --red: #b61537; --on-red: #fefdff; --red-chip: #ffdede; --green: #16695a; --green-chip: #d2efe6; --blue: #643b9a; --on-blue: #fdf8f0; --blue-deep: #522c83; --chart-1: #7750b1;
     --chart-2: #ecac9b; --rust: #a44c1d; --rust-chip: #ffe0ce; --orange: #ebbd57; --logo: #ebbd57; --on-logo: #141d3b; --logo-dot: #ac312a; --peach: #4b2a6a; --on-peach: #fbf4ea; --on-peach-muted: #f0d9c7;
     --color-header-active: oklch(1 0 0 / 0.12);
@@ -40,7 +40,7 @@
   :root.dark[data-scheme="praha"] {
     /* Tax donut parts, in this scheme's hues; all pairs pass the dataviz validator on this card. */
     --cat-1: #9c7dd5; --cat-2: #ae4b10; --cat-3: #b18a30;
-    --paper: #0c0e1c; --card: #131626; --hover: #16192a; --fill: #191d2e; --rule: #1d2032; --line: #282c40; --field: #151829; --edge: #707389; --mid: #beae9d; --ink: #f4ead9;
+    --paper: #0c0e1c; --card: #131626; --hover: #16192a; --fill: #191d2e; --rule: #1d2032; --line: #282c40; --field: #151829; --edge: #707389; --mid: #beae9d; --ink: #f4ead9; --tint: #1d202a; --track: #352b41;
     --on-ink: #0c0e1c; --red: #ee6476; --on-red: #0c0e1c; --red-chip: #45181d; --green: #6cbcaa; --green-chip: #14302a; --blue: #e1b75c; --on-blue: #0c0e1c; --blue-deep: #d1a84b; --chart-1: #dbb155;
     --chart-2: #5e4784; --rust: #ee8f63; --rust-chip: #432010; --orange: #ebbd57; --logo: #ebbd57; --on-logo: #0c0e1c; --logo-dot: #ac312a; --peach: #311749; --on-peach: #f6ede0; --on-peach-muted: #e3ccbb;
     --color-header-active: oklch(1 0 0 / 0.12);

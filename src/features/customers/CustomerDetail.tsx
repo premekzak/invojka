@@ -1,4 +1,5 @@
-import { Archive, ArchiveRestore, ArrowLeft, FilePlus2, Trash2 } from 'lucide-react'
+import { Archive, ArchiveRestore, FilePlus2, Trash2 } from 'lucide-react'
+import { BackButton } from '@/ui/BackButton'
 import { useMemo, useState, type ReactNode } from 'react'
 import { aresByIc, normalizeIc, type AresParty } from '@/ares/ares'
 import { useTranslation } from 'react-i18next'
@@ -99,8 +100,10 @@ function CustomerForm({ initial, isNew }: { initial: Customer; isNew: boolean })
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-        <Button variant="ghost" size="sm" onClick={() => history.back()}><ArrowLeft className="size-4" /></Button>
-        <h1 className="font-display text-4xl leading-[1.2] font-bold tracking-[-0.01em]">{saved ? saved.name : t('customers.newTitle')}</h1>
+        <div className="relative flex items-center gap-3">
+          <BackButton />
+          <h1 className="font-display text-4xl leading-[1.2] font-bold tracking-[-0.01em]">{saved ? saved.name : t('customers.newTitle')}</h1>
+        </div>
         {c.archived && <span className="rounded bg-surface-3 px-2 py-0.5 text-xs text-fg-muted">{t('customers.archived')}</span>}
         <div className="ml-auto flex flex-wrap justify-end gap-2">
           <Button disabled={!dirty} onClick={trySave}>{t('common.save')}</Button>
@@ -218,7 +221,7 @@ function CustomerForm({ initial, isNew }: { initial: Customer; isNew: boolean })
             {mine.length > 0 && (
               <Card className="overflow-hidden [&>a:nth-child(even)]:bg-row-hover">
                 {mine.slice(0, 12).map((inv) => (
-                  <a key={inv.id} href={`#/invoices/${inv.id}`} className="flex items-center gap-3 px-6 py-3 text-sm transition-colors hover:bg-surface-2!">
+                  <a key={inv.id} href={`#/invoices/${inv.id}`} className="flex items-center gap-3 px-6 py-3 text-sm transition-colors hover:bg-tint!">
                     <span className="tabular-nums text-xs text-fg-muted">{inv.number}</span>
                     <span className="flex-1 text-right tabular-nums">{f.money(invoiceTotals(inv).total, inv.currency)}</span>
                     <StatusBadge status={displayStatus(inv, today())} />

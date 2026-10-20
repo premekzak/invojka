@@ -76,7 +76,7 @@ export function CustomerPicker({ customers, value, name, onChange, onCreate, aut
           ))}
           {canCreate && (
             <button type="button" onClick={create}
-              className={cn('flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-link hover:bg-surface-2', list.length === 0 && 'bg-surface-2')}>
+              className={cn('flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-link hover:bg-tint', list.length === 0 && 'bg-surface-2')}>
               <Plus className="size-4" /> {t('customers.create', { name: typed })}
             </button>
           )}

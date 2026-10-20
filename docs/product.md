@@ -47,6 +47,8 @@ Where people get stuck, and the plan for each:
 | Coming back | They can't find the file again; the browser asks for folder permission after a restart | Suggest a bookmark or a desktop shortcut after the first invoice. Reconnecting the folder takes one click with a clear explanation |
 | Updates | They don't know a new version exists, or how to replace the file | The app can check the website for a newer version (sends only its version number) and says "download and replace this file; your data stays in your folder" |
 
+In the app, onboarding first asks **"Jak začínáte?"**: just starting, moving from Fakturoid or iDoklad (import, which also fills in what it can), or invoicing elsewhere (the last invoice number, so the series carries on). Then the supplier, VAT and taxes, each with a safe default and "change it later in Settings". Someone from elsewhere also types this year's totals so far, so the VAT limit and the tax estimate see the whole year. Home then shows **První kroky** (a customer, an invoice, the look, a bookmark) until done, and history can be imported later from Settings. (2026-10-19 and 2026-10-20, see [decisions.md](decisions.md#2026-10-20))
+
 Open idea: keep the app file inside the data folder, so one folder holds everything and syncs together.
 
 ### What this means for changes

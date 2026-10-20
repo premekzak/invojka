@@ -24,6 +24,11 @@ describe('newInvoice', () => {
     expect(inv).toMatchObject({ number: '20260009', currency: 'NZD', language: 'en', customerId: 'c1' })
     expect(inv.lines[0].description).toBe('PPC management')
   })
+  it('goes on after the last number issued elsewhere, until the series restarts', () => {
+    const moved = { ...settings, numbering: { ...settings.numbering, pattern: '{YYYY}-{NNNN}', continueFrom: '2026-0041' } }
+    expect(newInvoice(moved, [], undefined, '2026-09-30').number).toBe('2026-0042')
+    expect(newInvoice(moved, [], undefined, '2027-01-04').number).toBe('2027-0001')
+  })
 })
 
 it('notices when the customer changed after the invoice was made', () => {

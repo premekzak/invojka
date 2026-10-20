@@ -1,18 +1,21 @@
 import { AlertCircle, CheckCircle2, Plus } from 'lucide-react'
 import { useMemo } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
+import { firstSteps } from '@/domain/firstSteps'
 import { daySlot, pickDaily, yearTrend } from '@/domain/greeting'
 import { today } from '@/domain/id'
 import { advanceTaxDocDeadline, advanceTaxDocOf, displayStatus, finalInvoiceOf, invoiceTotals } from '@/domain/invoice'
 import { homeStats } from '@/domain/stats'
 import { VAT_LIMIT, VAT_LIMIT_IMMEDIATE, vatThresholdLevel, vatTurnover } from '@/domain/vatThreshold'
+import { canEstimate, cashIncome, checkFlatBand, projectYear, RATES } from '@/domain/taxes'
 import { useStore } from '@/state/store'
 import { StatusBadge, useFormat } from '@/ui/format'
 import { Card, cn } from '@/ui/primitives'
+import { FirstSteps } from './FirstSteps'
 import { RevenueCharts } from './RevenueCharts'
 import { recurringStatus } from '@/domain/recurring'
 import { RECURRING_ID, RecurringInvoices } from './RecurringInvoices'
-import { TaxEstimate } from './TaxEstimate'
+import { TAX_ESTIMATE_ID, TaxEstimate } from './TaxEstimate'
 import { VAT_THRESHOLD_ID, VatThreshold } from './VatThreshold'
 
 /** `href` opens another screen; `scrollTo` is the id of a section further down Home. */
@@ -93,11 +96,21 @@ export function Home() {
   const on = today()
 
   const stats = useMemo(() => homeStats(invoices, on), [invoices, on])
+  const steps = firstSteps(settings!, customers, invoices)
   // The VAT registration limit matters only to someone who isn't a payer yet.
   const year = Number(on.slice(0, 4))
   const vat = useMemo(() => settings!.vatMode === 'payer' ? undefined
-    : { now: vatTurnover(invoices, year), last: vatTurnover(invoices, year - 1) }, [settings, invoices, year])
+    : { now: vatTurnover(invoices, year, settings!.opening), last: vatTurnover(invoices, year - 1, settings!.opening) }, [settings, invoices, year])
   const vatLevel = vat && vatThresholdLevel(vat.now.domestic)
+  // In the flat-rate tax regime: whether this year's income at its pace outgrows the band paid.
+  const taxes = settings!.taxes
+  const flatCheck = useMemo(() => taxes.selfEmployed && taxes.regime === 'flat' && settings!.vatMode === 'nonPayer' && RATES[year]
+    ? checkFlatBand(projectYear(cashIncome(invoices, year, settings!.opening).income, on), taxes.flatBand, taxes.expenseRate, RATES[year]!)
+    : undefined, [taxes, settings, invoices, year, on])
+  // Until 10 January the notice of a different flat-rate tax for last year can still be filed: check last year's income.
+  const flatLast = useMemo(() => taxes.selfEmployed && taxes.regime === 'flat' && settings!.vatMode === 'nonPayer' && on <= `${year}-01-10` && RATES[year - 1]
+    ? checkFlatBand(cashIncome(invoices, year - 1, settings!.opening).income, taxes.flatBand, taxes.expenseRate, RATES[year - 1]!)
+    : undefined, [taxes, settings, on, year, invoices])
 
   // Chosen once per visit to Home: it follows the time of day but doesn't flip while you look at it.
   const greeting = useMemo(() => {
@@ -135,6 +148,14 @@ export function Home() {
     vatLevel && vatLevel !== 'ok' && { key: 'vat', warning: vatLevel !== 'near', title: t(`home.taskVat_${vatLevel}`),
       detail: t(`home.taskVatDetail_${vatLevel}`, { amount: f.moneyWhole(vat.now.domestic), limit: f.moneyWhole(VAT_LIMIT), immediate: f.moneyWhole(VAT_LIMIT_IMMEDIATE), next: year + 1 }),
       action: t('home.taskShow'), scrollTo: VAT_THRESHOLD_ID },
+    flatLast && flatLast.state !== 'ok' && { key: 'flatLast', warning: flatLast.state !== 'lower',
+      title: t(`home.taskFlatLast_${flatLast.state}`, { band: taxes.flatBand }),
+      detail: t(`home.taskFlatLastDetail_${flatLast.state}`, { year, last: year - 1,
+        band: 'band' in flatLast ? flatLast.band : undefined, diff: 'diff' in flatLast ? f.moneyWhole(flatLast.diff * 100) : undefined }),
+      action: t('home.taskSettings'), href: '#/settings?tab=taxes' },
+    !flatLast && (flatCheck?.state === 'higher' || flatCheck?.state === 'out') && { key: 'flatBand', warning: true,
+      title: t(`home.taskFlat_${flatCheck.state}`, { band: taxes.flatBand }),
+      detail: t(`home.taskFlatDetail_${flatCheck.state}`, { next: year + 1, year }), action: t('home.taskShow'), scrollTo: TAX_ESTIMATE_ID },
     recurringDue > 0 && { key: 'recurring', title: t('home.taskRecurring', { count: recurringDue }), detail: t('home.taskRecurringDetail'),
       action: t('home.taskShow'), scrollTo: RECURRING_ID },
     needTaxDoc.length > 0 && { key: 'taxDocs', warning: firstDeadline! <= on, title: t('home.taskTaxDoc', { count: needTaxDoc.length }),
@@ -159,6 +180,8 @@ export function Home() {
           outstanding={stats.outstanding} overdueSum={stats.overdueSum} overdueCount={stats.overdueCount} />
       </header>
 
+      {steps && <FirstSteps steps={steps} />}
+
       {/* Two different things side by side (the owner's choice "K2", 2026-10-17): the permanent "Nová faktura" tile, a solid
           accent block that reads as the main button, and a white table of things to check, which shrinks to "Vše v pořádku". */}
       <div className="grid grid-cols-[17.5rem_1fr] items-stretch gap-5 mobile-stack">
@@ -176,9 +199,11 @@ export function Home() {
 
       <RevenueCharts today={on} />
 
-      {vat && <VatThreshold turnover={vat.now} />}
+      {vat && <VatThreshold turnover={vat.now} flatTax={taxes.selfEmployed && taxes.regime === 'flat'}
+        opening={settings!.opening.year === year ? settings!.opening.turnover : 0} />}
 
-      {settings!.taxes.selfEmployed && <TaxEstimate invoices={invoices} settings={settings!} on={on} />}
+      {/* No estimate rather than a wrong one for tax records with real expenses or accounts (the owner, 2026-10-19). */}
+      {taxes.selfEmployed && canEstimate(taxes.regime) && <TaxEstimate invoices={invoices} settings={settings!} on={on} />}
 
       {recent.length > 0 && (
         <section>
@@ -188,7 +213,7 @@ export function Home() {
           </div>
           <Card className="overflow-hidden [&>a:nth-child(even)]:bg-row-hover">
             {recent.map((inv) => (
-              <a key={inv.id} href={`#/invoices/${inv.id}`} className="flex items-center gap-4 px-6 py-3 text-sm transition-colors hover:bg-surface-2!">
+              <a key={inv.id} href={`#/invoices/${inv.id}`} className="flex items-center gap-4 px-6 py-3 text-sm transition-colors hover:bg-tint!">
                 <span className="w-24 tabular-nums text-fg-muted max-md:hidden">{inv.number}</span>
                 <span className="min-w-0 flex-1 truncate font-medium">{inv.customerSnapshot.name}</span>
                 <span className="w-28 text-fg-muted max-md:hidden">{f.date(inv.issueDate)}</span>

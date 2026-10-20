@@ -1,4 +1,4 @@
-import { ArrowLeft, Ban, BellRing, Check, Copy, Percent, Truck, CircleSlash, CloudDownload, FileDown, FileMinus2, Loader2, Lock, Mail, MoreHorizontal, Plus, ReceiptText, RefreshCw, RotateCcw, Send, Trash2, X } from 'lucide-react'
+import { Ban, BellRing, Check, Copy, Percent, Truck, CircleSlash, CloudDownload, FileDown, FileMinus2, Loader2, Lock, Mail, MoreHorizontal, Plus, ReceiptText, RefreshCw, RotateCcw, Send, Trash2, X } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState, type InputHTMLAttributes, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { today } from '@/domain/id'
@@ -10,6 +10,7 @@ import { PaymentMethod, type Customer, type Invoice, type InvoiceKind, type Invo
 import { chargesVat, lineBase, VAT_RATES } from '@/domain/vat'
 import { useStore } from '@/state/store'
 import { StatusBadge, useFormat } from '@/ui/format'
+import { BackButton } from '@/ui/BackButton'
 import { Button, Card, Checkbox, ErrorSummary, Input, InputAffix, Labeled, Select, Textarea, cn } from '@/ui/primitives'
 import { navigate, type Route } from '@/ui/router'
 import { emptyCustomer } from '@/features/customers/CustomerDetail'
@@ -74,7 +75,7 @@ function MoreMenu({ items }: { items: MoreItem[] }) {
         <div role="menu" className="animate-rise absolute right-0 z-20 mt-1 min-w-52 rounded-xl border border-line bg-surface p-1">
           {items.map((it) => (
             <button key={it.key} type="button" role="menuitem" onClick={() => { setOpen(false); it.onClick() }}
-              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm whitespace-nowrap hover:bg-surface-2">
+              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm whitespace-nowrap hover:bg-tint">
               {it.icon} {it.label}
             </button>
           ))}
@@ -267,13 +268,15 @@ function Editor({ initial, isNew }: { initial: Invoice; isNew: boolean }) {
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-        <Button variant="ghost" size="sm" onClick={() => history.back()}><ArrowLeft className="size-4" /></Button>
-        <h1 className="font-display text-4xl leading-[1.2] font-bold tracking-[-0.01em] whitespace-nowrap">
-          {taxDoc ? (!saved ? t('editor.newTaxDocTitle') : t('editor.taxDocTitle', { number: draft.number }))
-            : credit ? (!saved ? t('editor.newCreditTitle') : t('editor.creditTitle', { number: draft.number }))
-            : proforma ? (!saved ? t('editor.newProformaTitle') : t('editor.proformaTitle', { number: draft.number }))
-            : !saved ? t('editor.newTitle') : t('editor.title', { number: draft.number })}
-        </h1>
+        <div className="relative flex items-center gap-3">
+          <BackButton />
+          <h1 className="font-display text-4xl leading-[1.2] font-bold tracking-[-0.01em] whitespace-nowrap">
+            {taxDoc ? (!saved ? t('editor.newTaxDocTitle') : t('editor.taxDocTitle', { number: draft.number }))
+              : credit ? (!saved ? t('editor.newCreditTitle') : t('editor.creditTitle', { number: draft.number }))
+              : proforma ? (!saved ? t('editor.newProformaTitle') : t('editor.proformaTitle', { number: draft.number }))
+              : !saved ? t('editor.newTitle') : t('editor.title', { number: draft.number })}
+          </h1>
+        </div>
         {saved && <StatusBadge status={status} />}
         {/* The lock and its key sit together by the status, so the action buttons stay on one row. */}
         {locked && (

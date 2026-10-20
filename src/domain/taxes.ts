@@ -1,10 +1,11 @@
 import { invoiceTotals } from './invoice'
-import type { Invoice } from './schema'
+import type { Invoice, Settings } from './schema'
 import { chargesVat } from './vat'
 
 /**
- * An estimate of a Czech sole trader's (OSVČ) income tax and social and health insurance from the money received,
- * with flat-rate expenses, compared with the flat-rate tax (paušální daň), for a main or a secondary activity. An
+ * An estimate of a Czech sole trader's (OSVČ) income tax and social and health insurance from the money received.
+ * Two regimes: an ordinary tax return with flat-rate expenses (výdajový paušál), for a main or a secondary activity,
+ * or the flat-rate tax (paušální daň), one fixed monthly payment by band that doesn't depend on profit. An
  * estimate only: no other income, real expenses or allowances beyond the basic one. Sources and dates in
  * docs/czech-rules.md#sole-traders-taxes-and-insurance; add each new year to RATES.
  */
@@ -18,6 +19,23 @@ export type ExpenseRate = (typeof EXPENSE_RATES)[number]
  * studies, a pension or parental leave; no social insurance up to the threshold and no health minimum.
  */
 export type Activity = 'main' | 'secondary'
+
+/**
+ * How the sole trader is taxed: a tax return with flat-rate expenses, the flat-rate tax regime, tax records with real
+ * expenses (daňová evidence) or accounts (účetnictví). Invojka doesn't know the expenses, and accounts count revenue and
+ * costs when they arise, not when paid, so those two get no estimate at all rather than a wrong one.
+ */
+export type TaxRegime = 'standard' | 'flat' | 'records' | 'accounts'
+export const TAX_REGIMES: TaxRegime[] = ['standard', 'flat', 'records', 'accounts']
+
+/** Whether Invojka can estimate tax and insurance for this regime. */
+export function canEstimate(regime: TaxRegime): boolean {
+  return regime === 'standard' || regime === 'flat'
+}
+export type FlatBand = 1 | 2 | 3
+
+/** One month of the flat-rate tax, split as Finanční správa publishes it (Kč). */
+export interface FlatTaxSplit { tax: number; social: number; health: number }
 
 export interface YearRates {
   /** Average monthly wage the year's limits are derived from (Kč). */
@@ -35,7 +53,7 @@ export interface YearRates {
   /** Basic personal allowance (sleva na poplatníka, Kč a year). */
   taxpayerCredit: number
   /** Flat-rate tax per month for bands 1, 2, 3 (Kč). */
-  flatTaxMonthly: [number, number, number]
+  flatTax: [FlatTaxSplit, FlatTaxSplit, FlatTaxSplit]
 }
 
 /** Per year; values checked 2026-10-18 (see docs/czech-rules.md). */
@@ -43,14 +61,16 @@ export const RATES: Record<number, YearRates> = {
   2025: {
     averageWage: 46_557, socialMinMonthly: 16_295, healthMinMonthly: 23_278.5, socialMaxYearly: 2_234_736,
     socialMinMonthlySecondary: 5_122, secondaryThreshold: 111_736,
-    higherTaxFrom: 1_676_052, taxpayerCredit: 30_840, flatTaxMonthly: [8_716, 16_745, 27_139],
+    higherTaxFrom: 1_676_052, taxpayerCredit: 30_840,
+    flatTax: [{ tax: 100, social: 5_473, health: 3_143 }, { tax: 4_963, social: 8_191, health: 3_591 }, { tax: 9_320, social: 12_527, health: 5_292 }],
   },
   // The minimum social base went back from 40 % to 35 % of the average wage with retroactive effect from 1 January 2026
   // (a June 2026 amendment), which also lowered flat-tax band 1 from 9 984 to 9 162 Kč for the whole year.
   2026: {
     averageWage: 48_967, socialMinMonthly: 17_139, healthMinMonthly: 24_483.5, socialMaxYearly: 2_350_416,
     socialMinMonthlySecondary: 5_387, secondaryThreshold: 117_521,
-    higherTaxFrom: 1_762_812, taxpayerCredit: 30_840, flatTaxMonthly: [9_162, 16_745, 27_139],
+    higherTaxFrom: 1_762_812, taxpayerCredit: 30_840,
+    flatTax: [{ tax: 100, social: 5_756, health: 3_306 }, { tax: 4_963, social: 8_191, health: 3_591 }, { tax: 9_320, social: 12_527, health: 5_292 }],
   },
 }
 
@@ -65,10 +85,11 @@ export const FLAT_EXPENSE_INCOME_CAP = 2_000_000
 /**
  * Income of the year as tax records count it: money received, by the day it came in. Paid invoices and proformas
  * (an advance is income when received), less refunded credit notes; a payer's VAT isn't income. Tax documents for
- * payments are left out: they repeat their proforma. Kč, plus documents that couldn't be converted.
+ * payments are left out: they repeat their proforma. Plus the income received before Invojka (`opening`) in its year.
+ * Kč, plus documents that couldn't be converted.
  */
-export function cashIncome(invoices: Invoice[], year: number): { income: number; missingRate: number } {
-  let income = 0, missingRate = 0
+export function cashIncome(invoices: Invoice[], year: number, opening?: Settings['opening']): { income: number; missingRate: number } {
+  let income = opening?.year === year ? opening.income / 100 : 0, missingRate = 0
   for (const inv of invoices) {
     if (inv.status !== 'paid' || !inv.paidDate?.startsWith(`${year}-`) || inv.kind === 'advanceTaxDoc') continue
     const totals = invoiceTotals(inv)
@@ -120,16 +141,48 @@ export function estimate(income: number, expenseRate: ExpenseRate, r: YearRates,
   return { income, expenses, profit, tax, social, health, total: tax + social + health }
 }
 
+/** The flat-rate tax for a band per month, in total (Kč). */
+export function flatTaxMonthly(r: YearRates, band: FlatBand): number {
+  const { tax, social, health } = r.flatTax[band - 1]!
+  return tax + social + health
+}
+
 /**
- * The flat-tax band this income would fall into (1–3), assuming all income comes from activities of one expense rate,
- * or undefined above 2 million Kč, where the regime isn't open.
+ * The yearly income limits of bands 1–3, assuming at least 75 % of income comes from activities of this expense rate:
+ * 1 M / 1.5 M / 2 M Kč, raised to 1.5 M / 2 M for 80 % and 60 % activities and to 2 M for band 1 with 80 % ones.
  */
-export function flatTaxBand(income: number, expenseRate: ExpenseRate): 1 | 2 | 3 | undefined {
-  const limits: [number, number, number] = expenseRate === 80 ? [2_000_000, 2_000_000, 2_000_000]
+export function flatBandLimits(expenseRate: ExpenseRate): [number, number, number] {
+  return expenseRate === 80 ? [2_000_000, 2_000_000, 2_000_000]
     : expenseRate === 60 ? [1_500_000, 2_000_000, 2_000_000]
     : [1_000_000, 1_500_000, 2_000_000]
-  const band = limits.findIndex((l) => income <= l)
-  return band < 0 ? undefined : ((band + 1) as 1 | 2 | 3)
+}
+
+/**
+ * The lowest flat-tax band this income fits (1–3), assuming all income comes from activities of one expense rate,
+ * or undefined above 2 million Kč, where the regime isn't open.
+ */
+export function flatTaxBand(income: number, expenseRate: ExpenseRate): FlatBand | undefined {
+  const band = flatBandLimits(expenseRate).findIndex((l) => income <= l)
+  return band < 0 ? undefined : ((band + 1) as FlatBand)
+}
+
+/**
+ * Whether a year's income fits the band the sole trader pays. The band is chosen by last year's income; this year's
+ * income decides what happens next: over the band's limit they file "Oznámení o jiné výši paušální daně" for a higher
+ * band by 10 January and pay the difference, or leave the regime; over 2 M Kč the regime ends and they file a tax return;
+ * under a lower band's limit the same notice can get the overpayment back.
+ */
+export type FlatBandCheck =
+  | { state: 'ok' }
+  | { state: 'higher' | 'lower'; band: FlatBand; diff: number }
+  | { state: 'out' }
+
+export function checkFlatBand(income: number, band: FlatBand, expenseRate: ExpenseRate, r: YearRates): FlatBandCheck {
+  const fits = flatTaxBand(income, expenseRate)
+  if (!fits) return { state: 'out' }
+  if (fits === band) return { state: 'ok' }
+  const diff = Math.abs(flatTaxMonthly(r, fits) - flatTaxMonthly(r, band)) * 12
+  return { state: fits > band ? 'higher' : 'lower', band: fits, diff }
 }
 
 /** The whole year's income if it goes on at this year's pace so far (`on` is yyyy-mm-dd within `year`). */

@@ -2,19 +2,22 @@ import { useEffect, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { today } from '@/domain/id'
 import { DEFAULT_TEMPLATES, PLACEHOLDER_NAMES, templateFor, type EmailKind } from '@/domain/email'
-import { withVatMode } from '@/domain/invoice'
+import { usedNumbers, withVatMode } from '@/domain/invoice'
 import { INVOICE_LANGS, LANG_NAMES, type InvoiceLang } from '@/domain/language'
-import { EXPENSE_RATES, type ExpenseRate } from '@/domain/taxes'
+import { canEstimate, EXPENSE_RATES, flatBandLimits, flatTaxMonthly, RATES, TAX_REGIMES, type ExpenseRate, type FlatBand, type TaxRegime } from '@/domain/taxes'
 import { CURRENCIES, toMajor, toMinor } from '@/domain/money'
 import { nextNumber } from '@/domain/numbering'
 import { INVOICE_COLORS, PaymentMethod, SCHEMES, type Invoice, type Settings } from '@/domain/schema'
 import { PdfPreview } from '@/features/invoices/PdfPreview'
 import { PDF_COLORS } from '@/pdf/palette'
+import { useFormat } from '@/ui/format'
 import { shrinkImage } from '@/ui/image'
 import { navigate, useRoute } from '@/ui/router'
 import { czechIban } from '@/domain/spayd'
 import { VAT_RATES } from '@/domain/vat'
 import { RatesPanel } from '@/features/rates/RatesPanel'
+import { ImportHistory } from './ImportHistory'
+import { OpeningBalance } from './OpeningBalance'
 import { openBusiness } from '@/features/shell/BusinessSwitcher'
 import { useStore } from '@/state/store'
 import { FsAccessAdapter, type RememberedFolder } from '@/storage/fsAccess'
@@ -204,16 +207,67 @@ export const SETTINGS_TABS = ['business', 'invoices', 'emails', 'taxes', 'rates'
 export type SettingsTab = (typeof SETTINGS_TABS)[number]
 
 /**
+ * Sole traders: the regime (a tax return with flat-rate expenses, the flat-rate tax and its band, or one Invojka can't
+ * estimate), the activity and the expense rate. The expense rate also sets the flat-tax band limits.
+ */
+export function TaxSettings({ settings: s, update }: { settings: Settings; update: (patch: Partial<Settings>) => void }) {
+  const { t } = useTranslation()
+  const f = useFormat()
+  const set = (patch: Partial<Settings['taxes']>) => update({ taxes: { ...s.taxes, ...patch } })
+  const rates = RATES[Number(today().slice(0, 4))]
+  const flat = s.taxes.regime === 'flat'
+  const estimated = canEstimate(s.taxes.regime)
+  const kc = (n: number) => f.moneyWhole(n * 100)
+  return (
+    <div className="space-y-4">
+      <Checkbox label={t('taxes.selfEmployed')} hint={t('taxes.selfEmployedHint')} checked={s.taxes.selfEmployed}
+        onChange={(e) => set({ selfEmployed: e.target.checked })} />
+      {s.taxes.selfEmployed && (
+        <div className="grid max-w-2xl grid-cols-2 gap-4 mobile-stack">
+          <Labeled className="col-span-2" label={t('taxes.regime')} error={flat && s.vatMode === 'payer' ? t('taxes.regimePayer') : undefined}
+            hint={t(`taxes.regimeHints.${s.taxes.regime}`)}>
+            <Options value={s.taxes.regime} onChange={(v) => set({ regime: v as TaxRegime })}
+              options={TAX_REGIMES.map((r) => [r, t(`taxes.regimes.${r}`)])} />
+          </Labeled>
+          {flat && (
+            <Labeled className="col-span-2" label={t('taxes.flatBand')}
+              hint={t('taxes.flatBandHint', { limit: kc(flatBandLimits(s.taxes.expenseRate)[s.taxes.flatBand - 1]!), rate: s.taxes.expenseRate })}>
+              <Options value={String(s.taxes.flatBand)} onChange={(v) => set({ flatBand: Number(v) as FlatBand })}
+                options={([1, 2, 3] as const).map((b) => [String(b), rates
+                  ? t('taxes.flatBandOption', { band: b, amount: kc(flatTaxMonthly(rates, b)) }) : t('taxes.flatBandShort', { band: b })])} />
+            </Labeled>
+          )}
+          {estimated && <>
+            <Labeled label={t('taxes.activity')} hint={t(s.taxes.activity === 'main' ? 'taxes.activityMain' : 'taxes.activitySecondary')}>
+              <Options value={s.taxes.activity} onChange={(v) => set({ activity: v as 'main' | 'secondary' })}
+                options={[['main', t('taxes.activities.main')], ['secondary', t('taxes.activities.secondary')]]} />
+            </Labeled>
+            <Labeled label={t('taxes.expenseRate')} hint={flat ? t('taxes.expenseRateFlatHint') : undefined}>
+              <Options value={String(s.taxes.expenseRate)} onChange={(v) => set({ expenseRate: Number(v) as ExpenseRate })}
+                options={EXPENSE_RATES.map((r) => [String(r), t(`taxes.expenseRates.${r}`)])} />
+            </Labeled>
+            {s.taxes.activity === 'secondary' && (
+              <Checkbox className="col-span-2" label={t('taxes.taxpayerCredit')} hint={t('taxes.taxpayerCreditHint')} checked={s.taxes.taxpayerCredit}
+                onChange={(e) => set({ taxpayerCredit: e.target.checked })} />
+            )}
+          </>}
+        </div>
+      )}
+    </div>
+  )
+}
+
+/**
  * A segmented control like the invoice list's status filter, but as the page's sub-navigation it is larger and spans
  * the full width, its tabs sharing it evenly (the owner, 2026-10-18).
  */
 function Segmented<T extends string>({ label, value, options, onChange }: { label: string; value: T; options: [T, string][]; onChange: (v: T) => void }) {
   return (
-    <div role="tablist" aria-label={label} className="flex w-full flex-wrap gap-1 rounded-2xl bg-surface-3 p-1 dark:bg-surface-2">
+    <div role="tablist" aria-label={label} className="flex w-full flex-wrap gap-1 rounded-2xl bg-track p-1">
       {options.map(([v, text]) => (
         <button key={v} type="button" role="tab" aria-selected={value === v} onClick={() => onChange(v)}
           className={cn('flex-1 rounded-xl px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors focus-visible:outline-2 focus-visible:outline-link',
-            value === v ? 'bg-surface text-fg dark:bg-surface-3' : 'text-fg-muted hover:text-fg')}>
+            value === v ? 'bg-surface text-fg' : 'text-fg-muted hover:text-fg')}>
           {text}
         </button>
       ))}
@@ -248,7 +302,7 @@ export function SettingsPage() {
 
   // The next number of a series as a preview under its pattern; a pattern being typed may not parse yet.
   const preview = (pattern: string) => {
-    try { return nextNumber(pattern, today(), invoices.map((i) => i.number)) } catch { return '?' }
+    try { return nextNumber(pattern, today(), usedNumbers(s, invoices)) } catch { return '?' }
   }
   const next = preview(s.numbering.pattern)
 
@@ -344,25 +398,11 @@ export function SettingsPage() {
       </>}
       {tab === 'taxes' && <>
         <Section title={t('taxes.section')}>
-          <div className="space-y-4">
-            <Checkbox label={t('taxes.selfEmployed')} hint={t('taxes.selfEmployedHint')} checked={s.taxes.selfEmployed}
-              onChange={(e) => update({ taxes: { ...s.taxes, selfEmployed: e.target.checked } })} />
-            {s.taxes.selfEmployed && (
-              <div className="grid max-w-2xl grid-cols-2 gap-4 mobile-stack">
-                <Labeled label={t('taxes.activity')} hint={t(s.taxes.activity === 'main' ? 'taxes.activityMain' : 'taxes.activitySecondary')}>
-                  <Options value={s.taxes.activity} onChange={(v) => update({ taxes: { ...s.taxes, activity: v as 'main' | 'secondary' } })}
-                    options={[['main', t('taxes.activities.main')], ['secondary', t('taxes.activities.secondary')]]} />
-                </Labeled>
-                <SelectField label={t('taxes.expenseRate')} value={String(s.taxes.expenseRate)}
-                  onChange={(v) => update({ taxes: { ...s.taxes, expenseRate: Number(v) as ExpenseRate } })}
-                  options={EXPENSE_RATES.map((r) => [String(r), t(`taxes.expenseRates.${r}`)])} />
-                {s.taxes.activity === 'secondary' && (
-                  <Checkbox className="col-span-2" label={t('taxes.taxpayerCredit')} hint={t('taxes.taxpayerCreditHint')} checked={s.taxes.taxpayerCredit}
-                    onChange={(e) => update({ taxes: { ...s.taxes, taxpayerCredit: e.target.checked } })} />
-                )}
-              </div>
-            )}
-          </div>
+          <TaxSettings settings={s} update={update} />
+        </Section>
+        <Section title={t('opening.title', { year: Number(today().slice(0, 4)) })}>
+          <p className="mb-4 max-w-prose text-sm text-fg-muted">{t('opening.settingsHint')}</p>
+          <OpeningBalance value={s.opening} year={Number(today().slice(0, 4))} onChange={(opening) => update({ opening })} />
         </Section>
       </>}
       {tab === 'rates' && <>
@@ -393,6 +433,9 @@ export function SettingsPage() {
             <DemoToggle />
           </Card>
         </section>
+        <Section title={t('importHistory.title')}>
+          <ImportHistory />
+        </Section>
       </>}
     </div>
   )

@@ -3,6 +3,7 @@
 @import "./schemes/modrotisk.css";
 @import "./schemes/praha.css";
 @import "./schemes/kolac.css";
+@import "./schemes/tyrkys.css";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -47,6 +48,14 @@
   --color-surface-3: var(--line);
   /* Hover on list and table rows: just off card (made subtler 2026-10-11), so a hovered row doesn't look like the table header. */
   --color-row-hover: var(--hover);
+  /* Hover on things you can click (rows, list and menu items, ghost and icon buttons): a very faint tint of the neutrals'
+     own hue instead of grey (the owner, 2026-10-19), OKLCH L 0.97 C 0.02 (dark L 0.245); in Warm paper that is a pale orange. Text keeps 4.5:1 on
+     it. Stripes stay row-hover. */
+  --color-tint: var(--tint);
+  /* The track of segmented controls (settings tabs, status and view filters): a light shade of the header band's hue instead of
+     grey (the owner, 2026-10-19: "a more interesting colour than boring grey"), OKLCH L 0.90 C 0.06 (dark L 0.31 C 0.04). The chosen
+     segment stays surface; fg-muted keeps 4.5:1 on the track. */
+  --color-track: var(--track);
   --color-line: var(--line);
   /* Row dividers in tables and lists: lighter than line, so a long list reads as rows, not a grid (the owner asked 2026-10-11). */
   --color-rule: var(--rule);
@@ -118,6 +127,7 @@
      choice over plain white. Since scheme "A" the page is a step darker than white cards, so boxes need no border. Every text colour reaches 4.5:1 on paper, card and fill in both modes; field bottoms 4.5:1 or more. */
   :root {
     --paper: #f6eee8; --card: #ffffff; --hover: #faf6f3; --fill: #f8eee7; --rule: #eee6e0; --line: #e3d6ce; --field: #f9f4f0; --edge: #93857b; --mid: #695a50; --ink: #342117;
+    --tint: #fff1e6; --track: #fdd5b7;
     --on-ink: #ffffff;
     --red: #b7162d; --on-red: #ffffff; --red-chip: #fedfde; --green: #1e7729; --green-chip: #e4f2e5;
     /* The accent is a vivid orange, another shade of the header's peach (the owner, 2026-10-18: "get rid of the blue, use another
@@ -140,6 +150,7 @@
   /* Dark: a warm near-black page, lighter cards, an espresso header, and lighter, softer accents so they don't vibrate. */
   .dark {
     --paper: #110d0b; --card: #181411; --hover: #1c1714; --fill: #221d19; --rule: #27221e; --line: #332c28; --field: #1e1915; --edge: #6f645d; --mid: #b5a89f; --ink: #f2e9e4;
+    --tint: #2a1d15; --track: #402b1c;
     --on-ink: #110d0b;
     --red: #df676f; --on-red: #110d0b; --red-chip: #3f191b; --green: #66ac69; --green-chip: #173019;
     --blue: #f07a3a; --on-blue: #110d0b; --blue-deep: #e36d2e;

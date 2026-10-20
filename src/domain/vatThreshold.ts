@@ -1,5 +1,5 @@
 import { totalCzk } from './invoice'
-import type { Invoice } from './schema'
+import type { Invoice, Settings } from './schema'
 import { countsAsRevenue } from './stats'
 
 /**
@@ -23,9 +23,12 @@ export interface VatTurnover {
   missingRate: { count: number; currencies: string[] }
 }
 
-/** Turnover for the VAT registration limit in one calendar year, from issued and paid invoices by issue date. */
-export function vatTurnover(invoices: Invoice[], year: number): VatTurnover {
-  const t: VatTurnover = { domestic: 0, foreign: 0, missingRate: { count: 0, currencies: [] } }
+/**
+ * Turnover for the VAT registration limit in one calendar year, from issued and paid invoices by issue date, plus the
+ * turnover invoiced before Invojka (`opening`) in its year.
+ */
+export function vatTurnover(invoices: Invoice[], year: number, opening?: Settings['opening']): VatTurnover {
+  const t: VatTurnover = { domestic: opening?.year === year ? opening.turnover : 0, foreign: 0, missingRate: { count: 0, currencies: [] } }
   const currencies = new Set<string>()
   for (const inv of invoices) {
     if (!countsAsRevenue(inv) || !inv.issueDate.startsWith(`${year}-`)) continue

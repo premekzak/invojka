@@ -37,4 +37,10 @@ describe('ARES', () => {
     expect(p.ceased).toBe('2020-05-31')
     expect(p.dic).toBe('')
   })
+
+  it('tells a sole trader (legal form 101) from a company (112)', () => {
+    expect(toParty({ ico: '12345678', obchodniJmeno: 'Jan Novák', pravniForma: '101' }).selfEmployed).toBe(true)
+    expect(toParty({ ico: '12345678', obchodniJmeno: 'Novák s.r.o.', pravniForma: '112' }).selfEmployed).toBe(false)
+    expect(toParty({ ico: '12345678', obchodniJmeno: 'Novák' }).selfEmployed).toBeUndefined()
+  })
 })

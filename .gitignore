@@ -16,3 +16,6 @@ schemes/*/*
 !schemes/*/zadani.md
 
 dist-showcase
+
+# Exports from other invoicing services, for testing the import - may hold real data, never commit
+exports/

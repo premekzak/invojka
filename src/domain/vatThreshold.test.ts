@@ -29,6 +29,12 @@ describe('VAT registration turnover', () => {
     expect(t).toEqual({ domestic: 150_000_00, foreign: 30_000_00, missingRate: { count: 1, currencies: ['EUR'] } })
   })
 
+  it('adds the turnover invoiced before Invojka, in its year only', () => {
+    const opening = { year: 2026, income: 0, turnover: 80_000_00 }
+    expect(vatTurnover([inv({ amount: 100_000_00 })], 2026, opening).domestic).toBe(180_000_00)
+    expect(vatTurnover([], 2025, opening).domestic).toBe(0)
+  })
+
   it('warns from 80 % of the limit and tells the two limits apart', () => {
     expect(vatThresholdLevel(VAT_LIMIT * 0.8 - 1)).toBe('ok')
     expect(vatThresholdLevel(VAT_LIMIT * 0.8)).toBe('near')

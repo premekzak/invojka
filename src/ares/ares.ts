@@ -9,6 +9,8 @@ const API = 'https://ares.gov.cz/ekonomicke-subjekty-v-be/rest/ekonomicke-subjek
 export interface AresSubject {
   ico: string
   obchodniJmeno: string
+  /** Legal form code: 100–109 are natural persons in business (OSVČ), e.g. 101 a trade licence; 112 is an s.r.o. */
+  pravniForma?: string
   dic?: string
   datumZaniku?: string
   sidlo?: {
@@ -33,6 +35,8 @@ export interface AresParty {
   address: Customer['address']
   /** Set when the business no longer exists. */
   ceased?: string
+  /** A natural person in business (OSVČ) rather than a company; undefined when ARES doesn't say. */
+  selfEmployed?: boolean
 }
 
 /** An IČ as typed (spaces allowed, leading zeros optional) → 8 digits, or undefined if it can't be one. */
@@ -67,6 +71,7 @@ export function toParty(s: AresSubject): AresParty {
       // A seat abroad has only a text address.
       : { street: a.textovaAdresa ?? '', zip: '', city: '', country: a.nazevStatu ?? '' },
     ...(s.datumZaniku ? { ceased: s.datumZaniku } : {}),
+    ...(s.pravniForma ? { selfEmployed: /^10\d$/.test(s.pravniForma) } : {}),
   }
 }
 

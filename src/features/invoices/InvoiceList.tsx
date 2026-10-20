@@ -95,11 +95,11 @@ export function InvoiceList({ route }: { route: Route }) {
         </Select>
       </div>
       {/* A segmented control (the owner's choice "T-C", 2026-10-17): the chosen status is a white segment on a tinted track. */}
-      <div role="group" aria-label={t('invoices.status')} className="inline-flex flex-wrap gap-0.5 rounded-2xl bg-surface-3 p-[3px] dark:bg-surface-2">
+      <div role="group" aria-label={t('invoices.status')} className="inline-flex flex-wrap gap-0.5 rounded-2xl bg-track p-[3px]">
         {(['', ...STATUSES] as const).map((s) => (
           <button key={s} onClick={() => setStatus(s)} aria-pressed={status === s} className={cn(
             'flex items-center gap-1.5 rounded-lg px-3 py-1 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-link',
-            status === s ? 'bg-surface text-fg dark:bg-surface-3' : 'text-fg-muted hover:text-fg',
+            status === s ? 'bg-surface text-fg' : 'text-fg-muted hover:text-fg',
           )}>
             {s ? t(`status.${s}`) : t('invoices.allStatuses')}
             <span className="font-normal tabular-nums text-fg-muted">{counts.get(s) ?? 0}</span>
@@ -122,7 +122,7 @@ export function InvoiceList({ route }: { route: Route }) {
           </thead>
           <tbody>
             {rows.slice(0, 300).map(({ inv, status: s, totals }) => (
-              <tr key={inv.id} onClick={() => navigate(`/invoices/${inv.id}`)} className="group cursor-pointer transition-colors even:bg-row-hover hover:bg-surface-2">
+              <tr key={inv.id} onClick={() => navigate(`/invoices/${inv.id}`)} className="group cursor-pointer transition-colors even:bg-row-hover hover:bg-tint">
                 <td className="py-3 pr-4 pl-6 tabular-nums text-fg-muted">
                   {inv.number}
                   {inv.kind !== 'invoice' && <div className="text-xs text-fg-subtle">{t(`invoices.kindTag.${inv.kind}`)}</div>}

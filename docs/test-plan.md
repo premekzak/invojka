@@ -22,13 +22,16 @@ After each journey, run `__invojka.check()`: it must show no errors.
 
 ### Journeys
 
-1. **First run.** An empty folder → your details → VAT mode → skip the import → Home → first customer → first invoice → PDF → mark it paid.
+1. **First run.** An empty folder → "Teprve začínám" → your details → VAT mode → taxes → Home → first customer → first invoice → PDF → mark it paid.
 2. **Import.** First run with both CSVs → the merge summary → Home and the customer list show the imported history.
-3. **Daily work.** A new invoice for an existing customer (it copies the last one) → issue → it becomes overdue (change the due date) → Home's task and the Overdue filter agree → mark it paid from the list → Home updates.
-4. **Corrections.** Edit a customer who has a draft and an issued invoice: the draft follows, the issued one offers "Použít nové údaje". Cancel an invoice and restore it. Delete a draft (it leaves a gap in the numbers).
-5. **Foreign currency.** An EUR invoice → no rate → the warning on the charts → fill the rate → it counts in CZK.
-6. **Settings.** Switch the VAT mode, the language, the theme and the numbering pattern, then check that new invoices follow them and old ones don't change.
-7. **More businesses and demo mode.** Add a business, switch between businesses, enter and leave demo mode: nothing leaks from one into another.
+3. **Fakturoid.** First run → "Přecházím z Fakturoidu" → the export → your details and VAT come prefilled → a company starts with the sole trader's taxes off → Home shows the history; a final invoice settled by a proforma isn't counted twice.
+4. **Elsewhere.** First run → "Fakturuji jinde" → last number `FV2026/041` and this year's turnover and income → the first new invoice is `FV2026/042`; Home's VAT and tax cards include the amounts and say so; First steps shows four steps.
+   Then Settings → Aplikace → import a Fakturoid export → it warns about the amounts before Invojka → load → the same file again adds nothing.
+5. **Daily work.** A new invoice for an existing customer (it copies the last one) → issue → it becomes overdue (change the due date) → Home's task and the Overdue filter agree → mark it paid from the list → Home updates.
+6. **Corrections.** Edit a customer who has a draft and an issued invoice: the draft follows, the issued one offers "Použít nové údaje". Cancel an invoice and restore it. Delete a draft (it leaves a gap in the numbers).
+7. **Foreign currency.** An EUR invoice → no rate → the warning on the charts → fill the rate → it counts in CZK.
+8. **Settings.** Switch the VAT mode, the language, the theme and the numbering pattern, then check that new invoices follow them and old ones don't change.
+9. **More businesses and demo mode.** Add a business, switch between businesses, enter and leave demo mode: nothing leaks from one into another.
 
 8. **Phone width.** At 390 px (see [development.md](development.md#testing-in-a-real-browser) for the frame trick): the desktop-app notice shows and closes, the menu button opens the pages and closes after a choice or Escape, no screen scrolls sideways, tables scroll inside their box.
 9. **Language in the address.** `?lang=en` with Czech saved: the welcome screen and the app are English, Settings shows English; choosing Čeština there removes `?lang=` and saves it.

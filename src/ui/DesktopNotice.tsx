@@ -47,7 +47,7 @@ export function DesktopNotice() {
           <p className="mt-1 text-sm text-fg-muted">{t('mobile.body')}</p>
         </div>
         <button type="button" onClick={close} aria-label={t('mobile.close')}
-          className="-m-1 rounded-lg p-1 text-fg-muted hover:bg-surface-2 hover:text-fg focus-visible:outline-2 focus-visible:outline-link">
+          className="-m-1 rounded-lg p-1 text-fg-muted hover:bg-tint hover:text-fg focus-visible:outline-2 focus-visible:outline-link">
           <X className="size-4" />
         </button>
       </div>

@@ -9,7 +9,7 @@ const lang = z.enum(['cs', 'en'])
 /** An invoice can also be printed in German or Slovak; the app itself speaks Czech and English (domain/language.ts). */
 const invoiceLang = z.enum(INVOICE_LANGS)
 /** Colour schemes, in the order Settings offers them; each but 'warm' has a file in src/schemes/. */
-export const SCHEMES = ['warm', 'tyrkys', 'branicek', 'modrotisk', 'praha', 'kolac'] as const
+export const SCHEMES = ['warm', 'tyrkys', 'branicek', 'modrotisk', 'praha', 'kolac', 'inkoust', 'salvej', 'grafit', 'med', 'malina', 'oliva', 'louka', 'pristav', 'jaro', 'zahrada', 'fjord', 'terakota', 'mak', 'visen', 'jerabina', 'jahoda', 'koral', 'paprika', 'plamen'] as const
 /** Accent colours offered for the invoice PDF; the values are in pdf/palette.ts. */
 export const INVOICE_COLORS = ['neutral', 'blue', 'teal', 'green', 'wine', 'orange'] as const
 /** How the customer pays: bank transfer, cash, or cash on delivery (dobírka). Only 'bank' prints the account and QR. */
@@ -121,8 +121,11 @@ export const Settings = z.object({
   ui: z.object({
     language: lang.default('cs'),
     theme: z.enum(['system', 'light', 'dark']).default('system'),
-    /** Colour scheme (docs/ui.md#colour-schemes); 'warm' is Warm paper, the default. Light and dark come from `theme`. */
-    scheme: z.enum(SCHEMES).default('warm'),
+    /**
+     * Colour scheme (docs/ui.md#colour-schemes); 'warm' is Warm paper, the default. Light and dark come from `theme`.
+     * A scheme that no longer exists (removed or renamed) falls back to Warm paper instead of failing the whole settings file.
+     */
+    scheme: z.enum(SCHEMES).default('warm').catch('warm'),
     /**
      * The first-steps checklist on Home: the steps ticked by hand (those Invojka can't see, like a bookmark). Onboarding
      * sets it to []; missing means hidden, so it never appears for someone who set up before it existed or closed it.

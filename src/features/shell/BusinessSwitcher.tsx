@@ -59,7 +59,7 @@ export function BusinessSwitcher() {
   return (
     <div ref={ref} className="relative min-w-0">
       <button
-        className="flex max-w-80 items-center gap-2 rounded-lg px-2 py-1 text-left font-semibold transition-colors hover:bg-header-active/50"
+        className="flex max-w-80 items-center gap-2 rounded-lg px-2 py-1 text-left font-semibold transition-colors hover:bg-header-hover"
         aria-haspopup="menu" aria-expanded={open} title={t('business.switch')} onClick={() => setOpen(!open)}
       >
         <span className="min-w-0 flex-1 truncate">{name}</span>

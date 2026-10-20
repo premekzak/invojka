@@ -583,7 +583,7 @@ const cs = {
     creditNotePattern: 'Formát čísla opravného dokladu', creditNotePatternHint: 'Vlastní řada, aby v řadě faktur nevznikaly mezery. Příští číslo: {{next}}',
     uiLanguage: 'Jazyk aplikace', theme: 'Vzhled', themeSystem: 'Podle systému', themeLight: 'Světlý', themeDark: 'Tmavý',
     scheme: 'Barevné schéma',
-    schemes: { warm: 'Teplý papír', tyrkys: 'Teplý papír s tyrkysem', branicek: 'Braníček', modrotisk: 'Modrotisk', praha: 'Praha za soumraku', kolac: 'Koláč' },
+    schemes: { warm: 'Teplý papír', tyrkys: 'Teplý papír s tyrkysem', branicek: 'Braníček', modrotisk: 'Modrotisk', praha: 'Praha za soumraku', kolac: 'Koláč', inkoust: 'Inkoust', salvej: 'Šalvěj', grafit: 'Grafit', med: 'Med', malina: 'Malina', oliva: 'Oliva', louka: 'Louka', pristav: 'Přístav', jaro: 'Jaro', zahrada: 'Zahrada', fjord: 'Fjord', terakota: 'Terakota', mak: 'Mák', visen: 'Višeň', jerabina: 'Jeřabina', jahoda: 'Jahoda', koral: 'Korál', paprika: 'Paprika', plamen: 'Plamen' },
     folder: 'Složka s daty',
   },
   rates: {

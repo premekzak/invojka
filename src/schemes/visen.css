@@ -1,0 +1,39 @@
+/* Colour scheme "Višeň" (Cherry, 2026-10-20). Three colours by role, one of them red, by the "Creating app colour schemes" guide:
+   action = the one accent (buttons, links, focus, the "Nová faktura" tile); brand = the muted header, segmented track, hover,
+   fills (table header, secondary buttons, chips) and the footer; data = the charts in their own hue (recorded departure, see
+   docs/ui.md); the tax donut in all three hues at three lightness steps. Danger moves 30°+ off the red so status never reads
+   as the brand. Every pair computed in light and dark.
+   Cool grey paper; cherry red as the brand; blue for action; teal for data. Danger moves to vermilion, warning to amber.
+   Active when <html data-scheme="visen">. */
+@layer base {
+  :root[data-scheme="visen"] {
+      --paper: #ecf0f5; --card: #ffffff; --hover: #f5f7fa; --fill: #fbecee; --rule: #e4e8ed; --line: #d3dae1; --field: #f2f5f9; --edge: #818992; --mid: #565e67; --ink: #1d2732;
+      --tint: #ffeff1; --track: #fdd1d8;
+      --on-ink: #ffffff;
+      --red: #a93800; --on-red: #ffffff; --red-chip: #ffe3d9; --green: #21763c; --green-chip: #deefe1;
+      --blue: #2d75cb; --on-blue: #ffffff; --blue-deep: #2266b6;
+      --link: #216abf;
+      --chart-1: #00a0a1; --chart-2: #b5e6e5;
+      --cat-1: #005959; --cat-2: #c07280; --cat-3: #a7ceff;
+      --rust: #835a00; --rust-chip: #fce6c5;
+      --orange: #cc3e66; --logo: #1d2732; --on-logo: #f8fbff; --logo-dot: #cc3e66;
+      --peach: #f9d5da; --on-peach: #1d2732; --on-peach-muted: #3c4958;
+      --color-header-active: #ecf0f5;
+      --color-footer: #3d1e25; --color-footer-deep: #34151d; --color-footer-fg: #e4ecf5; --color-footer-muted: #b0c0d1;
+  }
+  :root.dark[data-scheme="visen"] {
+      --paper: #0c0e10; --card: #131518; --hover: #171819; --fill: #231c1d; --rule: #212326; --line: #2a2e32; --field: #191a1c; --edge: #606870; --mid: #a3acb6; --ink: #e3ecf6;
+      --tint: #2b1b1e; --track: #42282c;
+      --on-ink: #0c0e10;
+      --red: #df7752; --on-red: #0c0e10; --red-chip: #3f1e13; --green: #63ab74; --green-chip: #15301b;
+      --blue: #639be1; --on-blue: #0c0e10; --blue-deep: #578ed4;
+      --link: #639be1;
+      --chart-1: #44aaaa; --chart-2: #2a4f4f;
+      --cat-1: #3d9696; --cat-2: #f6a3b1; --cat-3: #365c8c;
+      --rust: #bd8f41; --rust-chip: #362508;
+      --orange: #cc3e66; --logo: #cc3e66; --on-logo: #0c0e10; --logo-dot: #f8fbff;
+      --peach: #3d2327; --on-peach: #e4ecf5; --on-peach-muted: #b0c0d1;
+      --color-header-active: #0c0e10;
+      --color-footer: #3d1e25; --color-footer-deep: #34151d; --color-footer-fg: #e4ecf5; --color-footer-muted: #b0c0d1;
+  }
+}

@@ -1,0 +1,35 @@
+/* Colour scheme "Přístav" (Harbour, 2026-10-20, three colours): sea teal, sand and navy. Cool sea-mist paper (hue 225);
+   one sea-teal accent (hue 200); sand (72) as the muted header and the track; navy (258) on the footer and a sky-blue logo
+   dot. The donut: dark teal, mid sand, pale sky. Built and checked like Louka. Active when <html data-scheme="pristav">. */
+@layer base {
+  :root[data-scheme="pristav"] {
+      --paper: #e9f1f5; --card: #ffffff; --hover: #f3f7f9; --fill: #e9f2f6; --rule: #e1e9ed; --line: #cfdbe0; --field: #f1f6f8; --edge: #7d8b90; --mid: #526066; --ink: #172930;
+      --tint: #e8f8ff; --track: #f1dabe;
+      --on-ink: #ffffff;
+      --red: #b7162d; --on-red: #ffffff; --red-chip: #ffe2e0; --green: #21763c; --green-chip: #deefe1;
+      --blue: #008288; --on-blue: #ffffff; --blue-deep: #007277;
+      --link: #00777c;
+      --chart-1: #299ea4; --chart-2: #b5e5e8;
+      --cat-1: #00585c; --cat-2: #b97f2b; --cat-3: #a8ceff;
+      --rust: #825b00; --rust-chip: #fbe7c5;
+      --orange: #549de5; --logo: #172930; --on-logo: #f7fcfe; --logo-dot: #549de5;
+      --peach: #efdcc7; --on-peach: #172930; --on-peach-muted: #364b54;
+      --color-header-active: #e9f1f5;
+      --color-footer: #192941; --color-footer-deep: #112038; --color-footer-fg: #e1eef3; --color-footer-muted: #aac2cc;
+  }
+  :root.dark[data-scheme="pristav"] {
+      --paper: #0b0f10; --card: #121617; --hover: #161819; --fill: #1a1f21; --rule: #202425; --line: #282f31; --field: #181b1c; --edge: #5c696e; --mid: #9eaeb4; --ink: #deeef5;
+      --tint: #152328; --track: #3b2d1c;
+      --on-ink: #0b0f10;
+      --red: #e27170; --on-red: #0b0f10; --red-chip: #401d1c; --green: #63ab74; --green-chip: #15301b;
+      --blue: #4ba9ae; --on-blue: #0b0f10; --blue-deep: #3d9ca1;
+      --link: #4ba9ae;
+      --chart-1: #45a2a7; --chart-2: #2c4e50;
+      --cat-1: #439599; --cat-2: #edb161; --cat-3: #365c8c;
+      --rust: #bc9041; --rust-chip: #362607;
+      --orange: #549de5; --logo: #549de5; --on-logo: #0b0f10; --logo-dot: #f7fcfe;
+      --peach: #382814; --on-peach: #e1eef3; --on-peach-muted: #aac2cc;
+      --color-header-active: #0b0f10;
+      --color-footer: #192941; --color-footer-deep: #112038; --color-footer-fg: #e1eef3; --color-footer-muted: #aac2cc;
+  }
+}

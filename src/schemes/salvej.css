@@ -1,0 +1,36 @@
+/* Colour scheme "Šalvěj" (Sage, 2026-10-20): sage-green neutrals (hue 135) with one deep petrol-blue accent (hue 228), a
+   near-analogous pair, quiet and natural. Built like Inkoust (see there): Warm paper's lightness steps, a pale sage header
+   (L 0.895, C 0.04), the charts and the donut in the accent's hue, status colours at one lightness, every pair computed.
+   Active when <html data-scheme="salvej">. */
+@layer base {
+  :root[data-scheme="salvej"] {
+      --paper: #edf1ea; --card: #ffffff; --hover: #f5f8f4; --fill: #edf2ea; --rule: #e5eae2; --line: #d4dbd1; --field: #f3f6f1; --edge: #838b7f; --mid: #586054; --ink: #202a1a;
+      --tint: #eff8eb; --track: #cbe8c5;
+      --on-ink: #ffffff;
+      --red: #b7162d; --on-red: #ffffff; --red-chip: #ffe2e0; --green: #137738; --green-chip: #deefe1;
+      --blue: #007ea5; --on-blue: #ffffff; --blue-deep: #006f91;
+      --link: #007397;
+      --chart-1: #3899b7; --chart-2: #bbe2f0;
+      --cat-1: #00566b; --cat-2: #3899b7; --cat-3: #98c6d7;
+      --rust: #815c0a; --rust-chip: #fbe7c5;
+      --orange: #4db4cc; --logo: #202a1a; --on-logo: #f9fcf8; --logo-dot: #4db4cc;
+      --peach: #cfe3ca; --on-peach: #202a1a; --on-peach-muted: #404c3b;
+      --color-header-active: #edf1ea;
+      --color-footer: #1d3028; --color-footer-deep: #14271f; --color-footer-fg: #e7eee4; --color-footer-muted: #b6c2af;
+  }
+  :root.dark[data-scheme="salvej"] {
+      --paper: #0c0f0b; --card: #131612; --hover: #171817; --fill: #1c1f1b; --rule: #212420; --line: #2b2f29; --field: #191b18; --edge: #626a5e; --mid: #a5aea0; --ink: #e5efe0;
+      --tint: #1c2318; --track: #253522;
+      --on-ink: #0c0f0b;
+      --red: #e27170; --on-red: #0c0f0b; --red-chip: #401d1c; --green: #63ab74; --green-chip: #15301b;
+      --blue: #58a3c3; --on-blue: #0c0f0b; --blue-deep: #4c97b6;
+      --link: #58a3c3;
+      --chart-1: #4d9eb9; --chart-2: #2f4d57;
+      --cat-1: #beeaf9; --cat-2: #4d9eb9; --cat-3: #326577;
+      --rust: #b9914b; --rust-chip: #362607;
+      --orange: #4db4cc; --logo: #4db4cc; --on-logo: #0c0f0b; --logo-dot: #f9fcf8;
+      --peach: #21301d; --on-peach: #e7eee4; --on-peach-muted: #b6c2af;
+      --color-header-active: #0c0f0b;
+      --color-footer: #1d3028; --color-footer-deep: #14271f; --color-footer-fg: #e7eee4; --color-footer-muted: #b6c2af;
+  }
+}

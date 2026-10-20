@@ -69,7 +69,7 @@ export function Layout({ section, children }: { section: string; children: React
                   'flex items-center gap-2 px-4 text-sm whitespace-nowrap transition-colors',
                   section === key
                     ? 'bg-bg text-fg'
-                    : 'text-header-muted hover:bg-header-active/50 hover:text-header-fg',
+                    : 'text-header-muted hover:bg-header-hover hover:text-header-fg',
                 )}
               >
                 <Icon className="size-4" /> {t(`nav.${key}`)}

@@ -1,0 +1,39 @@
+/* Colour scheme "Terakota" (Terracotta, 2026-10-20). Colour by role across the whole scheme, by the "Creating app colour schemes" guide:
+   action = the one accent (buttons, links, focus, the "Nová faktura" tile); brand = the muted header, segmented track, hover,
+   fills (table header, secondary buttons, chips) and the footer; data = the charts in their own hue, a recorded departure
+   from "key series = accent" (this year and last year differ strongly in lightness, so it holds in grayscale and for
+   colour-blind readers); the tax donut data, brand and a third hue at three lightness steps. Every pair computed in light and dark.
+   Sand paper; deep teal for action; terracotta as the brand; indigo for data; ochre as the third hue.
+   Active when <html data-scheme="terakota">. */
+@layer base {
+  :root[data-scheme="terakota"] {
+      --paper: #f5efe8; --card: #ffffff; --hover: #f9f6f3; --fill: #faede8; --rule: #ede7e0; --line: #e0d7ce; --field: #f8f4f0; --edge: #90867b; --mid: #665b50; --ink: #302415;
+      --tint: #fff0ea; --track: #fcd4c5;
+      --on-ink: #ffffff;
+      --red: #b7162d; --on-red: #ffffff; --red-chip: #ffe2e0; --green: #21763c; --green-chip: #deefe1;
+      --blue: #008288; --on-blue: #ffffff; --blue-deep: #007277;
+      --link: #00767b;
+      --chart-1: #6d83e6; --chart-2: #cfdafd;
+      --cat-1: #354395; --cat-2: #bf775b; --cat-3: #e6c686;
+      --rust: #825b00; --rust-chip: #fbe7c5;
+      --orange: #df784e; --logo: #302415; --on-logo: #fefaf7; --logo-dot: #df784e;
+      --peach: #f8d8cb; --on-peach: #302415; --on-peach-muted: #524536;
+      --color-header-active: #f5efe8;
+      --color-footer: #3e1f16; --color-footer-deep: #34170e; --color-footer-fg: #f2eae1; --color-footer-muted: #cbbba9;
+  }
+  :root.dark[data-scheme="terakota"] {
+      --paper: #100d0a; --card: #171411; --hover: #191816; --fill: #231c1a; --rule: #25221f; --line: #312d28; --field: #1c1a18; --edge: #70665b; --mid: #b4a99c; --ink: #f5e9dc;
+      --tint: #2b1d17; --track: #422920;
+      --on-ink: #100d0a;
+      --red: #e27170; --on-red: #100d0a; --red-chip: #401d1c; --green: #63ab74; --green-chip: #15301b;
+      --blue: #4ba9ae; --on-blue: #100d0a; --blue-deep: #3d9ca1;
+      --link: #4ba9ae;
+      --chart-1: #7d92e7; --chart-2: #3d4667;
+      --cat-1: #6e81cb; --cat-2: #f5a88b; --cat-3: #72560f;
+      --rust: #bc9041; --rust-chip: #362607;
+      --orange: #df784e; --logo: #df784e; --on-logo: #100d0a; --logo-dot: #fefaf7;
+      --peach: #3c251b; --on-peach: #f2eae1; --on-peach-muted: #cbbba9;
+      --color-header-active: #100d0a;
+      --color-footer: #3e1f16; --color-footer-deep: #34170e; --color-footer-fg: #f2eae1; --color-footer-muted: #cbbba9;
+  }
+}

@@ -1,0 +1,36 @@
+/* Colour scheme "Malina" (Raspberry, 2026-10-20, second round): raspberry and mint. Rose-grey neutrals (hue 350), one
+   raspberry accent (hue 357) with white text 4.65:1; the charts in raspberry steps. Mint (168) is the identity hue: the muted
+   header, the track, the logo dot and a deep leaf-green footer. Danger moves to vermilion (hue 35), 40 degrees from the
+   accent. Built and checked like Med. Active when <html data-scheme="malina">. */
+@layer base {
+  :root[data-scheme="malina"] {
+      --paper: #f6edf1; --card: #ffffff; --hover: #faf5f7; --fill: #f7edf1; --rule: #eee5e9; --line: #e2d5da; --field: #f9f3f6; --edge: #92838a; --mid: #68585f; --ink: #322028;
+      --tint: #fff1f7; --track: #c6e7d9;
+      --on-ink: #ffffff;
+      --red: #b12b00; --on-red: #ffffff; --red-chip: #ffe2db; --green: #21763c; --green-chip: #deefe1;
+      --blue: #cd3b7d; --on-blue: #ffffff; --blue-deep: #b82f6f;
+      --link: #c02e73;
+      --chart-1: #d9578e; --chart-2: #f8cedb;
+      --cat-1: #83224e; --cat-2: #d9578e; --cat-3: #f2adc5;
+      --rust: #825b00; --rust-chip: #fbe7c5;
+      --orange: #5bc19d; --logo: #322028; --on-logo: #fff9fc; --logo-dot: #5bc19d;
+      --peach: #cae8db; --on-peach: #322028; --on-peach-muted: #55414a;
+      --color-header-active: #f6edf1;
+      --color-footer: #083124; --color-footer-deep: #00281c; --color-footer-fg: #f4e7ec; --color-footer-muted: #ceb6c0;
+  }
+  :root.dark[data-scheme="malina"] {
+      --paper: #110d0e; --card: #181315; --hover: #191718; --fill: #221c1f; --rule: #262223; --line: #322b2e; --field: #1c191a; --edge: #726369; --mid: #b7a5ad; --ink: #f7e6ed;
+      --tint: #291c22; --track: #1e362d;
+      --on-ink: #110d0e;
+      --red: #e1755a; --on-red: #110d0e; --red-chip: #401e15; --green: #63ab74; --green-chip: #15301b;
+      --blue: #e4709d; --on-blue: #110d0e; --blue-deep: #d66391;
+      --link: #e4709d;
+      --chart-1: #d96693; --chart-2: #653748;
+      --cat-1: #fed4e2; --cat-2: #d96693; --cat-3: #8b415e;
+      --rust: #bc9041; --rust-chip: #362607;
+      --orange: #5bc19d; --logo: #5bc19d; --on-logo: #110d0e; --logo-dot: #fff9fc;
+      --peach: #153227; --on-peach: #f4e7ec; --on-peach-muted: #ceb6c0;
+      --color-header-active: #110d0e;
+      --color-footer: #083124; --color-footer-deep: #00281c; --color-footer-fg: #f4e7ec; --color-footer-muted: #ceb6c0;
+  }
+}

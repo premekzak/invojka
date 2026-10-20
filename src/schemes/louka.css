@@ -1,0 +1,38 @@
+/* Colour scheme "Louka" (Meadow, 2026-10-20, three colours): cornflower, wheat and heather, by the "Creating app colour
+   schemes" guide. Wheat paper (hue 88); one cornflower-blue accent (hue 262) for actions, links and this year's bars;
+   wheat as the muted header (C 0.035) and the segmented track; heather (325) on the logo dot and the footer. The tax donut
+   is the one place all three meet, at three lightness steps (dark cornflower, mid wheat-gold, pale heather), so the parts
+   also part in grayscale, each with its labelled row. Warning moves to orange (hue 50), away from the wheat.
+   Every pair computed in light and dark. Active when <html data-scheme="louka">. */
+@layer base {
+  :root[data-scheme="louka"] {
+      --paper: #f3efe7; --card: #ffffff; --hover: #f8f7f2; --fill: #f4f0e6; --rule: #ebe8df; --line: #ded8cc; --field: #f7f5ef; --edge: #8e8779; --mid: #635d4d; --ink: #2d2512;
+      --tint: #fbf5e6; --track: #eaddbd;
+      --on-ink: #ffffff;
+      --red: #b7162d; --on-red: #ffffff; --red-chip: #ffe2e0; --green: #21763c; --green-chip: #deefe1;
+      --blue: #3f72d3; --on-blue: #ffffff; --blue-deep: #3463be;
+      --link: #3567c8;
+      --chart-1: #5a8ae3; --chart-2: #c9dcfd;
+      --cat-1: #234993; --cat-2: #aa8722; --cat-3: #e6b9e8;
+      --rust: #984b16; --rust-chip: #ffe3d4;
+      --orange: #ba75be; --logo: #2d2512; --on-logo: #fdfbf7; --logo-dot: #ba75be;
+      --peach: #e9dfc6; --on-peach: #2d2512; --on-peach-muted: #4e4735;
+      --color-header-active: #f3efe7;
+      --color-footer: #352036; --color-footer-deep: #2c172d; --color-footer-fg: #efebe0; --color-footer-muted: #c6bda8;
+  }
+  :root.dark[data-scheme="louka"] {
+      --paper: #0f0e0a; --card: #171510; --hover: #191816; --fill: #201e19; --rule: #25231f; --line: #302d26; --field: #1b1a17; --edge: #6d6758; --mid: #b1aa99; --ink: #f2ebda;
+      --tint: #252014; --track: #382f1b;
+      --on-ink: #0f0e0a;
+      --red: #e27170; --on-red: #0f0e0a; --red-chip: #401d1c; --green: #63ab74; --green-chip: #15301b;
+      --blue: #6c97e7; --on-blue: #0f0e0a; --blue-deep: #608bda;
+      --link: #6c97e7;
+      --chart-1: #6691e0; --chart-2: #364867;
+      --cat-1: #5f85cb; --cat-2: #deb95c; --cat-3: #744877;
+      --rust: #cf8358; --rust-chip: #3c2111;
+      --orange: #ba75be; --logo: #ba75be; --on-logo: #0f0e0a; --logo-dot: #fdfbf7;
+      --peach: #342a13; --on-peach: #efebe0; --on-peach-muted: #c6bda8;
+      --color-header-active: #0f0e0a;
+      --color-footer: #352036; --color-footer-deep: #2c172d; --color-footer-fg: #efebe0; --color-footer-muted: #c6bda8;
+  }
+}

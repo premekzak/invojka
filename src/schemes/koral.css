@@ -1,0 +1,39 @@
+/* Colour scheme "Korál" (Coral, pastel, 2026-10-20). Three colours by role, one of them red, by the "Creating app colour schemes" guide:
+   action = the one accent; brand = the header, segmented track, hover, fills and footer; data = the charts in their own hue
+   (recorded departure, see docs/ui.md); the tax donut in all three hues at three lightness steps. Danger moves 30°+ off the
+   red and is always labelled. Every pair computed in light and dark.
+   Pastel (recorded in docs/ui.md): the button is a light fill with dark text, so it has no 3:1 edge against the card; it
+   always carries its label, and links, selected edges and focus use the darker --link.
+   Cool paper; coral red is the action; powder blue as the brand; sage for data. Active when <html data-scheme="koral">. */
+@layer base {
+  :root[data-scheme="koral"] {
+    --paper: #ebf1f4; --card: #ffffff; --hover: #f4f7f9; --fill: #e6f2fa; --rule: #e3e9ec; --line: #d2dadf; --field: #f2f6f8; --edge: #808a8f; --mid: #555f64; --ink: #1c282e;
+    --tint: #e8f6ff; --track: #bfe4fb;
+    --on-ink: #ffffff;
+    --red: #af1863; --on-red: #ffffff; --red-chip: #fee1e9; --green: #007465; --green-chip: #d9efea;
+    --blue: #ffb0a3; --on-blue: #1c282e; --blue-deep: #fc9e8e;
+    --link: #b43628;
+    --chart-1: #679c5b; --chart-2: #cae3c4;
+    --cat-1: #2c5a22; --cat-2: #4796c0; --cat-3: #ffb5a9;
+    --rust: #8a5600; --rust-chip: #ffe5c8;
+    --orange: #ed7665; --logo: #1c282e; --on-logo: #f7fcfe; --logo-dot: #ed7665;
+    --peach: #ccecff; --on-peach: #1c282e; --on-peach-muted: #374b55;
+    --color-header-active: #ebf1f4;
+    --color-footer: #c1dff6; --color-footer-deep: #b4d6ef; --color-footer-fg: #1c282e; --color-footer-muted: #374b55;
+  }
+  :root.dark[data-scheme="koral"] {
+    --paper: #0c0e10; --card: #121517; --hover: #171819; --fill: #191f23; --rule: #212425; --line: #2a2e31; --field: #191a1b; --edge: #5f686d; --mid: #a2adb3; --ink: #e2edf3;
+    --tint: #14222b; --track: #1b3442;
+    --on-ink: #0c0e10;
+    --red: #db7098; --on-red: #0c0e10; --red-chip: #3e1c29; --green: #32ae9b; --green-chip: #01312a;
+    --blue: #f1a99c; --on-blue: #0c0e10; --blue-deep: #e69b8e;
+    --link: #fda293;
+    --chart-1: #79a76f; --chart-2: #3c4d38;
+    --cat-1: #6b9362; --cat-2: #7ac8f5; --cat-3: #86463c;
+    --rust: #c38c46; --rust-chip: #382409;
+    --orange: #ed7665; --logo: #ed7665; --on-logo: #0c0e10; --logo-dot: #f7fcfe;
+    --peach: #1c313d; --on-peach: #e2edf3; --on-peach-muted: #abc2ce;
+    --color-header-active: #0c0e10;
+    --color-footer: #0e2c3f; --color-footer-deep: #052336; --color-footer-fg: #e2edf3; --color-footer-muted: #abc2ce;
+  }
+}

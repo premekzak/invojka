@@ -4,6 +4,25 @@
 @import "./schemes/praha.css";
 @import "./schemes/kolac.css";
 @import "./schemes/tyrkys.css";
+@import "./schemes/inkoust.css";
+@import "./schemes/salvej.css";
+@import "./schemes/grafit.css";
+@import "./schemes/med.css";
+@import "./schemes/malina.css";
+@import "./schemes/oliva.css";
+@import "./schemes/louka.css";
+@import "./schemes/pristav.css";
+@import "./schemes/jaro.css";
+@import "./schemes/zahrada.css";
+@import "./schemes/fjord.css";
+@import "./schemes/terakota.css";
+@import "./schemes/mak.css";
+@import "./schemes/visen.css";
+@import "./schemes/jerabina.css";
+@import "./schemes/jahoda.css";
+@import "./schemes/koral.css";
+@import "./schemes/paprika.css";
+@import "./schemes/plamen.css";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -39,6 +58,9 @@
   --color-surface-2: var(--fill);
   /* The current page's pill: the page colour on the peach band. Hover is half of it. */
   --color-header-active: var(--paper);
+  /* A header tab or the business switcher under the pointer. A scheme with a saturated or dark header, where light text
+     wouldn't hold on half the page colour, gives its own shade. */
+  --color-header-hover: var(--scheme-header-hover, color-mix(in oklab, var(--color-header-active) 50%, transparent));
   /* The footer (the owner's request, 2026-10-17): espresso with a very slight top-to-bottom gradient, the one gradient in
      the app. The same in both modes. Cream text 11.5:1, muted 7.8:1 at the lighter top. */
   --color-footer: #39251a;

@@ -1,0 +1,39 @@
+/* Colour scheme "Fjord" (2026-10-20). Colour by role across the whole scheme, by the "Creating app colour schemes" guide:
+   action = the one accent (buttons, links, focus, the "Nová faktura" tile); brand = the muted header, segmented track, hover,
+   fills (table header, secondary buttons, chips) and the footer; data = the charts in their own hue, a recorded departure
+   from "key series = accent" (this year and last year differ strongly in lightness, so it holds in grayscale and for
+   colour-blind readers); the tax donut data, brand and a third hue at three lightness steps. Every pair computed in light and dark.
+   Cool mist paper; navy blue for action; slate teal as the brand; mustard gold for data; heather as the third hue. Warning
+   moves to amber (hue 58), 36° from danger and 30° from the gold. Active when <html data-scheme="fjord">. */
+@layer base {
+  :root[data-scheme="fjord"] {
+      --paper: #eaf1f5; --card: #ffffff; --hover: #f4f7f9; --fill: #e5f3f5; --rule: #e2e9ed; --line: #d0dbe1; --field: #f1f6f9; --edge: #7d8a91; --mid: #526067; --ink: #182931;
+      --tint: #e3f8fa; --track: #b8e8ee;
+      --on-ink: #ffffff;
+      --red: #b7162d; --on-red: #ffffff; --red-chip: #ffe2e0; --green: #21763c; --green-chip: #deefe1;
+      --blue: #3874cc; --on-blue: #ffffff; --blue-deep: #2d66b8;
+      --link: #2c69c0;
+      --chart-1: #ad8604; --chart-2: #e9dab6;
+      --cat-1: #614900; --cat-2: #289da9; --cat-3: #e5b8ef;
+      --rust: #944e00; --rust-chip: #ffe4d0;
+      --orange: #e3b842; --logo: #182931; --on-logo: #f7fcfe; --logo-dot: #e3b842;
+      --peach: #c2e8ec; --on-peach: #182931; --on-peach-muted: #374b55;
+      --color-header-active: #eaf1f5;
+      --color-footer: #002f38; --color-footer-deep: #00252d; --color-footer-fg: #e2edf3; --color-footer-muted: #abc2ce;
+  }
+  :root.dark[data-scheme="fjord"] {
+      --paper: #0b0e10; --card: #121618; --hover: #171819; --fill: #182021; --rule: #202426; --line: #292f32; --field: #181b1c; --edge: #5c696f; --mid: #9fadb5; --ink: #dfeef6;
+      --tint: #112426; --track: #14363a;
+      --on-ink: #0b0e10;
+      --red: #e27170; --on-red: #0b0e10; --red-chip: #401d1c; --green: #63ab74; --green-chip: #15301b;
+      --blue: #6899e2; --on-blue: #0b0e10; --blue-deep: #5d8dd4;
+      --link: #6899e2;
+      --chart-1: #b5943f; --chart-2: #534627;
+      --cat-1: #9f8238; --cat-2: #65d0dc; --cat-3: #71497a;
+      --rust: #cb8650; --rust-chip: #3b220e;
+      --orange: #e3b842; --logo: #e3b842; --on-logo: #0b0e10; --logo-dot: #f7fcfe;
+      --peach: #0e3135; --on-peach: #e2edf3; --on-peach-muted: #abc2ce;
+      --color-header-active: #0b0e10;
+      --color-footer: #002f38; --color-footer-deep: #00252d; --color-footer-fg: #e2edf3; --color-footer-muted: #abc2ce;
+  }
+}

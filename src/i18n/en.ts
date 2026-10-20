@@ -567,7 +567,7 @@ const en: Messages = {
     creditNotePattern: 'Credit note number format', creditNotePatternHint: 'A series of its own, so the invoice series has no gaps. Next number: {{next}}',
     uiLanguage: 'App language', theme: 'Theme', themeSystem: 'System', themeLight: 'Light', themeDark: 'Dark',
     scheme: 'Colour scheme',
-    schemes: { warm: 'Warm paper', tyrkys: 'Warm paper with teal', branicek: 'Braníček', modrotisk: 'Indigo print', praha: 'Prague at dusk', kolac: 'Kolache' },
+    schemes: { warm: 'Warm paper', tyrkys: 'Warm paper with teal', branicek: 'Braníček', modrotisk: 'Indigo print', praha: 'Prague at dusk', kolac: 'Kolache', inkoust: 'Ink', salvej: 'Sage', grafit: 'Graphite', med: 'Honey', malina: 'Raspberry', oliva: 'Olive', louka: 'Meadow', pristav: 'Harbour', jaro: 'Spring', zahrada: 'Garden', fjord: 'Fjord', terakota: 'Terracotta', mak: 'Poppy', visen: 'Cherry', jerabina: 'Rowan', jahoda: 'Strawberry', koral: 'Coral', paprika: 'Paprika', plamen: 'Flame' },
     folder: 'Data folder',
   },
   rates: {

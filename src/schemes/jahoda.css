@@ -1,0 +1,39 @@
+/* Colour scheme "Jahoda" (Strawberry, pastel, 2026-10-20). Three colours by role, one of them red, by the "Creating app colour schemes" guide:
+   action = the one accent; brand = the header, segmented track, hover, fills and footer; data = the charts in their own hue
+   (recorded departure, see docs/ui.md); the tax donut in all three hues at three lightness steps. Danger moves 30°+ off the
+   red and is always labelled. Every pair computed in light and dark.
+   Pastel (recorded in docs/ui.md): the button is a light fill with dark text, so it has no 3:1 edge against the card; it
+   always carries its label, and links, selected edges and focus use the darker --link.
+   Blush paper; strawberry red as the brand; a mint button; lavender for data. Active when <html data-scheme="jahoda">. */
+@layer base {
+  :root[data-scheme="jahoda"] {
+    --paper: #f6eded; --card: #ffffff; --hover: #faf5f5; --fill: #fbeced; --rule: #eee5e5; --line: #e2d5d5; --field: #f9f3f3; --edge: #938483; --mid: #685959; --ink: #322121;
+    --tint: #ffeff0; --track: #fdd1d5;
+    --on-ink: #ffffff;
+    --red: #a24100; --on-red: #ffffff; --red-chip: #fee3d7; --green: #48711e; --green-chip: #e3eddc;
+    --blue: #8edab9; --on-blue: #322121; --blue-deep: #7dceab;
+    --link: #007956;
+    --chart-1: #857fd7; --chart-2: #d7d7fb;
+    --cat-1: #484189; --cat-2: #c1727c; --cat-3: #91debc;
+    --rust: #805c00; --rust-chip: #fbe7c4;
+    --orange: #e9687e; --logo: #322121; --on-logo: #fffaf9; --logo-dot: #e9687e;
+    --peach: #ffdcdf; --on-peach: #322121; --on-peach-muted: #574141;
+    --color-header-active: #f6eded;
+    --color-footer: #f7cfd3; --color-footer-deep: #f0c4c8; --color-footer-fg: #322121; --color-footer-muted: #574141;
+  }
+  :root.dark[data-scheme="jahoda"] {
+    --paper: #110d0d; --card: #181414; --hover: #1a1717; --fill: #231c1d; --rule: #262222; --line: #322c2b; --field: #1c1919; --edge: #726463; --mid: #b7a6a6; --ink: #f8e6e6;
+    --tint: #2b1c1d; --track: #42282b;
+    --on-ink: #110d0d;
+    --red: #de7949; --on-red: #110d0d; --red-chip: #3f1f10; --green: #7fa75d; --green-chip: #1f2e13;
+    --blue: #92cdb2; --on-blue: #110d0d; --blue-deep: #82c1a5;
+    --link: #84d1af;
+    --chart-1: #918eda; --chart-2: #454462;
+    --cat-1: #807dc0; --cat-2: #f7a3ad; --cat-3: #176a4e;
+    --rust: #ba9140; --rust-chip: #352607;
+    --orange: #e9687e; --logo: #e9687e; --on-logo: #110d0d; --logo-dot: #fffaf9;
+    --peach: #3d2629; --on-peach: #f5e7e7; --on-peach-muted: #d1b7b6;
+    --color-header-active: #110d0d;
+    --color-footer: #3e1e22; --color-footer-deep: #34151a; --color-footer-fg: #f5e7e7; --color-footer-muted: #d1b7b6;
+  }
+}

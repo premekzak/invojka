@@ -1,0 +1,36 @@
+/* Colour scheme "Jaro" (Spring, 2026-10-20, three colours): violet, leaf and daffodil. Fresh light paper (hue 110);
+   one violet accent (hue 300); leaf green (140) as the muted header and a deep green footer; daffodil yellow (95) on the
+   track and the logo dot. The donut: dark violet, mid leaf, pale daffodil. Success moves to teal-green (hue 172), away
+   from the leaf. Built and checked like Louka. Active when <html data-scheme="jaro">. */
+@layer base {
+  :root[data-scheme="jaro"] {
+      --paper: #f0f0e9; --card: #ffffff; --hover: #f7f7f3; --fill: #f0f1e8; --rule: #e8e8e1; --line: #d9dacf; --field: #f5f5f1; --edge: #88897d; --mid: #5e5e52; --ink: #272718;
+      --tint: #f6f7e7; --track: #e7debd;
+      --on-ink: #ffffff;
+      --red: #b7162d; --on-red: #ffffff; --red-chip: #ffe2e0; --green: #00755d; --green-chip: #daefe7;
+      --blue: #8b5dce; --on-blue: #ffffff; --blue-deep: #7c50ba;
+      --link: #8051c2;
+      --chart-1: #9b73da; --chart-2: #dfd4f8;
+      --cat-1: #5a368b; --cat-2: #639e56; --cat-3: #dbcb8e;
+      --rust: #8a5600; --rust-chip: #ffe5c8;
+      --orange: #e9c944; --logo: #272718; --on-logo: #fbfbf7; --logo-dot: #e9c944;
+      --peach: #d4e6d0; --on-peach: #272718; --on-peach-muted: #484937;
+      --color-header-active: #f0f0e9;
+      --color-footer: #15301b; --color-footer-deep: #0c2713; --color-footer-fg: #ebece1; --color-footer-muted: #bec0aa;
+  }
+  :root.dark[data-scheme="jaro"] {
+      --paper: #0e0e0b; --card: #151511; --hover: #181816; --fill: #1e1e1a; --rule: #232320; --line: #2e2e28; --field: #1a1a18; --edge: #67685c; --mid: #abac9e; --ink: #ecedde;
+      --tint: #212115; --track: #36301b;
+      --on-ink: #0e0e0b;
+      --red: #e27170; --on-red: #0e0e0b; --red-chip: #401d1c; --green: #3fae90; --green-chip: #053126;
+      --blue: #a785e1; --on-blue: #0e0e0b; --blue-deep: #9b79d4;
+      --link: #a785e1;
+      --chart-1: #9f7dd9; --chart-2: #4d4064;
+      --cat-1: #9274c5; --cat-2: #94d186; --cat-3: #6b5a10;
+      --rust: #c38c46; --rust-chip: #382409;
+      --orange: #e9c944; --logo: #e9c944; --on-logo: #0e0e0b; --logo-dot: #fbfbf7;
+      --peach: #21301d; --on-peach: #ebece1; --on-peach-muted: #bec0aa;
+      --color-header-active: #0e0e0b;
+      --color-footer: #15301b; --color-footer-deep: #0c2713; --color-footer-fg: #ebece1; --color-footer-muted: #bec0aa;
+  }
+}

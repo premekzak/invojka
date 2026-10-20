@@ -25,3 +25,13 @@ describe.each(SCHEMES.filter((s) => s !== 'warm'))('colour scheme %s', (id) => {
     }
   })
 })
+
+describe('a saved scheme that no longer exists', () => {
+  it('falls back to Warm paper instead of failing to load the settings', async () => {
+    const { Settings } = await import('@/domain/schema')
+    const ui = (s: unknown) => Settings.shape.ui.parse(s)
+    expect(ui({ scheme: 'removed-scheme' }).scheme).toBe('warm')
+    expect(ui({}).scheme).toBe('warm')
+    expect(ui({ scheme: 'tyrkys' }).scheme).toBe('tyrkys')
+  })
+})

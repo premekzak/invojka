@@ -9,6 +9,7 @@ Every run checks the calculations and also:
 - **Data health.** `checkData()` lists what should never happen (two invoices with one number, due before issued, paid without a paid date…) and what usually is a mistake (gaps in the number series, a foreign invoice without a rate, a total of zero…).
 - **The same number on every screen.** Home, the charts and the customers compute revenue through one rule, and tests prove their totals agree.
 - **Texts.** Czech and English have the same placeholders, and every count has its plural forms.
+- **Rules for any input.** The calculations, numbering, statistics and exports are checked on random data, including a simulated user who clicks through issuing, paying and correcting in random order. After changing a calculation, run it harder: `FC_RUNS=5000 npx vitest run src/domain/properties.test.ts`.
 
 Details are in [development.md](development.md#tests).
 
@@ -32,10 +33,9 @@ After each journey, run `__invojka.check()`: it must show no errors.
 7. **Foreign currency.** An EUR invoice → no rate → the warning on the charts → fill the rate → it counts in CZK.
 8. **Settings.** Switch the VAT mode, the language, the theme and the numbering pattern, then check that new invoices follow them and old ones don't change.
 9. **More businesses and demo mode.** Add a business, switch between businesses, enter and leave demo mode: nothing leaks from one into another.
-
-8. **Phone width.** At 390 px (see [development.md](development.md#testing-in-a-real-browser) for the frame trick): the desktop-app notice shows and closes, the menu button opens the pages and closes after a choice or Escape, no screen scrolls sideways, tables scroll inside their box.
-9. **Language in the address.** `?lang=en` with Czech saved: the welcome screen and the app are English, Settings shows English; choosing Čeština there removes `?lang=` and saves it.
-10. **Showcase.** `npm run build:showcase` and open `dist-showcase/index.html` over a local server: it opens on made-up data with no folder dialog, Home shows the things to check (overdue, VAT limit, regular invoices, a proforma, missing rates, customers without e-mail), and a reload starts over.
+10. **Phone width.** At 390 px (see [development.md](development.md#testing-in-a-real-browser) for the frame trick): the desktop-app notice shows and closes, the menu button opens the pages and closes after a choice or Escape, no screen scrolls sideways, tables scroll inside their box.
+11. **Language in the address.** `?lang=en` with Czech saved: the welcome screen and the app are English, Settings shows English; choosing Čeština there removes `?lang=` and saves it.
+12. **Showcase.** `npm run build:showcase` and open `dist-showcase/index.html` over a local server: it opens on made-up data with no folder dialog, Home shows the things to check (overdue, VAT limit, regular invoices, a proforma, missing rates, customers without e-mail), and a reload starts over.
 
 ### Edge cases worth one pass each
 

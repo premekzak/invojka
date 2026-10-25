@@ -37,7 +37,7 @@ export function accountingCsv(invoices: Invoice[]): string {
     const related = inv.correctsNumber ?? inv.advanceTaxDocNumber ?? inv.advanceNumber ?? ''
     return [inv.number, KIND_CS[inv.kind], inv.uncollectible ? 'Nedobytná' : STATUS_CS[inv.status], inv.issueDate, inv.taxableSupplyDate ?? '', inv.dueDate, inv.paidDate ?? '',
       inv.customerSnapshot.name, inv.customerSnapshot.ic, inv.customerSnapshot.dic, inv.customerSnapshot.address.country,
-      inv.currency, rate ? String(rate).replace('.', ',') : '', num(t.base), num(t.vat), num(t.total), rate ? num(Math.round(t.total * rate)) : '',
+      inv.currency, rate ? String(rate).replace('.', ',') : '', num(t.base), num(t.vat), num(t.total), rate ? num(mulRound(t.total, rate)) : '',
       num(inv.status === 'paid' ? 0 : amountDue(inv)), METHOD_CS[inv.paymentMethod], inv.variableSymbol, related,
       inv.lines.map((l) => l.description.trim()).filter(Boolean).join('; ')]
   })
@@ -106,7 +106,7 @@ export function toIsdoc(inv: Invoice, settings: Settings): string {
   const vatOn = chargesVat(inv.vatMode, inv.reverseCharge)
   const foreign = inv.currency !== 'CZK'
   const rate = foreign ? inv.exchangeRate ?? 1 : 1
-  const czk = (minor: number) => Math.round(minor * rate)
+  const czk = (minor: number) => mulRound(minor, rate)
   // `a` writes an amount in CZK, preceded or followed by its *Curr twin for a foreign currency (the schema's order differs).
   const curBefore = (name: string, minor: number) => (foreign ? `<${name}Curr>${amt(minor)}</${name}Curr>` : '') + `<${name}>${amt(czk(minor))}</${name}>`
   const curAfter = (name: string, minor: number) => `<${name}>${amt(czk(minor))}</${name}>` + (foreign ? `<${name}Curr>${amt(minor)}</${name}Curr>` : '')

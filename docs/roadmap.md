@@ -14,6 +14,7 @@
 - [x] Exchange rates: ECB automatic, ČNB file upload, manual; foreign revenue counted in CZK
 - [x] Demo mode for screenshots and videos: an anonymized in-memory copy; the folder is never written
 - [x] 104 unit tests, including data health, cross-screen consistency and text checks (2026-10-17); they run on a made-up export, so a fresh clone passes
+- [x] Property tests with fast-check (2026-10-22): rules for any input on random data, plus a simulated user; they found and fixed four calculation bugs ([development.md](development.md#tests))
 - [x] Colour cleanup (2026-10-01): the PDF has its own neutral palette in one place; `danger-fg` and `scrim` tokens; one selected tint (`accent/10`); dark red raised to pass contrast on its badge
 - [x] Neutral 12-step scale (2026-10-01): three text levels, visible field borders, `color-scheme` in dark mode
 - [x] Ledger theme (2026-10-01), reached by going all-grey first and then adding colour role by role: light grey page (cream tried and replaced), blue for actions, black identity (navy tried and replaced), red warnings and errors, green confirmations

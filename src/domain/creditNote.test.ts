@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { checkData } from './check'
 import { creditNotesOf, displayStatus, invoiceTotals, newCreditNote, newInvoice } from './invoice'
 import { SCHEMA_VERSION, Settings, type Invoice } from './schema'
-import { customerStats, homeStats } from './stats'
+import { customerStats, debtors, homeStats } from './stats'
 import { vatTurnover } from './vatThreshold'
 
 const settings = Settings.parse({ schemaVersion: SCHEMA_VERSION, supplier: { name: 'Test' }, vatMode: 'payer' })
@@ -43,6 +43,20 @@ describe('credit notes', () => {
     expect(displayStatus(issued, '2027-06-01')).toBe('issued')
     expect(customerStats(all).get('c1')).toMatchObject({ count: 1, paidCount: 1 })
     expect(vatTurnover(all, 2026).domestic).toBe(12_100_00 - 2_420_00)
+  })
+
+  it('lower what an unpaid invoice waits for, but not a paid one: that is a refund', () => {
+    const unpaid: Invoice = { ...original, status: 'issued', paidDate: undefined, paidAmount: undefined, dueDate: '2026-09-15' }
+    const credit2: Invoice = { ...credit, status: 'issued', correctionReason: 'Sleva', lines: [{ ...credit.lines[0]!, quantity: 2 }] }
+    expect(homeStats([unpaid, credit2], '2026-10-20')).toMatchObject({ outstanding: 9_680_00, overdueSum: 9_680_00, overdueCount: 1 })
+    expect(debtors([unpaid, credit2], '2026-10-20')).toMatchObject([{ overdue: 9_680_00, count: 1 }])
+    // Credited in full: nothing to wait for, though the invoice is still issued until the user settles it.
+    const whole: Invoice = { ...credit, status: 'issued', correctionReason: 'Storno' }
+    expect(homeStats([unpaid, whole], '2026-10-20')).toMatchObject({ outstanding: 0, overdueSum: 0, overdueCount: 0 })
+    expect(debtors([unpaid, whole], '2026-10-20')).toEqual([])
+    // A credit note for a paid invoice doesn't lower other invoices' debts.
+    const other: Invoice = { ...unpaid, id: 'other', number: '20260002' }
+    expect(homeStats([original, other, whole], '2026-10-20')).toMatchObject({ outstanding: 12_100_00, overdueSum: 12_100_00 })
   })
 
   it('are checked for the invoice they correct and a reason', () => {

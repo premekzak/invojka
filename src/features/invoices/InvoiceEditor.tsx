@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { today } from '@/domain/id'
 import { advanceTaxDocDeadline, advanceTaxDocOf, amountDue, creditNotesOf, discountLines, duplicateInvoice, invoiceHistory, displayStatus, finalInvoiceOf, invoiceTotals, issuedStatus, isoPlusDays, newAdvanceTaxDoc, newCreditNote, newFinalInvoice, newInvoice, snapshotDiffers, snapshotOf, withKind } from '@/domain/invoice'
 import { INVOICE_LANGS, LANG_NAMES, type InvoiceLang } from '@/domain/language'
-import { CURRENCIES, toMajor, toMinor } from '@/domain/money'
+import { CURRENCIES, mulRound, toMajor, toMinor } from '@/domain/money'
 import { CASH_LIMIT, hasReceipt, overCashLimit } from '@/domain/payment'
 import { PaymentMethod, type Customer, type Invoice, type InvoiceKind, type InvoiceLine } from '@/domain/schema'
 import { chargesVat, lineBase, VAT_RATES } from '@/domain/vat'
@@ -673,7 +673,7 @@ function Editor({ initial, isNew }: { initial: Invoice; isNew: boolean }) {
               </div>
               <p className="text-xs text-fg-muted">
                 {rateError ? <span className="text-danger">{rateError}</span>
-                  : draft.exchangeRate ? <>{t(`rates.source.${draft.exchangeRateSource ?? 'manual'}`)} · ≈ {f.money(Math.round(totals.total * draft.exchangeRate))}</>
+                  : draft.exchangeRate ? <>{t(`rates.source.${draft.exchangeRateSource ?? 'manual'}`)} · ≈ {f.money(mulRound(totals.total, draft.exchangeRate))}</>
                   : t('rates.noneYet')}
               </p>
             </div>

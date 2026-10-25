@@ -9,7 +9,8 @@ export function spayd(p: { iban: string; amount: Minor; currency: string; vs?: s
     `AM:${toMajor(p.amount).toFixed(2)}`,
     `CC:${p.currency}`,
   ]
-  if (p.vs) parts.push(`X-VS:${p.vs.replace(/\D/g, '').slice(0, 10)}`)
+  const vs = p.vs?.replace(/\D/g, '').slice(0, 10)
+  if (vs) parts.push(`X-VS:${vs}`) // an empty field would make some banking apps reject the code
   if (p.dueDate) parts.push(`DT:${p.dueDate.replace(/-/g, '')}`)
   if (p.message) parts.push(`MSG:${clean(p.message).slice(0, 60)}`)
   return parts.join('*')

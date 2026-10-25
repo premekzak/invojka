@@ -46,6 +46,7 @@
     "@types/react-dom": "^19.3.0",
     "@types/wicg-file-system-access": "^2023.10.7",
     "@vitejs/plugin-react": "^6.1.1",
+    "fast-check": "^4.10.2",
     "tailwindcss": "^4.3.3",
     "typescript": "^7.0.2",
     "vite": "^8.3.1",

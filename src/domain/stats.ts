@@ -1,5 +1,6 @@
 import { differenceInCalendarDays, parseISO } from 'date-fns'
 import { displayStatus, dueCzk, invoiceTotals, totalCzk } from './invoice'
+import { mulRound } from './money'
 import type { Invoice } from './schema'
 
 /**
@@ -88,13 +89,33 @@ export function customerStats(invoices: Invoice[]): Map<string, CustomerStats> {
   return stats
 }
 
+/**
+ * What each issued invoice still waits for, in CZK: what's due, less its issued credit notes, since the customer pays
+ * only the difference (never below zero). A credit note for a paid invoice is a refund the supplier owes, so it lowers
+ * nothing here; a written-off invoice waits for nothing. Undefined when the invoice has no exchange rate: it waits,
+ * but adds 0 to the sums, as everywhere.
+ */
+function stillDue(invoices: Invoice[]): Map<string, number | undefined> {
+  const credits = new Map<string, number>()
+  for (const c of invoices) {
+    if (c.kind === 'creditNote' && c.status === 'issued' && c.correctsId) credits.set(c.correctsId, (credits.get(c.correctsId) ?? 0) + (dueCzk(c) ?? 0))
+  }
+  const due = new Map<string, number | undefined>()
+  for (const inv of invoices) {
+    if (inv.kind === 'creditNote' || !counts(inv) || inv.status !== 'issued' || inv.uncollectible) continue
+    const czk = dueCzk(inv)
+    due.set(inv.id, czk === undefined ? undefined : Math.max(0, czk + (credits.get(inv.id) ?? 0)))
+  }
+  return due
+}
+
 export interface HomeStats {
   /** This year's revenue so far and the same period of last year, CZK minor units. */
   revenue: number
   revenueLast: number
   /** Invoices only; credit notes count in `revenue` but not here. */
   countThisYear: number
-  /** Issued and unpaid, of which overdue. */
+  /** Issued and unpaid, of which overdue, less issued credit notes for them (see `stillDue`). */
   outstanding: number
   overdueSum: number
   overdueCount: number
@@ -109,17 +130,19 @@ export function homeStats(invoices: Invoice[], on: string): HomeStats {
   const sameDayLastYear = `${lastYear}${on.slice(4)}`
   const s: HomeStats = { revenue: 0, revenueLast: 0, countThisYear: 0, outstanding: 0, overdueSum: 0, overdueCount: 0, missingRate: { count: 0, currencies: [] } }
   const currencies = new Set<string>()
+  const due = stillDue(invoices)
   for (const inv of invoices) {
     if (!counts(inv)) continue
     const czk = totalCzk(inv) ?? 0
     if (totalCzk(inv) === undefined) { s.missingRate.count++; currencies.add(inv.currency) }
     if (inv.issueDate.startsWith(`${year}-`)) { s.revenue += czk; if (inv.kind !== 'creditNote') s.countThisYear++ }
     if (inv.issueDate.startsWith(`${lastYear}-`) && inv.issueDate <= sameDayLastYear) s.revenueLast += czk
-    if (inv.status === 'issued' && !inv.uncollectible) {
-      // A final invoice waits only for what the advance didn't cover; a written-off one waits for nothing.
-      const due = dueCzk(inv) ?? 0
-      s.outstanding += due
-      if (displayStatus(inv, on) === 'overdue') { s.overdueSum += due; s.overdueCount++ }
+    // A final invoice waits only for what the advance didn't cover.
+    if (due.has(inv.id)) {
+      const open = due.get(inv.id)
+      s.outstanding += open ?? 0
+      // Credited in full, it waits for nothing, so it's no overdue task either.
+      if (open !== 0 && displayStatus(inv, on) === 'overdue') { s.overdueSum += open ?? 0; s.overdueCount++ }
     }
   }
   s.missingRate.currencies = [...currencies].sort()
@@ -138,7 +161,7 @@ export type StatsGrain = 'month' | 'quarter'
 /** Money received for a paid document, in CZK: what was paid, so a final invoice adds only its balance. */
 function receivedCzk(inv: Invoice): number | undefined {
   const paid = inv.paidAmount ?? invoiceTotals(inv).total - (inv.advanceAmount ?? 0)
-  return inv.currency === 'CZK' ? paid : inv.exchangeRate ? Math.round(paid * inv.exchangeRate) : undefined
+  return inv.currency === 'CZK' ? paid : inv.exchangeRate ? mulRound(paid, inv.exchangeRate) : undefined
 }
 
 /** The documents counted on each basis, with their date and CZK amount (undefined without a rate). */
@@ -212,14 +235,15 @@ export function topCustomers(invoices: Invoice[], year: number, basis: StatsBasi
 
 export interface Debtor { customerId: string | null; name: string; overdue: number; count: number; oldestDays: number }
 
-/** Customers with overdue invoices as of `on`, the most owed first (CZK minor units of what's still due). */
+/** Customers with overdue invoices as of `on`, the most owed first (CZK minor units of what's still due, as on Home). */
 export function debtors(invoices: Invoice[], on: string): Debtor[] {
   const by = new Map<string, Debtor>()
+  const due = stillDue(invoices)
   for (const inv of invoices) {
-    if (displayStatus(inv, on) !== 'overdue' || inv.kind === 'proforma') continue
+    if (!due.has(inv.id) || due.get(inv.id) === 0 || displayStatus(inv, on) !== 'overdue') continue
     const key = inv.customerId ?? inv.customerSnapshot.name
     const d = by.get(key) ?? { customerId: inv.customerId, name: inv.customerSnapshot.name, overdue: 0, count: 0, oldestDays: 0 }
-    d.overdue += dueCzk(inv) ?? 0
+    d.overdue += due.get(inv.id) ?? 0
     d.count++
     d.oldestDays = Math.max(d.oldestDays, differenceInCalendarDays(parseISO(on), parseISO(inv.dueDate)))
     by.set(key, d)

@@ -33,7 +33,7 @@ export const daysOverdue = (inv: Invoice, on = today()) => differenceInCalendarD
 
 /** An amount of the invoice's currency in CZK: as is, or via the stored exchange rate (undefined if missing). */
 const inCzk = (inv: Invoice, amount: number) =>
-  inv.currency === 'CZK' ? amount : inv.exchangeRate ? Math.round(amount * inv.exchangeRate) : undefined
+  inv.currency === 'CZK' ? amount : inv.exchangeRate ? mulRound(amount, inv.exchangeRate) : undefined
 
 /** Total in CZK for analytics: CZK as is, other currencies via the stored exchange rate (undefined if missing). */
 export const totalCzk = (inv: Invoice) => inCzk(inv, invoiceTotals(inv).total)
@@ -197,7 +197,7 @@ export function newCreditNote(settings: Settings, invoices: Invoice[], original:
     taxableSupplyDate: original.vatMode === 'payer' ? on : undefined,
     paidDate: undefined,
     paidAmount: undefined,
-    lines: original.lines.map((l) => ({ ...l, unitPrice: -l.unitPrice })),
+    lines: original.lines.map((l) => ({ ...l, unitPrice: -l.unitPrice || 0 })),
     recordedTotal: undefined,
     note: '',
     correctsId: original.id,
@@ -248,14 +248,20 @@ export function newAdvanceTaxDoc(settings: Settings, invoices: Invoice[], profor
   const subject = proforma.lines.map((l) => l.description.trim()).filter(Boolean).join('; ')
   const lang = proforma.language
   let left = received
-  const lines = totals.byRate.map((r, i) => {
-    // The last rate takes what's left after the others' base and VAT, so rounding can be off by a haléř at most there.
-    const gross = i === totals.byRate.length - 1 ? left : Math.round((received * r.total) / (totals.total || 1))
-    const unitPrice = netFromGross(gross, r.rate)
-    left -= unitPrice + mulRound(unitPrice, r.rate / 100)
-    const description = `${ADVANCE_RECEIVED[lang]}${subject ? ` – ${subject}` : ''}`
-    return { description, quantity: 1, unit: '', unitPrice, vatRate: r.rate }
-  })
+  // A rate with nothing on it gets no line, and the largest rate takes what's left after the others' base and VAT, so
+  // the haléř that rounding can leave over never makes a −0,01 Kč line.
+  const rates = totals.byRate.filter((r) => r.total !== 0)
+  const used = rates.length ? rates : totals.byRate.slice(0, 1)
+  const largest = used.reduce((b, r, i) => (r.total > used[b]!.total ? i : b), 0)
+  const description = `${ADVANCE_RECEIVED[lang]}${subject ? ` – ${subject}` : ''}`
+  const prices = new Array<number>(used.length)
+  for (const i of [...used.keys()].filter((i) => i !== largest).concat(largest)) {
+    const r = used[i]!
+    const gross = i === largest ? left : Math.round((received * r.total) / (totals.total || 1))
+    prices[i] = netFromGross(gross, r.rate)
+    left -= prices[i] + mulRound(prices[i], r.rate / 100)
+  }
+  const lines = used.map((r, i) => ({ description, quantity: 1, unit: '', unitPrice: prices[i]!, vatRate: r.rate }))
   return {
     ...proforma,
     id: newId(),
@@ -313,7 +319,7 @@ export function discountLines(inv: Invoice, percent: number, label: string): Inv
     if (base > 0) byRate.set(l.vatRate, (byRate.get(l.vatRate) ?? 0) + base)
   }
   return [...byRate.entries()].map(([vatRate, base]) => ({
-    description: `${label} ${percent} %`, quantity: 1, unit: '', unitPrice: -mulRound(base, percent / 100), vatRate,
+    description: `${label} ${percent} %`, quantity: 1, unit: '', unitPrice: -mulRound(base, percent / 100) || 0, vatRate,
   }))
 }
 

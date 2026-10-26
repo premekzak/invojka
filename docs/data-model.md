@@ -8,11 +8,18 @@ The data folder contains:
   customers.json    { schemaVersion, customers: Customer[] }
   invoices.json     { schemaVersion, invoices: Invoice[] }
   pdf/<year>/<number>.pdf   written when an invoice is issued, or with "Uložit do složky" (Save to folder)
+  AGENTS.md         a guide to these files for AI agents (see below)
 ```
 
 - The source of truth is `src/domain/schema.ts` (Zod). Types come from `z.infer`.
 - Files are pretty-printed JSON (2 spaces, trailing newline), so they're readable and diff well.
 - There's one file per type (the owner's choice). The consequences for syncing are covered in [architecture.md](architecture.md#storage).
+
+## AGENTS.md
+
+A guide for AI agents the user lets read the folder (an agent in Claude Code that looks after their finances, say). It is `AGENT_GUIDE` in `src/domain/agentGuide.ts`: the files, the units, the meaning of every field, and how Invojka computes totals, what's waiting, overdue, debtors and revenue, so an agent gets the same numbers as Home. It tells agents the folder is read only. Invojka writes it each time a set-up folder opens, only when the text differs, so syncing services see no change otherwise; a failed write is only logged. `agentGuide.test.ts` fails when a schema field isn't named in the guide, so **when you add or change a field or a rule in `stats.ts` or `vat.ts`, update the guide too.**
+
+The name `AGENTS.md` is the convention several agent tools look for. Read-only access has to be enforced in the agent's tool, and only the agent can set that up: the rule needs the folder's absolute path, which the browser never gives Invojka, and the folder is somewhere else for every user. So the guide asks the agent, on its first read, to offer the user a deny rule for the path it sees, and spells out the Claude Code form (`Edit(//c/Users/…/folder/**)` in `~/.claude/settings.json`; it covers every file-writing tool, not shell commands). Settings → Aplikace → "AI asistenti" copies an instruction for the user to paste to their assistant: the folder's name, read `AGENTS.md`, set up read-only.
 
 ## Invariants the code relies on
 

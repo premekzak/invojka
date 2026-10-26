@@ -1,4 +1,5 @@
 import type { z } from 'zod'
+import { AGENT_GUIDE, AGENT_GUIDE_FILE } from '@/domain/agentGuide'
 import { CustomersFile, FILES, InvoicesFile, SCHEMA_VERSION, Settings, type Customer, type Invoice } from '@/domain/schema'
 import { ConflictError, type StorageAdapter } from './adapter'
 
@@ -79,4 +80,9 @@ export async function saveFile(
     if (current !== expected) throw new ConflictError(file)
   }
   return adapter.write(file, serialize(key, data))
+}
+
+/** Keep AGENTS.md in the folder current for AI agents. Written only when it differs, so syncing services see no churn. */
+export async function writeAgentGuide(adapter: StorageAdapter) {
+  if ((await adapter.read(AGENT_GUIDE_FILE))?.text !== AGENT_GUIDE) await adapter.write(AGENT_GUIDE_FILE, AGENT_GUIDE)
 }

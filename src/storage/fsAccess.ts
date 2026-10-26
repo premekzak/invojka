@@ -146,6 +146,20 @@ export class FsAccessAdapter implements StorageAdapter {
     return (await this.dir.requestPermission({ mode: 'readwrite' })) === 'granted'
   }
 
+  /**
+   * False when the folder is gone from where it was picked (moved, renamed or deleted). The handle still opens and its
+   * files read as missing, so without this check a moved folder looked empty and started onboarding.
+   */
+  async exists(): Promise<boolean> {
+    try {
+      await this.dir.keys().next()
+      return true
+    } catch (e) {
+      if (e instanceof DOMException && e.name === 'NotFoundError') return false
+      throw e
+    }
+  }
+
   static forget() {
     return idb('readwrite', (s) => s.delete(KEY))
   }

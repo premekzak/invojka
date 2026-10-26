@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { SCHEMA_VERSION, Settings } from '@/domain/schema'
 import { MemoryAdapter } from '@/storage/memory'
 import { useStore } from './store'
@@ -26,6 +26,13 @@ describe('store', () => {
     expect(JSON.parse(a.files.get('customers.json')!.text).customers[0].name).toBe('Acme')
     await useStore.getState().reload()
     expect(useStore.getState().phase.kind).toBe('ready')
+    await vi.waitFor(() => expect(a.files.get('AGENTS.md')?.text).toContain('Read only'))
+  })
+
+  it('asks for a moved folder instead of starting onboarding in it', async () => {
+    const moved = Object.assign(new MemoryAdapter(), { exists: async () => false })
+    await useStore.getState().open(moved)
+    expect(useStore.getState().phase).toEqual({ kind: 'missingFolder', folder: moved.name })
   })
 
   it('never lets a slower folder load land on top of a newer one', async () => {

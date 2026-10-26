@@ -8,6 +8,8 @@ export interface StorageAdapter {
   write(file: string, text: string): Promise<number>
   lastModified(file: string): Promise<number | undefined>
   writeBinary(path: string, data: Blob): Promise<void>
+  /** False when the location is gone (a folder moved or deleted). Locations that can't go away leave it out. */
+  exists?(): Promise<boolean>
 }
 
 export class ConflictError extends Error {

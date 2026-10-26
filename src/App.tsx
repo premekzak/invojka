@@ -36,7 +36,7 @@ function useTheme() {
 
 export function App() {
   const { t } = useTranslation()
-  const { phase, open, reload, setPhase, settings } = useStore()
+  const { phase, open, reload, setPhase, settings, adapter } = useStore()
   const [remembered, setRemembered] = useState<FsAccessAdapter>()
   useTheme()
 
@@ -65,6 +65,8 @@ export function App() {
     case 'noFolder':
     case 'needsPermission':
       return <Welcome remembered={phase.kind === 'needsPermission' ? remembered : undefined} />
+    case 'missingFolder':
+      return <Welcome missing={adapter instanceof FsAccessAdapter ? adapter : undefined} />
     case 'onboarding':
       return <Onboarding />
     case 'error':

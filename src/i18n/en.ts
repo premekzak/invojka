@@ -15,6 +15,9 @@ const en: Messages = {
     reconnect: 'Open folder {{folder}}',
     reconnectHint: 'After a restart the browser needs you to confirm access to the folder again.',
     other: 'Choose another folder',
+    missing: 'The folder “{{folder}}” is no longer where it was. It may have been moved, renamed or deleted.',
+    findMoved: 'Choose the folder at its new place',
+    findMovedHint: 'In the window that opens, find your data folder and click “Select Folder”. If you only moved or renamed it, all your invoices are still in it.',
     unsupported: 'This browser cannot work with folders. Please open Invojka in Chrome or Edge.',
   },
   onboarding: {
@@ -39,6 +42,8 @@ const en: Messages = {
     finish: 'Finish', skipImport: 'Skip the import', listedTwice: 'listed more than once',
     start: 'How are you starting?',
     startHint: 'Invojka guides you through the next steps based on this. None of it is final; you can change everything in Settings.',
+    haveData: 'Already have Invojka data in another folder, say one you moved?',
+    pickExisting: 'Choose the data folder',
     sources: {
       new: 'I’m just starting to invoice', newHint: 'Fill in your details and you can issue your first invoice right away.',
       fakturoid: 'I’m moving from Fakturoid', fakturoidHint: 'Load invoices and customers from one file, and your details fill in by themselves.',
@@ -569,6 +574,11 @@ const en: Messages = {
     scheme: 'Colour scheme',
     schemes: { warm: 'Warm paper', tyrkys: 'Warm paper with teal', branicek: 'Braníček', modrotisk: 'Indigo print', praha: 'Prague at dusk', kolac: 'Kolache', inkoust: 'Ink', salvej: 'Sage', grafit: 'Graphite', med: 'Honey', malina: 'Raspberry', oliva: 'Olive', louka: 'Meadow', pristav: 'Harbour', jaro: 'Spring', zahrada: 'Garden', fjord: 'Fjord', terakota: 'Terracotta', mak: 'Poppy', visen: 'Cherry', jerabina: 'Rowan', jahoda: 'Strawberry', koral: 'Coral', paprika: 'Paprika', plamen: 'Flame' },
     folder: 'Data folder',
+    agents: 'AI assistants',
+    agentsHint: 'The AGENTS.md file in the data folder explains your data to an AI assistant (Claude Code, for example) and shows it how to set up read-only access. Copy the instruction and paste it to your assistant.',
+    agentsCopy: 'Copy the instruction',
+    agentsCopied: 'The instruction is on the clipboard.',
+    agentsPrompt: 'My invoices from Invojka are in the folder “{{folder}}”. If you don’t know exactly where it is, ask me. Before you start, read the AGENTS.md file in it and set up read-only access as it says. Never write anything into the folder.',
   },
   rates: {
     title: 'Exchange rates',

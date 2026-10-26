@@ -13,6 +13,9 @@ const cs = {
     reconnect: 'Otevřít složku {{folder}}',
     reconnectHint: 'Prohlížeč potřebuje po spuštění znovu potvrdit přístup ke složce.',
     other: 'Vybrat jinou složku',
+    missing: 'Složka „{{folder}}“ už není tam, kde byla. Možná jste ji přesunuli, přejmenovali nebo smazali.',
+    findMoved: 'Vybrat složku na novém místě',
+    findMovedHint: 'V okně, které se otevře, najděte složku s daty a klikněte na „Vybrat složku“. Jestli jste ji jen přesunuli nebo přejmenovali, jsou v ní všechny vaše faktury.',
     unsupported: 'Tento prohlížeč neumí pracovat se složkami. Otevřete Invojka v Chrome nebo Edge.',
   },
   onboarding: {
@@ -38,6 +41,8 @@ const cs = {
     // The first question decides the rest of the steps (src/features/onboarding/Onboarding.tsx).
     start: 'Jak začínáte?',
     startHint: 'Podle toho vás Invojka provede dalšími kroky. Nic z toho není napořád, vše se dá změnit v Nastavení.',
+    haveData: 'Už máte data z Invojky v jiné složce, třeba jste ji přesunuli?',
+    pickExisting: 'Vybrat složku s daty',
     sources: {
       new: 'Teprve začínám fakturovat', newHint: 'Vyplníte své údaje a hned můžete vystavit první fakturu.',
       fakturoid: 'Přecházím z Fakturoidu', fakturoidHint: 'Načtete faktury a odběratele z jednoho souboru a vaše údaje se vyplní samy.',
@@ -585,6 +590,11 @@ const cs = {
     scheme: 'Barevné schéma',
     schemes: { warm: 'Teplý papír', tyrkys: 'Teplý papír s tyrkysem', branicek: 'Braníček', modrotisk: 'Modrotisk', praha: 'Praha za soumraku', kolac: 'Koláč', inkoust: 'Inkoust', salvej: 'Šalvěj', grafit: 'Grafit', med: 'Med', malina: 'Malina', oliva: 'Oliva', louka: 'Louka', pristav: 'Přístav', jaro: 'Jaro', zahrada: 'Zahrada', fjord: 'Fjord', terakota: 'Terakota', mak: 'Mák', visen: 'Višeň', jerabina: 'Jeřabina', jahoda: 'Jahoda', koral: 'Korál', paprika: 'Paprika', plamen: 'Plamen' },
     folder: 'Složka s daty',
+    agents: 'AI asistenti',
+    agentsHint: 'Soubor AGENTS.md ve složce s daty vysvětlí AI asistentovi (třeba Claude Code) vaše data a navede ho, jak si nastavit přístup jen pro čtení. Zkopírujte pokyn a vložte ho asistentovi.',
+    agentsCopy: 'Zkopírovat pokyn',
+    agentsCopied: 'Pokyn je ve schránce.',
+    agentsPrompt: 'Moje faktury z Invojky jsou ve složce „{{folder}}“. Pokud nevíš, kde přesně je, zeptej se mě. Než začneš, přečti si v ní soubor AGENTS.md a podle něj si nastav přístup jen pro čtení. Do složky nikdy nic nezapisuj.',
   },
   rates: {
     title: 'Kurzy měn',

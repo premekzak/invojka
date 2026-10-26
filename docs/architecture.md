@@ -32,8 +32,8 @@ index.html ─► src/main.tsx ─► App (phase switch) ─► Layout + screens
    - If one is remembered and permission is still granted, the app opens it directly.
    - If one is remembered without permission, it goes to `needsPermission`, which shows one button: "Otevřít složku X" (Open folder X).
    - If none is remembered, it goes to `noFolder`, which shows "Vybrat složku s daty" (Choose data folder).
-2. After the folder opens, `loadAll()` reads the three files. Without `settings.json` the app goes to `onboarding`; with it, to `ready`.
-3. `onboarding` (3 steps): the user's details, VAT mode, optional CSV import. **Finish waits until the files are really on disk** (see the decision log, 2026-09-30).
+2. After the folder opens, `reload()` first asks `adapter.exists()`. A folder moved, renamed or deleted since it was picked still opens, but its files read as missing, so it would look empty; instead the app goes to `missingFolder`: the welcome screen says the folder is no longer where it was and offers "Vybrat složku na novém místě" (Choose the folder at its new place). The folder picked there replaces the old entry in the list of businesses. Otherwise `loadAll()` reads the three files. Without `settings.json` the app goes to `onboarding`; with it, to `ready`.
+3. `onboarding` (3 steps): the user's details, VAT mode, optional CSV import. Under the "Jak začínáte?" choices a link opens a folder that already has Invojka data instead (the onboarding folder, still empty, leaves the list). **Finish waits until the files are really on disk** (see the decision log, 2026-09-30).
 4. `ready`: hash-routed screens.
 5. `error`: a data file is invalid. The message names the file and the field path, e.g. `invoices.json: invoices.0.id: …`.
 

@@ -3,12 +3,13 @@ import { anonymize } from '@/domain/demo'
 import type { Customer, Invoice, Settings } from '@/domain/schema'
 import { ConflictError, type StorageAdapter } from '@/storage/adapter'
 import { MemoryAdapter } from '@/storage/memory'
-import { loadAll, saveFile, type FileKey, type Stamps } from '@/storage/repo'
+import { loadAll, saveFile, writeAgentGuide, type FileKey, type Stamps } from '@/storage/repo'
 
 export type Phase =
   | { kind: 'boot' }
   | { kind: 'noFolder' } // first launch or folder forgotten
   | { kind: 'needsPermission'; folder: string } // remembered folder, one click to reconnect
+  | { kind: 'missingFolder'; folder: string } // remembered folder moved, renamed or deleted: pick it at its new place
   | { kind: 'onboarding' } // folder chosen but no settings.json yet
   | { kind: 'ready' }
   | { kind: 'error'; message: string }
@@ -133,11 +134,18 @@ export const useStore = create<State>()((set, get) => {
       clearTimeout(timer)
       dirty.clear()
       try {
+        // A moved folder reads as empty, so without this it would start onboarding instead of asking where it went.
+        if (adapter.exists && !(await adapter.exists())) {
+          if (get().adapter === adapter) set({ phase: { kind: 'missingFolder', folder: adapter.name } })
+          return
+        }
         const data = await loadAll(adapter)
         // Another folder was opened while this one loaded (e.g. the remembered folder at start-up racing a newer open):
         // its data must not land on top of the newer folder, or edits would be saved into the wrong one.
         if (get().adapter !== adapter) return
         set({ ...data, saveState: 'saved', savedAt: undefined, conflictFile: undefined, phase: data.settings ? { kind: 'ready' } : { kind: 'onboarding' } })
+        // Not vital: a folder that refuses it still works, so a failure is only logged.
+        if (data.settings) writeAgentGuide(adapter).catch((e) => console.warn('AGENTS.md', e))
       } catch (e) {
         set({ phase: { kind: 'error', message: (e as Error).message } })
       }

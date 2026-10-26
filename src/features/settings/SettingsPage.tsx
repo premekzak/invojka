@@ -430,6 +430,7 @@ export function SettingsPage() {
                 options={SCHEMES.map((id) => [id, t(`settings.schemes.${id}`)])} />
             </SettingRow>
             <FolderRow />
+            <AgentsRow />
             <DemoToggle />
           </Card>
         </section>
@@ -462,6 +463,20 @@ function FolderRow() {
       {others.length > 0 && <span className="mt-1 block">{t('business.removeHint')}</span>}
       {error && <span className="mt-1 block font-medium text-danger">{error}</span>}</>}>
       {others.length > 0 && <Button className="w-full" variant="secondary" disabled={demo} onClick={() => void remove()}>{t('business.remove')}</Button>}
+    </SettingRow>
+  )
+}
+
+/** An instruction for the user's AI assistant: read AGENTS.md (written into the folder) and block its own writes there. */
+function AgentsRow() {
+  const { t } = useTranslation()
+  const adapter = useStore((s) => s.adapter)
+  const [copied, setCopied] = useState(false)
+  const copy = () => void navigator.clipboard.writeText(t('settings.agentsPrompt', { folder: adapter?.name })).then(() => setCopied(true), () => setCopied(false))
+  return (
+    <SettingRow title={t('settings.agents')} hint={<>{t('settings.agentsHint')}
+      {copied && <span className="mt-1 block font-medium text-success">{t('settings.agentsCopied')}</span>}</>}>
+      <Button className="w-full" variant="secondary" onClick={copy}>{t('settings.agentsCopy')}</Button>
     </SettingRow>
   )
 }

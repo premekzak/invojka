@@ -52,7 +52,7 @@ Invoices with multiple lines, payers and non-payers, QR Platba, foreign currenci
 | Several users with roles, accountant login | No accounts | A shared synced folder; an export for the accountant |
 | Mobile apps | One HTML file for desktop Chrome and Edge | None for now; the website should say so honestly |
 | AI extraction of expense receipts | Would send documents to a service | Manual entry, if expenses are added at all |
-| API, webhooks, e-shop plugins, MCP | No server | The data is documented plain JSON, so scripts can read it directly |
+| API, webhooks, e-shop plugins, MCP | No server | The data is documented plain JSON, so scripts can read it directly; `AGENTS.md` in the folder explains it to AI agents (2026-10-26) |
 
 ## What Invojka could add (works locally)
 

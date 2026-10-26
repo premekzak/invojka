@@ -145,6 +145,18 @@ export function Onboarding() {
     await open(previous)
   }
 
+  // The user already has Invojka data elsewhere (a folder they moved, a wrong folder picked): open that one instead.
+  // This folder has nothing written yet, so it leaves the list of businesses.
+  async function pickExisting() {
+    try {
+      const picked = await FsAccessAdapter.pick()
+      if (adapter instanceof FsAccessAdapter && !(await picked.isSame(adapter))) await adapter.forgetFolder()
+      await open(picked)
+    } catch (e) {
+      if ((e as Error).name !== 'AbortError') throw e
+    }
+  }
+
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState<string>()
 
@@ -227,6 +239,14 @@ export function Onboarding() {
                     title={t(`onboarding.sources.${s}`)} hint={t(`onboarding.sources.${s}Hint`)} />
                 ))}
               </div>
+              {adapter instanceof FsAccessAdapter && (
+                <p className="text-sm text-fg-muted">
+                  {t('onboarding.haveData')}{' '}
+                  <button className="text-link underline underline-offset-2 decoration-line-strong hover:decoration-current" onClick={() => void pickExisting()}>
+                    {t('onboarding.pickExisting')}
+                  </button>
+                </p>
+              )}
             </div>
           )}
 

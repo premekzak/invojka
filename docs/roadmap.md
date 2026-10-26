@@ -51,6 +51,9 @@
 - [x] This year before Invojka without an import (2026-10-20): turnover and income as one figure each, for the VAT limit and the tax estimate
 - [x] First-steps checklist on Home after onboarding (2026-10-20): first customer → first invoice → logo and stamp → bookmark
 - [x] Import from Settings too (2026-10-20): adding history later, or a second export, without duplicates
+- [x] **A moved data folder is found again** (2026-10-26): a "pick it at its new place" screen instead of onboarding, and a "Vybrat složku s daty" link on onboarding's first step
+- [x] **AI agents read the data folder** (2026-10-26): Invojka writes `AGENTS.md` (the data, the rules behind Home's numbers, read only), the agent sets up its own write block for the folder, and Settings → Aplikace → "AI asistenti" copies the instruction to give it
+- [ ] Agents proposing changes (a proposals folder the user confirms in the app), if the owner ever needs agents to write
 - [ ] Show the app's version (e.g. in Settings), so a user can tell whether their file is the newest
 - [ ] Download page with step-by-step instructions per system and browser; test it with someone who has never seen the app
 - [ ] Remove anything owner-specific that a stranger would trip over (the CSV import is built for the previous service's export)

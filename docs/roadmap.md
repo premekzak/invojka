@@ -27,6 +27,8 @@
 - [x] More businesses: one folder each, a switcher in the header (2026-10-17)
 - [x] Bricolage Grotesque headings, rust warnings, primary-button gradient (2026-10-17)
 - [x] Theme "Warm paper" (2026-10-17): peach band (first a sidebar), cream page, espresso text, blue actions and charts, an orange logo, rust warnings, crimson errors, green success; designed dark mode
+- [x] Revenue charts on each customer: by month against the year before and by year, with a link to their statistics (2026-10-26)
+- [x] Colour schemes: Warm paper, the Neon family (Neon, Grafit, Výboj, Křída, Ocel) and five schemes with gentle dark-to-darker gradients (Půlnoc, Les, Bordó, Uhel, Lilek) (2026-10-26)
 
 ## To verify with the owner
 

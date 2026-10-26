@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import type { Invoice } from '@/domain/schema'
 import { monthlyRevenue, yearlyRevenue } from '@/domain/stats'
 import { RunResult } from '@/features/rates/RatesPanel'
 import { useRates } from '@/features/rates/useRates'
@@ -8,10 +9,12 @@ import { BarChart } from '@/ui/BarChart'
 import { useFormat } from '@/ui/format'
 import { Card } from '@/ui/primitives'
 
-export function RevenueCharts({ today }: { today: string }) {
+/** Revenue by month (against the year before) and by year. `invoices` narrows it, e.g. to one customer; the default is all of them. */
+export function RevenueCharts({ today, invoices: only }: { today: string; invoices?: Invoice[] }) {
   const { t } = useTranslation()
   const f = useFormat()
-  const invoices = useStore((s) => s.invoices)
+  const all = useStore((s) => s.invoices)
+  const invoices = only ?? all
   const year = Number(today.slice(0, 4))
   const month = Number(today.slice(5, 7)) - 1
 
@@ -32,6 +35,9 @@ export function RevenueCharts({ today }: { today: string }) {
   // Months after the current one haven't happened yet: no bar rather than a misleading zero.
   const current = thisYear.values.map((v, i) => (i <= month ? v : null))
 
+  // A customer billed only in earlier years would get an empty month chart: show the years alone, full width.
+  const recent = current.some((v) => v) || lastYear.values.some((v) => v)
+
   const pct = (a: number, b: number) => {
     if (!b) return undefined
     const p = Math.round(((a - b) / b) * 100)
@@ -42,7 +48,7 @@ export function RevenueCharts({ today }: { today: string }) {
   const rates = useRates()
   return (
     <div className="grid grid-cols-5 gap-x-6 gap-y-4 mobile-stack">
-      <section className="col-span-3">
+      {recent && <section className="col-span-3">
         <h2 className="mb-3 font-display text-2xl font-bold">{t('home.byMonth')}</h2>
         <Card className="px-6 py-5">
           <BarChart
@@ -62,8 +68,8 @@ export function RevenueCharts({ today }: { today: string }) {
             chartLabel={t('home.chart')}
           />
         </Card>
-      </section>
-      <section className="col-span-2">
+      </section>}
+      <section className={recent ? 'col-span-2' : 'col-span-5'}>
         <h2 className="mb-3 font-display text-2xl font-bold">{t('home.byYear')}</h2>
         <Card className="px-6 py-5">
           <BarChart

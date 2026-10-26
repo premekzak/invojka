@@ -10,6 +10,7 @@ import { CURRENCIES } from '@/domain/money'
 import type { Customer } from '@/domain/schema'
 import { customerStats, emptyCustomerStats, type CustomerStats } from '@/domain/stats'
 import { useStore } from '@/state/store'
+import { RevenueCharts } from '@/features/home/RevenueCharts'
 import { StatusBadge, useFormat } from '@/ui/format'
 import { Button, Card, Checkbox, cn, Field, Labeled, Select, Textarea } from '@/ui/primitives'
 import { navigate, type Route } from '@/ui/router'
@@ -235,6 +236,14 @@ function CustomerForm({ initial, isNew }: { initial: Customer; isNew: boolean })
           </div>
         </section>
       </div>
+
+      {/* The Home charts narrowed to this customer; the statistics page has the tables, quarters and CSV. */}
+      {saved && stats.count > 0 && (
+        <div className="space-y-3 pt-4">
+          <RevenueCharts today={today()} invoices={mine} />
+          <a href={`#/stats?customer=${encodeURIComponent(c.id)}`} className="inline-block text-sm font-medium text-link underline underline-offset-2 decoration-line-strong hover:decoration-current">{t('customers.moreStats')}</a>
+        </div>
+      )}
     </div>
   )
 }

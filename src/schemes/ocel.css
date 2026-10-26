@@ -1,0 +1,38 @@
+/* Colour scheme "Ocel" (Steel, 2026-10-22, the Neon family: one neon lime, one black, the variants differ in
+   the share of each and in the greys). Shares: the shares of Neon, every grey cool. Here: Neon's shares with cool greys: the whole ramp, the ink and the chrome are blue-grey steel (hue 250, C 0.022; chrome L 0.30, C 0.05); neon on the tile, the buttons and last year's bars; this year steel. Dark mode: near-black greys and neon fills; Grafit
+   keeps lighter grey steps, Křída stays flat (page = cards), Výboj keeps its neon header. Status chips stay pale; status texts share one lightness and reach 4.6:1 on their chips. Every pair
+   computed in light and dark (generator outside the repo). Active when <html data-scheme="ocel">. */
+@layer base {
+  :root[data-scheme="ocel"] {
+      --paper: #e5f2ff; --card: #ffffff; --hover: #f0f7ff; --fill: #e4f0fd; --rule: #d7e3f0; --line: #c5d1de; --field: #eff7ff; --edge: #728294; --mid: #4a5969; --ink: #020c18;
+      --tint: #eef8e2; --track: #d0dce9;
+      --on-ink: #ffffff;
+      --red: #b32e2f; --on-red: #ffffff; --red-chip: #ffe4e1; --green: #007956; --green-chip: #daf2e6;
+      --blue: #b5f745; --on-blue: #020c18; --blue-deep: #9dea3e;
+      --link: #307609;
+      --chart-1: #233a51; --chart-2: #b5f745;
+      --cat-1: #192f46; --cat-2: #798898; --cat-3: #b5f745;
+      --rust: #90570c; --rust-chip: #fae8d7;
+      --orange: #b5f745; --logo: #b5f745; --on-logo: #020c18; --logo-dot: #020c18;
+      --peach: #192f46; --on-peach: #ffffff; --on-peach-muted: #b3bfcc;
+      --color-header-active: #e5f2ff; --scheme-header-hover: #354c64;
+      --color-footer: #192f46; --color-footer-deep: #19222c; --color-footer-fg: #ffffff; --color-footer-muted: #adb9c5;
+      --scheme-tile-fg: #020c18; --scheme-tile-image: linear-gradient(#b5f745, #b5f745); --scheme-tile-image-hover: linear-gradient(#9dea3e, #9dea3e);
+  }
+  :root.dark[data-scheme="ocel"] {
+      --paper: #040a12; --card: #0c151d; --hover: #111922; --fill: #161f28; --rule: #1c252e; --line: #28313b; --field: #131b25; --edge: #596979; --mid: #96a7b9; --ink: #ecf3f9;
+      --tint: #1b2212; --track: #2a343e;
+      --on-ink: #040a12;
+      --red: #d86d66; --on-red: #090e14; --red-chip: #391d1b; --green: #52a483; --green-chip: #0d2d21;
+      --blue: #b5f745; --on-blue: #020c18; --blue-deep: #9dea3e;
+      --link: #b5f745;
+      --chart-1: #b5f745; --chart-2: #4c5661;
+      --cat-1: #b5f745; --cat-2: #7c8793; --cat-3: #3f4953;
+      --rust: #b78656; --rust-chip: #35220c;
+      --orange: #b5f745; --logo: #b5f745; --on-logo: #020c18; --logo-dot: #020c18;
+      --peach: #010409; --on-peach: #ffffff; --on-peach-muted: #b3bfcc;
+      --color-header-active: #040a12; --scheme-header-hover: #051a2f;
+      --color-footer: #010409; --color-footer-deep: #000102; --color-footer-fg: #ffffff; --color-footer-muted: #adb9c5;
+      --scheme-tile-fg: #020c18; --scheme-tile-image: linear-gradient(#b5f745, #b5f745); --scheme-tile-image-hover: linear-gradient(#9dea3e, #9dea3e);
+  }
+}

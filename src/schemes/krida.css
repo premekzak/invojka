@@ -1,0 +1,39 @@
+/* Colour scheme "Křída" (Chalk, 2026-10-22, the Neon family: one neon lime, one black, the variants differ in
+   the share of each and in the greys). Shares: about 90 % white, black only as type and hairlines, neon under 3 %. Here: almost all white: a white page and white cards parted by their ring (L 0.86), a white header ruled off by a 2 px ink line, inputs white; a black footer; neon only on the buttons and the tile; charts black and light grey, the donut black, grey and neon. Dark mode: near-black greys and neon fills; Grafit
+   keeps lighter grey steps, Křída stays flat (page = cards), Výboj keeps its neon header. Status chips stay pale; status texts share one lightness and reach 4.6:1 on their chips. Every pair
+   computed in light and dark (generator outside the repo). Active when <html data-scheme="krida">. */
+@layer base {
+  :root[data-scheme="krida"] {
+      --paper: #ffffff; --card: #ffffff; --hover: #f7f7f7; --fill: #f3f3f3; --rule: #d1d1d1; --line: #cacaca; --field: #ffffff; --edge: #808080; --mid: #545454; --ink: #0b0b0b;
+      --tint: #f3f3f3; --track: #e8e8e8;
+      --on-ink: #ffffff;
+      --red: #b32e2f; --on-red: #ffffff; --red-chip: #ffe4e1; --green: #007956; --green-chip: #daf2e6;
+      --blue: #b5f745; --on-blue: #0b0b0b; --blue-deep: #9dea3e;
+      --link: #307609;
+      --chart-1: #121212; --chart-2: #d1d1d1;
+      --cat-1: #121212; --cat-2: #868686; --cat-3: #b5f745;
+      --rust: #90570c; --rust-chip: #fae8d7;
+      --orange: #b5f745; --logo: #0b0b0b; --on-logo: #ffffff; --logo-dot: #b5f745;
+      --peach: #ffffff; --on-peach: #0b0b0b; --on-peach-muted: #555555;
+      --color-header-active: #ffffff; --scheme-header-hover: #eeeeee;
+      --color-footer: #0b0b0b; --color-footer-deep: #030303; --color-footer-fg: #ffffff; --color-footer-muted: #b7b7b7;
+      --scheme-tile-fg: #0b0b0b; --scheme-tile-image: linear-gradient(#b5f745, #b5f745); --scheme-tile-image-hover: linear-gradient(#9dea3e, #9dea3e);
+      --scheme-header-image: linear-gradient(to top, #0b0b0b 0 2px, transparent 2px); --scheme-tab-edge: inset 2px 0 0 #0b0b0b, inset -2px 0 0 #0b0b0b, inset 0 2px 0 #0b0b0b;
+  }
+  :root.dark[data-scheme="krida"] {
+      --paper: #070707; --card: #070707; --hover: #0f0f0f; --fill: #141414; --rule: #2e2e2e; --line: #353535; --field: #070707; --edge: #636363; --mid: #a4a4a4; --ink: #f2f2f2;
+      --tint: #1b2212; --track: #222222;
+      --on-ink: #070707;
+      --red: #d86d66; --on-red: #0e0e0e; --red-chip: #391d1b; --green: #52a483; --green-chip: #0d2d21;
+      --blue: #b5f745; --on-blue: #0b0b0b; --blue-deep: #9dea3e;
+      --link: #b5f745;
+      --chart-1: #b5f745; --chart-2: #555555;
+      --cat-1: #b5f745; --cat-2: #868686; --cat-3: #484848;
+      --rust: #b78656; --rust-chip: #35220c;
+      --orange: #b5f745; --logo: #b5f745; --on-logo: #0b0b0b; --logo-dot: #0b0b0b;
+      --peach: #030303; --on-peach: #ffffff; --on-peach-muted: #bebebe;
+      --color-header-active: #070707; --scheme-header-hover: #181818;
+      --color-footer: #030303; --color-footer-deep: #000000; --color-footer-fg: #ffffff; --color-footer-muted: #b7b7b7;
+      --scheme-tile-fg: #0b0b0b; --scheme-tile-image: linear-gradient(#b5f745, #b5f745); --scheme-tile-image-hover: linear-gradient(#9dea3e, #9dea3e);
+  }
+}

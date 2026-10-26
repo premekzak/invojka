@@ -32,6 +32,6 @@ describe('a saved scheme that no longer exists', () => {
     const ui = (s: unknown) => Settings.shape.ui.parse(s)
     expect(ui({ scheme: 'removed-scheme' }).scheme).toBe('warm')
     expect(ui({}).scheme).toBe('warm')
-    expect(ui({ scheme: 'tyrkys' }).scheme).toBe('tyrkys')
+    expect(ui({ scheme: 'neon' }).scheme).toBe('neon')
   })
 })

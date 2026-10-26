@@ -1,0 +1,38 @@
+/* Colour scheme "Les" (Forest, 2026-10-26, the dark-gradient round: gradients only from dark to darker and gentle (0.03 L), the owner:
+   "Používej gradienty, ale jen z tmavé do ještě tmavší. Světlé gradienty nejsou hezké."). A forest band (header and footer, L 0.33 falling 0.03) and one amber fill with forest text: the tile, the
+   buttons, the logo; a warm off-white page, forest ink. Charts forest this year, pale amber last year.
+   Every pair computed in light and dark (generator outside the repo). Active when <html data-scheme="les">. */
+@layer base {
+  :root[data-scheme="les"] {
+      --paper: #eff1eb; --card: #ffffff; --hover: #f8faf4; --fill: #f2f3ed; --rule: #e5e7e1; --line: #d3d5cf; --field: #f8faf4; --edge: #7f8277; --mid: #585b4f; --ink: #0e2216;
+      --tint: #f2f5e8; --track: #d7dcca;
+      --on-ink: #ffffff;
+      --red: #b32e2f; --on-red: #ffffff; --red-chip: #ffe4e1; --green: #007956; --green-chip: #daf2e6;
+      --blue: #fac547; --on-blue: #052616; --blue-deep: #f9b227;
+      --link: #1f6b41;
+      --chart-1: #215339; --chart-2: #f3d489;
+      --cat-1: #153f29; --cat-2: #709169; --cat-3: #fac547;
+      --rust: #90570c; --rust-chip: #fae8d7;
+      --orange: #fac547; --logo: #fac547; --on-logo: #052616; --logo-dot: #052616;
+      --peach: #153f29; --on-peach: #ffffff; --on-peach-muted: #bbd1c3;
+      --color-header-active: #eff1eb; --scheme-header-hover: #29523b; --scheme-header-image: linear-gradient(#153f29, #0f3722);
+      --color-footer: #0b311e; --color-footer-deep: #052918; --color-footer-fg: #ffffff; --color-footer-muted: #b7caba;
+      --scheme-tile-fg: #052616; --scheme-tile-image: linear-gradient(#fac547, #fac547); --scheme-tile-image-hover: linear-gradient(#f9b227, #f9b227);
+  }
+  :root.dark[data-scheme="les"] {
+      --paper: #0e0f0b; --card: #171814; --hover: #1b1c18; --fill: #20211d; --rule: #232520; --line: #2d2e2a; --field: #1c1d19; --edge: #73766c; --mid: #afb3a8; --ink: #edf0e7;
+      --tint: #202318; --track: #313429;
+      --on-ink: #0e0f0b;
+      --red: #d86d66; --on-red: #0e0e0e; --red-chip: #391d1b; --green: #52a483; --green-chip: #0d2d21;
+      --blue: #f4c352; --on-blue: #012111; --blue-deep: #f2b036;
+      --link: #eec55e;
+      --chart-1: #eebc4a; --chart-2: #2e5740;
+      --cat-1: #f4c352; --cat-2: #709169; --cat-3: #2e5740;
+      --rust: #b78656; --rust-chip: #35220c;
+      --orange: #f4c352; --logo: #f4c352; --on-logo: #012111; --logo-dot: #012111;
+      --peach: #032617; --on-peach: #ffffff; --on-peach-muted: #bbd1c4;
+      --color-header-active: #0e0f0b; --scheme-header-hover: #163827; --scheme-header-image: linear-gradient(#032617, #001e11);
+      --color-footer: #01190d; --color-footer-deep: #001208; --color-footer-fg: #ffffff; --color-footer-muted: #b1c4b4;
+      --scheme-tile-fg: #012111; --scheme-tile-image: linear-gradient(#f4c352, #f4c352); --scheme-tile-image-hover: linear-gradient(#f2b036, #f2b036);
+  }
+}

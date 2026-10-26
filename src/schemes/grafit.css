@@ -1,36 +1,38 @@
-/* Colour scheme "Grafit" (Graphite, 2026-10-20): almost colourless neutrals with a faint violet cast (hue 282, about C 0.005),
-   a dark graphite header (L 0.265, C 0.014: dark but still muted) and one indigo-violet accent (hue 284). The most contrast of
-   the three, in the spirit of Linear's "base, accent, contrast". Built like Inkoust (see there); the dark header has its own
-   pill, the page colour. Active when <html data-scheme="grafit">. */
+/* Colour scheme "Grafit" (Graphite, 2026-10-22, the Neon family: one neon lime, one black, the variants differ in
+   the share of each and in the greys). Shares: about 60 % greys in many steps, 25 % graphite, 15 % white, a neon accent under 2 %. Here: the greys carry it: a mid-grey page (L 0.91), white cards, a deep ramp (table headers 0.94, dividers 0.89, lines 0.82, track 0.85); a graphite header, footer and tile (L 0.3) with a neon headline on the tile; neon only on the buttons and the logo; the charts in greys only, the donut graphite, mid grey and neon. Dark mode: near-black greys and neon fills; Grafit
+   keeps lighter grey steps, Křída stays flat (page = cards), Výboj keeps its neon header. Status chips stay pale; status texts share one lightness and reach 4.6:1 on their chips. Every pair
+   computed in light and dark (generator outside the repo). Active when <html data-scheme="grafit">. */
 @layer base {
   :root[data-scheme="grafit"] {
-      --paper: #efeff3; --card: #ffffff; --hover: #f6f6f9; --fill: #eff0f4; --rule: #e7e7eb; --line: #d8d8de; --field: #f5f5f7; --edge: #87878e; --mid: #5c5d64; --ink: #25252e;
-      --tint: #f3f4ff; --track: #dcdef0;
+      --paper: #e1e1e1; --card: #ffffff; --hover: #f3f3f3; --fill: #ebebeb; --rule: #dbdbdb; --line: #c4c4c4; --field: #f3f3f3; --edge: #808080; --mid: #505050; --ink: #0b0b0b;
+      --tint: #eeeeee; --track: #cecece;
       --on-ink: #ffffff;
-      --red: #b7162d; --on-red: #ffffff; --red-chip: #ffe2e0; --green: #137738; --green-chip: #deefe1;
-      --blue: #7160ea; --on-blue: #ffffff; --blue-deep: #6452d3;
-      --link: #6754dd;
-      --chart-1: #8676f2; --chart-2: #d7d7f8;
-      --cat-1: #4a3b96; --cat-2: #8676f2; --cat-3: #b8b5fb;
-      --rust: #815c0a; --rust-chip: #fbe7c5;
-      --orange: #a492fb; --logo: #f1f1f7; --on-logo: #24242c; --logo-dot: #a492fb;
-      --peach: #24242c; --on-peach: #f1f1f7; --on-peach-muted: #b6b7bf;
-      --color-header-active: #efeff3;
-      --color-footer: #1d1d24; --color-footer-deep: #15151b; --color-footer-fg: #e9eaf5; --color-footer-muted: #babcd1;
+      --red: #b32e2f; --on-red: #ffffff; --red-chip: #ffe4e1; --green: #007150; --green-chip: #daf2e6;
+      --blue: #b5f745; --on-blue: #0b0b0b; --blue-deep: #9dea3e;
+      --link: #2b7100;
+      --chart-1: #333333; --chart-2: #bebebe;
+      --cat-1: #2e2e2e; --cat-2: #868686; --cat-3: #b5f745;
+      --rust: #8e5609; --rust-chip: #fae8d7;
+      --orange: #b5f745; --logo: #b5f745; --on-logo: #0b0b0b; --logo-dot: #0b0b0b;
+      --peach: #2e2e2e; --on-peach: #ffffff; --on-peach-muted: #bebebe;
+      --color-header-active: #e1e1e1; --scheme-header-hover: #4b4b4b;
+      --color-footer: #2e2e2e; --color-footer-deep: #222222; --color-footer-fg: #ffffff; --color-footer-muted: #b7b7b7;
+      --scheme-tile-fg: #b5f745; --scheme-tile-image: linear-gradient(#2e2e2e, #2e2e2e); --scheme-tile-image-hover: linear-gradient(#4d4d4d, #4d4d4d);
   }
   :root.dark[data-scheme="grafit"] {
-      --paper: #0e0e10; --card: #151517; --hover: #181819; --fill: #1e1e20; --rule: #232325; --line: #2d2d30; --field: #1a1a1b; --edge: #66666d; --mid: #a9aab2; --ink: #eaeaf2;
-      --tint: #1f1f2b; --track: #2e2f3f;
-      --on-ink: #0e0e10;
-      --red: #e27170; --on-red: #0e0e10; --red-chip: #401d1c; --green: #63ab74; --green-chip: #15301b;
-      --blue: #9089f8; --on-blue: #0e0e10; --blue-deep: #847cea;
-      --link: #9089f8;
-      --chart-1: #8c80ee; --chart-2: #45416d;
-      --cat-1: #dedeff; --cat-2: #8c80ee; --cat-3: #595299;
-      --rust: #b9914b; --rust-chip: #362607;
-      --orange: #a492fb; --logo: #f1f1f7; --on-logo: #1b1b22; --logo-dot: #a492fb;
-      --peach: #1b1b22; --on-peach: #f1f1f7; --on-peach-muted: #b6b7bf;
-      --color-header-active: #0e0e10;
-      --color-footer: #1d1d24; --color-footer-deep: #15151b; --color-footer-fg: #e9eaf5; --color-footer-muted: #babcd1;
+      --paper: #161616; --card: #242424; --hover: #292929; --fill: #2e2e2e; --rule: #353535; --line: #424242; --field: #2b2b2b; --edge: #757575; --mid: #b0b0b0; --ink: #f2f2f2;
+      --tint: #1b2212; --track: #424242;
+      --on-ink: #161616;
+      --red: #e37770; --on-red: #0e0e0e; --red-chip: #391d1b; --green: #54a684; --green-chip: #0d2d21;
+      --blue: #b5f745; --on-blue: #0b0b0b; --blue-deep: #9dea3e;
+      --link: #b5f745;
+      --chart-1: #b5f745; --chart-2: #555555;
+      --cat-1: #b5f745; --cat-2: #868686; --cat-3: #484848;
+      --rust: #be8d5d; --rust-chip: #35220c;
+      --orange: #b5f745; --logo: #b5f745; --on-logo: #0b0b0b; --logo-dot: #0b0b0b;
+      --peach: #030303; --on-peach: #ffffff; --on-peach-muted: #bebebe;
+      --color-header-active: #161616; --scheme-header-hover: #181818;
+      --color-footer: #030303; --color-footer-deep: #000000; --color-footer-fg: #ffffff; --color-footer-muted: #b7b7b7;
+      --scheme-tile-fg: #0b0b0b; --scheme-tile-image: linear-gradient(#b5f745, #b5f745); --scheme-tile-image-hover: linear-gradient(#9dea3e, #9dea3e);
   }
 }

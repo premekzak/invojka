@@ -1,0 +1,39 @@
+/* Colour scheme "Uhel" (Charcoal, 2026-10-26, the dark-gradient round: gradients only from dark to darker and gentle (0.03 L), the owner:
+   "Používej gradienty, ale jen z tmavé do ještě tmavší. Světlé gradienty nejsou hezké."). A deep warm-grey page (L 0.905) under white cards, so tables read by grey bands; warm charcoal chrome (header,
+   footer, tile; L 0.30 falling 0.03) with near-neutral ink; one mandarin fill with black text (buttons, the tile's text,
+   the logo). Charts charcoal this year, mandarin last year.
+   Every pair computed in light and dark (generator outside the repo). Active when <html data-scheme="uhel">. */
+@layer base {
+  :root[data-scheme="uhel"] {
+      --paper: #e3dfdc; --card: #ffffff; --hover: #fcf8f5; --fill: #f6f2ee; --rule: #e9e5e2; --line: #d7d3d0; --field: #fcf8f5; --edge: #867f79; --mid: #635a54; --ink: #191512;
+      --tint: #faf2eb; --track: #e2d7ce;
+      --on-ink: #ffffff;
+      --red: #b32e2f; --on-red: #ffffff; --red-chip: #ffe4e1; --green: #007956; --green-chip: #daf2e6;
+      --blue: #fd923e; --on-blue: #130e0b; --blue-deep: #f67f2f;
+      --link: #9d4616;
+      --chart-1: #3a3430; --chart-2: #f99f55;
+      --cat-1: #332c28; --cat-2: #857f7b; --cat-3: #fd923e;
+      --rust: #86500a; --rust-chip: #fae8d7;
+      --orange: #fd923e; --logo: #fd923e; --on-logo: #130e0b; --logo-dot: #130e0b;
+      --peach: #332c28; --on-peach: #ffffff; --on-peach-muted: #dbc6b8;
+      --color-header-active: #e3dfdc; --scheme-header-hover: #453e3a; --scheme-header-image: linear-gradient(#332c28, #2b2521);
+      --color-footer: #29231f; --color-footer-deep: #221c18; --color-footer-fg: #ffffff; --color-footer-muted: #c3bcb8;
+      --scheme-tile-fg: #fe9d4a; --scheme-tile-image: linear-gradient(#332c28, #2b2521); --scheme-tile-image-hover: linear-gradient(#403934, #38312d);
+  }
+  :root.dark[data-scheme="uhel"] {
+      --paper: #100e0c; --card: #191714; --hover: #1e1b19; --fill: #23201e; --rule: #262321; --line: #302d2b; --field: #1f1c1a; --edge: #7a736e; --mid: #b7afaa; --ink: #f2eeea;
+      --tint: #27201a; --track: #39312b;
+      --on-ink: #181513;
+      --red: #d86d66; --on-red: #0e0e0e; --red-chip: #391d1b; --green: #52a483; --green-chip: #0d2d21;
+      --blue: #f99549; --on-blue: #130e0b; --blue-deep: #f2823b;
+      --link: #f5a15e;
+      --chart-1: #f99549; --chart-2: #5a5450;
+      --cat-1: #f99549; --cat-2: #857f7b; --cat-3: #524c48;
+      --rust: #b78656; --rust-chip: #35220c;
+      --orange: #f99549; --logo: #f99549; --on-logo: #130e0b; --logo-dot: #130e0b;
+      --peach: #1e1916; --on-peach: #ffffff; --on-peach-muted: #dbc6b8;
+      --color-header-active: #181513; --scheme-header-hover: #2f2a27; --scheme-header-image: linear-gradient(#1e1916, #171210);
+      --color-footer: #130e0b; --color-footer-deep: #0c0806; --color-footer-fg: #ffffff; --color-footer-muted: #c3bcb8;
+      --scheme-tile-fg: #f99f55; --scheme-tile-image: linear-gradient(#38312d, #302a26); --scheme-tile-image-hover: linear-gradient(#453e39, #3d3632);
+  }
+}

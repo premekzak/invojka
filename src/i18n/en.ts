@@ -572,7 +572,7 @@ const en: Messages = {
     creditNotePattern: 'Credit note number format', creditNotePatternHint: 'A series of its own, so the invoice series has no gaps. Next number: {{next}}',
     uiLanguage: 'App language', theme: 'Theme', themeSystem: 'System', themeLight: 'Light', themeDark: 'Dark',
     scheme: 'Colour scheme',
-    schemes: { warm: 'Warm paper', tyrkys: 'Warm paper with teal', branicek: 'Braníček', modrotisk: 'Indigo print', praha: 'Prague at dusk', kolac: 'Kolache', inkoust: 'Ink', salvej: 'Sage', grafit: 'Graphite', med: 'Honey', malina: 'Raspberry', oliva: 'Olive', louka: 'Meadow', pristav: 'Harbour', jaro: 'Spring', zahrada: 'Garden', fjord: 'Fjord', terakota: 'Terracotta', mak: 'Poppy', visen: 'Cherry', jerabina: 'Rowan', jahoda: 'Strawberry', koral: 'Coral', paprika: 'Paprika', plamen: 'Flame' },
+    schemes: { warm: 'Warm paper', neon: 'Neon', grafit: 'Graphite', vyboj: 'Discharge', krida: 'Chalk', ocel: 'Steel', pulnoc: 'Midnight', les: 'Forest', bordo: 'Claret', uhel: 'Charcoal', lilek: 'Aubergine' },
     folder: 'Data folder',
     agents: 'AI assistants',
     agentsHint: 'The AGENTS.md file in the data folder explains your data to an AI assistant (Claude Code, for example) and shows it how to set up read-only access. Copy the instruction and paste it to your assistant.',
@@ -650,7 +650,7 @@ const en: Messages = {
     notFound: 'IČ {{ic}} isn’t in ARES.',
   },
   customers: {
-    title: 'Customers', search: 'Search name, company ID, city…', paidCount: 'Paid invoices', paid: 'Paid', lastInvoice: 'Last invoice',
+    title: 'Customers', search: 'Search name, company ID, city…', paidCount: 'Paid invoices', paid: 'Paid', lastInvoice: 'Last invoice', moreStats: 'More in statistics',
     newInvoice: 'New invoice', newCustomer: 'New customer', newTitle: 'New customer', notFound: 'Customer not found.',
     cc: 'Email copies', ccHint: 'comma separated', contactName: 'Contact person', note: 'Note (only for you)',
     details: 'Customer details', invoiceDefaults: 'Invoice defaults', fromSettings: 'From settings',

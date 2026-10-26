@@ -1,0 +1,38 @@
+/* Colour scheme "Půlnoc" (Midnight, 2026-10-26, the dark-gradient round: gradients only from dark to darker and gentle (0.03 L), the owner:
+   "Používej gradienty, ale jen z tmavé do ještě tmavší. Světlé gradienty nejsou hezké."). Navy chrome (header, footer and the tile, each L 0.31 falling 0.03) and one bright cyan fill with navy text
+   (buttons, the logo, the tile's text); a cool pale page, navy ink (C 0.035). Charts navy this year, pale cyan last year.
+   Every pair computed in light and dark (generator outside the repo). Active when <html data-scheme="pulnoc">. */
+@layer base {
+  :root[data-scheme="pulnoc"] {
+      --paper: #eff3f8; --card: #ffffff; --hover: #f6f9ff; --fill: #eff3f8; --rule: #e3e6ec; --line: #d1d4da; --field: #f6f9ff; --edge: #7b808a; --mid: #565c68; --ink: #121a2b;
+      --tint: #eef4fe; --track: #d1daea;
+      --on-ink: #ffffff;
+      --red: #b32e2f; --on-red: #ffffff; --red-chip: #ffe4e1; --green: #007956; --green-chip: #daf2e6;
+      --blue: #5de8f6; --on-blue: #0f1932; --blue-deep: #27dcf0;
+      --link: #016799;
+      --chart-1: #283b67; --chart-2: #88e6f0;
+      --cat-1: #1c2c51; --cat-2: #6b89a9; --cat-3: #5de8f6;
+      --rust: #90570c; --rust-chip: #fae8d7;
+      --orange: #5de8f6; --logo: #5de8f6; --on-logo: #0f1932; --logo-dot: #0f1932;
+      --peach: #1d2e56; --on-peach: #ffffff; --on-peach-muted: #c1cbdf;
+      --color-header-active: #eff3f8; --scheme-header-hover: #2f416a; --scheme-header-image: linear-gradient(#1d2e56, #17274c);
+      --color-footer: #142243; --color-footer-deep: #0e1b39; --color-footer-fg: #ffffff; --color-footer-muted: #bac5d8;
+      --scheme-tile-fg: #5de8f6; --scheme-tile-image: linear-gradient(#1d2e56, #17274c); --scheme-tile-image-hover: linear-gradient(#283b67, #22335c);
+  }
+  :root.dark[data-scheme="pulnoc"] {
+      --paper: #0c0e12; --card: #15171b; --hover: #1a1c20; --fill: #1e2124; --rule: #222428; --line: #2c2e32; --field: #1b1d21; --edge: #6f757e; --mid: #acb1bc; --ink: #eaeff7;
+      --tint: #1c222b; --track: #2d333d;
+      --on-ink: #0c0e12;
+      --red: #d86d66; --on-red: #0e0e0e; --red-chip: #391d1b; --green: #52a483; --green-chip: #0d2d21;
+      --blue: #65dfed; --on-blue: #0b152c; --blue-deep: #45d3e5;
+      --link: #6dd6e8;
+      --chart-1: #56d2df; --chart-2: #364868;
+      --cat-1: #65dfed; --cat-2: #6b89a9; --cat-3: #3a4c73;
+      --rust: #b78656; --rust-chip: #35220c;
+      --orange: #65dfed; --logo: #65dfed; --on-logo: #0b152c; --logo-dot: #0b152c;
+      --peach: #0f1b39; --on-peach: #ffffff; --on-peach-muted: #c1cbdf;
+      --color-header-active: #0c0e12; --scheme-header-hover: #1f2c4c; --scheme-header-image: linear-gradient(#0f1b39, #091430);
+      --color-footer: #071027; --color-footer-deep: #03091e; --color-footer-fg: #ffffff; --color-footer-muted: #b3bed2;
+      --scheme-tile-fg: #65dfed; --scheme-tile-image: linear-gradient(#1c2c51, #162547); --scheme-tile-image-hover: linear-gradient(#273962, #213157);
+  }
+}

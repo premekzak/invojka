@@ -1,28 +1,14 @@
 @import "tailwindcss";
-@import "./schemes/branicek.css";
-@import "./schemes/modrotisk.css";
-@import "./schemes/praha.css";
-@import "./schemes/kolac.css";
-@import "./schemes/tyrkys.css";
-@import "./schemes/inkoust.css";
-@import "./schemes/salvej.css";
+@import "./schemes/neon.css";
 @import "./schemes/grafit.css";
-@import "./schemes/med.css";
-@import "./schemes/malina.css";
-@import "./schemes/oliva.css";
-@import "./schemes/louka.css";
-@import "./schemes/pristav.css";
-@import "./schemes/jaro.css";
-@import "./schemes/zahrada.css";
-@import "./schemes/fjord.css";
-@import "./schemes/terakota.css";
-@import "./schemes/mak.css";
-@import "./schemes/visen.css";
-@import "./schemes/jerabina.css";
-@import "./schemes/jahoda.css";
-@import "./schemes/koral.css";
-@import "./schemes/paprika.css";
-@import "./schemes/plamen.css";
+@import "./schemes/vyboj.css";
+@import "./schemes/krida.css";
+@import "./schemes/ocel.css";
+@import "./schemes/pulnoc.css";
+@import "./schemes/les.css";
+@import "./schemes/bordo.css";
+@import "./schemes/uhel.css";
+@import "./schemes/lilek.css";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -94,8 +80,8 @@
   /* The one accent (burnt orange in Warm paper): everything clickable or selected, and focus. */
   --color-accent: var(--blue);
   --color-accent-fg: var(--on-blue);
-  /* Hover on accent fills: one step darker. No gradients anywhere: the owner tried them on buttons and the header band
-     (2026-10-17) and found both too much. */
+  /* Hover on accent fills: one step darker. Buttons are always flat: the owner tried gradients on them (2026-10-17) and found
+     it too much. Schemes may run a dark header, tile or footer into a darker step (2026-10-26), never a light area. */
   --color-accent-deep: var(--blue-deep);
   /* The accent where it is a thin line or text: links, text actions, selected edges, focus outlines, checkboxes. Same as the
      accent unless a scheme's accent is too light to read as text (Warm paper's vivid orange): then --link is a darker step. */
@@ -148,7 +134,7 @@
   /* Warm paper palette, built in OKLCH. Neutrals lean towards orange (h 55-62, C <= 0.025); the faint cream page is the owner's
      choice over plain white. Since scheme "A" the page is a step darker than white cards, so boxes need no border. Every text colour reaches 4.5:1 on paper, card and fill in both modes; field bottoms 4.5:1 or more. */
   :root {
-    --paper: #f6eee8; --card: #ffffff; --hover: #faf6f3; --fill: #f8eee7; --rule: #eee6e0; --line: #e3d6ce; --field: #f9f4f0; --edge: #93857b; --mid: #695a50; --ink: #342117;
+    --paper: #f6eee8; --card: #ffffff; --hover: #faf6f3; --fill: #f8eee7; --rule: #eee6e0; --line: #e3d6ce; --field: #f9f4f0; --edge: #978477; --mid: #6d594b; --ink: #342117;
     --tint: #fff1e6; --track: #fdd5b7;
     --on-ink: #ffffff;
     --red: #b7162d; --on-red: #ffffff; --red-chip: #fedfde; --green: #1e7729; --green-chip: #e4f2e5;
@@ -174,9 +160,9 @@
     --paper: #110d0b; --card: #181411; --hover: #1c1714; --fill: #221d19; --rule: #27221e; --line: #332c28; --field: #1e1915; --edge: #6f645d; --mid: #b5a89f; --ink: #f2e9e4;
     --tint: #2a1d15; --track: #402b1c;
     --on-ink: #110d0b;
-    --red: #df676f; --on-red: #110d0b; --red-chip: #3f191b; --green: #66ac69; --green-chip: #173019;
+    --red: #da7378; --on-red: #110d0b; --red-chip: #3f191b; --green: #64aa67; --green-chip: #173019;
     --blue: #f07a3a; --on-blue: #110d0b; --blue-deep: #e36d2e;
-    --rust: #d8b260; --rust-chip: #392c0c;
+    --rust: #b6913e; --rust-chip: #392c0c;
     --chart-1: #f99549; --chart-2: #6f3f22;
     --cat-1: #fdd9c0; --cat-2: #f99549; --cat-3: #9a4412;
     --orange: #fa8d4e; --logo: #fa8d4e; --on-logo: #110d0b; --logo-dot: #fffaf6;
@@ -214,7 +200,9 @@
     background-repeat: var(--scheme-header-repeat, repeat); background-position: var(--scheme-header-position, 0 0); background-size: var(--scheme-header-size, auto);
     padding-bottom: var(--scheme-header-pad, 0);
   }
-  .scheme-header nav [aria-current="page"] { box-shadow: 0 var(--scheme-header-pad, 0) 0 var(--color-bg); }
+  /* On a header the same colour as the page (a white header ruled off by a line), the current tab would be invisible: such a
+     scheme draws its edges with --scheme-tab-edge, so the tab reads as an open folder tab breaking the line (the owner, 2026-10-26). */
+  .scheme-header nav [aria-current="page"] { box-shadow: 0 var(--scheme-header-pad, 0) 0 var(--color-bg), var(--scheme-tab-edge, 0 0 #0000); }
   .scheme-tile {
     background-image: var(--scheme-tile-image, none);
     background-repeat: var(--scheme-tile-repeat, repeat); background-position: var(--scheme-tile-position, 0 0); background-size: var(--scheme-tile-size, auto);

@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import type { Invoice, Settings } from '@/domain/schema'
-import { cashIncome, checkFlatBand, estimate, flatBandLimits, flatTaxBand, flatTaxMonthly, projectYear, RATES } from '@/domain/taxes'
+import { activeMonths, cashIncome, checkFlatBand, estimate, flatBandLimits, flatTaxBand, flatTaxMonthly, projectYear, RATES, secondaryThreshold } from '@/domain/taxes'
 import { useFormat } from '@/ui/format'
 import { Card, cn } from '@/ui/primitives'
 
@@ -55,10 +55,11 @@ export function TaxEstimate({ invoices, settings, on }: { invoices: Invoice[]; s
   const rate = settings.taxes.expenseRate
   const data = useMemo(() => {
     const { income, missingRate } = cashIncome(invoices, year, settings.opening)
-    const projected = projectYear(income, on)
-    const { activity, taxpayerCredit } = settings.taxes
+    const { activity, taxpayerCredit, deductions, credits, started } = settings.taxes
+    // A business started this year: the pace counts from its first day, the minimums from its first month.
+    const projected = projectYear(income, on, started && `${started}-01`)
     // The main activity always claims the allowance here; a secondary one only when the user says so.
-    const opts = { activity, taxpayerCredit: activity === 'main' || taxpayerCredit }
+    const opts = { activity, taxpayerCredit: activity === 'main' || taxpayerCredit, deductions: deductions / 100, credits: credits / 100, months: activeMonths(started, year) }
     return { income, missingRate, projected, est: rates && estimate(projected, rate, rates, opts) }
   }, [invoices, year, on, rate, rates, settings.taxes, settings.opening])
   const kc = (n: number) => f.moneyWhole(n * 100)
@@ -124,7 +125,7 @@ export function TaxEstimate({ invoices, settings, on }: { invoices: Invoice[]; s
           </dl>
           {!flatRegime && settings.taxes.activity === 'secondary' && (
             <p className="mt-3 max-w-hint text-xs text-fg-muted">
-              {est.social === 0 ? t('taxes.secondaryNoSocial', { limit: kc(rates.secondaryThreshold) }) : t('taxes.secondarySocial', { limit: kc(rates.secondaryThreshold) })}
+              {t(est.social === 0 ? 'taxes.secondaryNoSocial' : 'taxes.secondarySocial', { limit: kc(secondaryThreshold(rates, activeMonths(settings.taxes.started, year))) })}
               {' '}{t('taxes.secondaryHealth')}
             </p>
           )}
@@ -154,6 +155,8 @@ export function TaxEstimate({ invoices, settings, on }: { invoices: Invoice[]; s
           )}
           <p className="mt-3 max-w-hint text-xs text-fg-muted">
             {t(flatRegime ? 'taxes.disclaimerFlat' : 'taxes.disclaimer', { year })}
+            {!flatRegime && (settings.taxes.deductions > 0 || settings.taxes.credits > 0) && <> {t('taxes.withAllowances', {
+              deductions: f.moneyWhole(settings.taxes.deductions), credits: f.moneyWhole(settings.taxes.credits) })}</>}
             {settings.opening.year === year && settings.opening.income > 0 && <> {t('taxes.opening', { amount: f.moneyWhole(settings.opening.income) })}</>}
             {data.missingRate > 0 && <> {t('taxes.missingRate', { count: data.missingRate })}</>}
           </p>

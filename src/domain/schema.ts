@@ -89,6 +89,11 @@ export const Settings = z.object({
     activity: z.enum(['main', 'secondary']).default('main'),
     /** Secondary activity only: the basic personal allowance claimed here rather than at work. */
     taxpayerCredit: z.boolean().default(false),
+    /** Deductions from the tax base and other tax credits claimed in the return, CZK minor units a year; see domain/taxes.ts. */
+    deductions: minor.default(0),
+    credits: minor.default(0),
+    /** The month the business started (yyyy-mm), when it was this year; empty for earlier. Scales minimums and the threshold. */
+    started: z.string().default(''),
     expenseRate: z.union([z.literal(80), z.literal(60), z.literal(40), z.literal(30)]).default(60),
     /**
      * A tax return with flat-rate expenses, the flat-rate tax regime (paušální daň, non-payers of VAT only), tax records

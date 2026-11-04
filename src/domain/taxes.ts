@@ -6,8 +6,8 @@ import { chargesVat } from './vat'
  * An estimate of a Czech sole trader's (OSVČ) income tax and social and health insurance from the money received.
  * Two regimes: an ordinary tax return with flat-rate expenses (výdajový paušál), for a main or a secondary activity,
  * or the flat-rate tax (paušální daň), one fixed monthly payment by band that doesn't depend on profit. An
- * estimate only: no other income, real expenses or allowances beyond the basic one. Sources and dates in
- * docs/czech-rules.md#sole-traders-taxes-and-insurance; add each new year to RATES.
+ * estimate only: no other income and no real expenses; other deductions and credits only as the yearly sums the user
+ * types. Sources and dates in docs/czech-rules.md#sole-traders-taxes-and-insurance; add each new year to RATES.
  */
 
 /** Flat-rate expenses (výdajový paušál) by the kind of activity: crafts 80 %, other trades 60 %, other 40 %, rent 30 %. */
@@ -119,23 +119,51 @@ export interface EstimateOptions {
   activity: Activity
   /** Whether the basic personal allowance is claimed here; with a secondary activity it's usually claimed at work. */
   taxpayerCredit: boolean
+  /**
+   * Deductions from the tax base (nezdanitelné části: pension savings, DIP, life insurance, mortgage interest, gifts),
+   * Kč a year. An employee with a business claims them only in the tax return, so they lower the business's tax.
+   */
+  deductions?: number
+  /** Other tax credits claimed here (children, spouse, disability), Kč a year; they lower the tax at most to zero. */
+  credits?: number
+  /** Calendar months of the year with the activity, at least in part (1–12); the insurance minimums and the threshold scale with it. */
+  months?: number
+}
+
+/**
+ * The months of `year` with the activity, at least in part: 12, or from the month it started (`started` is yyyy-mm, empty
+ * for before this year).
+ */
+export function activeMonths(started: string, year: number): number {
+  return started.startsWith(`${year}-`) ? 13 - Number(started.slice(5, 7)) : 12
+}
+
+/**
+ * The secondary activity's threshold for a part of the year: less a twelfth, rounded up to whole crowns, for each month
+ * without the activity.
+ */
+export function secondaryThreshold(r: YearRates, months: number): number {
+  return r.secondaryThreshold - (12 - months) * Math.ceil(r.secondaryThreshold / 12)
 }
 
 /** Tax and insurance for a year's income with flat-rate expenses (all Kč, whole crowns). */
 export function estimate(income: number, expenseRate: ExpenseRate, r: YearRates,
-  { activity, taxpayerCredit }: EstimateOptions = { activity: 'main', taxpayerCredit: true }): Estimate {
+  { activity, taxpayerCredit, deductions = 0, credits = 0, months = 12 }: EstimateOptions = { activity: 'main', taxpayerCredit: true }): Estimate {
   const expenses = Math.round(Math.min(income, FLAT_EXPENSE_INCOME_CAP) * expenseRate / 100)
   const profit = Math.max(0, income - expenses)
-  // Income tax: the base rounded down to whole hundreds, 15 % and 23 % above the limit, less the basic allowance.
-  const base = Math.floor(profit / 100) * 100
-  const tax = Math.max(0, ceil(Math.min(base, r.higherTaxFrom) * 0.15 + Math.max(0, base - r.higherTaxFrom) * 0.23) - (taxpayerCredit ? r.taxpayerCredit : 0))
-  // Insurance: a share of the profit, at least the yearly minimum, social at most its ceiling. A secondary activity pays
-  // no social insurance up to the threshold, a lower minimum above it, and no health minimum.
+  // Income tax: the base less deductions, rounded down to whole hundreds, 15 % and 23 % above the limit, less the
+  // allowance and other credits, at most to zero.
+  const base = Math.floor(Math.max(0, profit - deductions) / 100) * 100
+  const allowances = (taxpayerCredit ? r.taxpayerCredit : 0) + credits
+  const tax = Math.max(0, ceil(Math.min(base, r.higherTaxFrom) * 0.15 + Math.max(0, base - r.higherTaxFrom) * 0.23) - allowances)
+  // Insurance: a share of the profit (deductions don't lower it), at least the minimum for the months of activity, social
+  // at most its ceiling. A secondary activity pays no social insurance up to the threshold, a lower minimum above it, and
+  // no health minimum.
   const main = activity === 'main'
-  const socialDue = main || profit > r.secondaryThreshold
-  const socialMin = 12 * (main ? r.socialMinMonthly : r.socialMinMonthlySecondary)
+  const socialDue = main || profit > secondaryThreshold(r, months)
+  const socialMin = months * (main ? r.socialMinMonthly : r.socialMinMonthlySecondary)
   const socialBase = socialDue ? Math.min(Math.max(ceil(profit * SOCIAL_SHARE), socialMin), r.socialMaxYearly) : 0
-  const healthBase = Math.max(ceil(profit * HEALTH_SHARE), main ? ceil(12 * r.healthMinMonthly) : 0)
+  const healthBase = Math.max(ceil(profit * HEALTH_SHARE), main ? ceil(months * r.healthMinMonthly) : 0)
   const social = ceil(socialBase * SOCIAL_RATE)
   const health = ceil(healthBase * HEALTH_RATE)
   return { income, expenses, profit, tax, social, health, total: tax + social + health }
@@ -185,10 +213,13 @@ export function checkFlatBand(income: number, band: FlatBand, expenseRate: Expen
   return { state: fits > band ? 'higher' : 'lower', band: fits, diff }
 }
 
-/** The whole year's income if it goes on at this year's pace so far (`on` is yyyy-mm-dd within `year`). */
-export function projectYear(incomeSoFar: number, on: string): number {
+/**
+ * The whole year's income if it goes on at this year's pace so far (`on` is yyyy-mm-dd within `year`), counted from
+ * `from` (yyyy-mm-dd) when the activity started later in the year.
+ */
+export function projectYear(incomeSoFar: number, on: string, from?: string): number {
   const year = Number(on.slice(0, 4))
-  const start = Date.UTC(year, 0, 1)
+  const start = from?.startsWith(`${year}-`) && from <= on ? Date.parse(`${from}T00:00:00Z`) : Date.UTC(year, 0, 1)
   const days = (Date.UTC(year + 1, 0, 1) - start) / 864e5
   const elapsed = Math.max(1, (Date.parse(`${on}T00:00:00Z`) - start) / 864e5 + 1)
   return Math.round((incomeSoFar * days) / elapsed)

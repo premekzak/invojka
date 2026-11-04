@@ -18,7 +18,7 @@ function parseKc(text: string): number | undefined {
 }
 
 /** A field of whole crowns that reports the amount when it can be read and shows an error when it can't. */
-function KcField({ label, hint, value, onChange }: { label: string; hint: string; value: number; onChange: (minor: number) => void }) {
+export function KcField({ label, hint, value, onChange }: { label: string; hint: string; value: number; onChange: (minor: number) => void }) {
   const { t } = useTranslation()
   const [text, setText] = useState(value ? String(toMajor(value)) : '')
   // Follow a value changed from outside (another tab, a reload), unless it's what the field already says.

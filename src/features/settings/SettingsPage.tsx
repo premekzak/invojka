@@ -17,7 +17,7 @@ import { czechIban } from '@/domain/spayd'
 import { VAT_RATES } from '@/domain/vat'
 import { RatesPanel } from '@/features/rates/RatesPanel'
 import { ImportHistory } from './ImportHistory'
-import { OpeningBalance } from './OpeningBalance'
+import { KcField, OpeningBalance } from './OpeningBalance'
 import { openBusiness } from '@/features/shell/BusinessSwitcher'
 import { useStore } from '@/state/store'
 import { FsAccessAdapter, type RememberedFolder } from '@/storage/fsAccess'
@@ -211,13 +211,18 @@ export type SettingsTab = (typeof SETTINGS_TABS)[number]
 
 /**
  * Sole traders: the regime (a tax return with flat-rate expenses, the flat-rate tax and its band, or one Invojka can't
- * estimate), the activity and the expense rate. The expense rate also sets the flat-tax band limits.
+ * estimate), the activity and the expense rate. The expense rate also sets the flat-tax band limits. With a tax return
+ * also the month a business started this year, and the deductions and credits claimed in the return.
  */
 export function TaxSettings({ settings: s, update }: { settings: Settings; update: (patch: Partial<Settings>) => void }) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const f = useFormat()
   const set = (patch: Partial<Settings['taxes']>) => update({ taxes: { ...s.taxes, ...patch } })
-  const rates = RATES[Number(today().slice(0, 4))]
+  const year = Number(today().slice(0, 4))
+  const rates = RATES[year]
+  const monthName = new Intl.DateTimeFormat(i18n.language, { month: 'long' })
+  const months: [string, string][] = Array.from({ length: 12 }, (_, i) =>
+    [`${year}-${String(i + 1).padStart(2, '0')}`, monthName.format(new Date(Date.UTC(year, i, 15)))])
   const flat = s.taxes.regime === 'flat'
   const estimated = canEstimate(s.taxes.regime)
   const kc = (n: number) => f.moneyWhole(n * 100)
@@ -253,6 +258,14 @@ export function TaxSettings({ settings: s, update }: { settings: Settings; updat
               <Checkbox className="col-span-2" label={t('taxes.taxpayerCredit')} hint={t('taxes.taxpayerCreditHint')} checked={s.taxes.taxpayerCredit}
                 onChange={(e) => set({ taxpayerCredit: e.target.checked })} />
             )}
+          </>}
+          {s.taxes.regime === 'standard' && <>
+            <Labeled className="col-span-2" label={t('taxes.started')} hint={t('taxes.startedHint')}>
+              <Options value={s.taxes.started.startsWith(`${year}-`) ? s.taxes.started : ''} onChange={(v) => set({ started: v })}
+                options={[['', t('taxes.startedEarlier', { year })], ...months]} />
+            </Labeled>
+            <KcField label={t('taxes.deductions')} hint={t('taxes.deductionsHint')} value={s.taxes.deductions} onChange={(deductions) => set({ deductions })} />
+            <KcField label={t('taxes.credits')} hint={t('taxes.creditsHint')} value={s.taxes.credits} onChange={(credits) => set({ credits })} />
           </>}
         </div>
       )}

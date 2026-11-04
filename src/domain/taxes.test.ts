@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { newInvoice } from './invoice'
 import { SCHEMA_VERSION, Settings, type Invoice } from './schema'
-import { cashIncome, checkFlatBand, estimate, flatTaxBand, flatTaxMonthly, projectYear, RATES } from './taxes'
+import { activeMonths, cashIncome, checkFlatBand, estimate, flatTaxBand, flatTaxMonthly, projectYear, RATES, secondaryThreshold } from './taxes'
 
 const r = RATES[2026]!
 
@@ -45,6 +45,32 @@ describe('sole trader estimate', () => {
     expect(estimate(200_000, 60, r, { activity: 'secondary', taxpayerCredit: true }).tax).toBe(0)
   })
 
+  it('takes deductions off the tax base and other credits off the tax, but not off the insurance', () => {
+    const plain = estimate(1_000_000, 60, r) // profit 400 000 Kč
+    const e = estimate(1_000_000, 60, r, { activity: 'main', taxpayerCredit: true, deductions: 48_000, credits: 15_204 })
+    expect(e.tax).toBe(352_000 * 0.15 - 30_840 - 15_204) // 6 756
+    expect([e.social, e.health]).toEqual([plain.social, plain.health])
+    // An employee with the allowance used at work: a pension deduction saves 15 % of it, credits stop at zero.
+    const secondary = { activity: 'secondary' as const, taxpayerCredit: false }
+    expect(estimate(200_000, 60, r, { ...secondary, deductions: 24_000 }).tax).toBe(56_000 * 0.15)
+    expect(estimate(200_000, 60, r, { ...secondary, credits: 50_000 }).tax).toBe(0)
+  })
+
+  it('scales the minimums and the secondary threshold to the months in business', () => {
+    expect(activeMonths('', 2026)).toBe(12)
+    expect(activeMonths('2025-09', 2026)).toBe(12)
+    expect(activeMonths('2026-09', 2026)).toBe(4)
+    // A twelfth of 117 521 Kč, rounded up, is 9 794 Kč.
+    expect(secondaryThreshold(r, 6)).toBe(117_521 - 6 * 9_794)
+    // Started in September: four months of the minimums.
+    const main = estimate(100_000, 60, r, { activity: 'main', taxpayerCredit: true, months: 4 })
+    expect(main.social).toBe(Math.ceil(4 * 17_139 * 0.292))
+    expect(main.health).toBe(Math.ceil(4 * 24_483.5 * 0.135))
+    // A secondary activity from July with 80 000 Kč profit is over the half-year threshold (58 757 Kč).
+    const half = estimate(200_000, 60, r, { activity: 'secondary', taxpayerCredit: false, months: 6 })
+    expect(half.social).toBe(Math.ceil(Math.max(44_000, 6 * 5_387) * 0.292))
+  })
+
   it('finds the flat-tax band by income and expense rate', () => {
     expect(flatTaxBand(900_000, 40)).toBe(1)
     expect(flatTaxBand(1_200_000, 40)).toBe(2)
@@ -73,6 +99,9 @@ describe('sole trader estimate', () => {
   it('projects the year at the pace so far', () => {
     expect(projectYear(100_000, '2026-12-31')).toBe(100_000)
     expect(projectYear(100_000, '2026-07-02')).toBe(Math.round(100_000 * 365 / 183))
+    // Started on 1 September: the pace counts from then, 122 days of the year.
+    expect(projectYear(100_000, '2026-10-01', '2026-09-01')).toBe(Math.round(100_000 * 122 / 31))
+    expect(projectYear(100_000, '2026-07-02', '2025-09-01')).toBe(Math.round(100_000 * 365 / 183))
   })
 })
 

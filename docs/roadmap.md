@@ -39,6 +39,7 @@
 Checks needed before the launch moved to [launch.md](launch.md) (2026-11-01).
 
 - [ ] **Tax rates for 2027:** add the year to `RATES` in `src/domain/taxes.ts` in January ([czech-rules.md](czech-rules.md#sole-traders-taxes-and-insurance)); until then Home says the rates are missing
+- [x] **Tax estimate: deductions, other credits, the month the business started** (2026-11-04): Settings → Daně, for a tax return with flat-rate expenses ([decisions](decisions.md#2026-11-04))
 
 ## Going public as Invojka (set 2026-10-17)
 

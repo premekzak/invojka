@@ -45,9 +45,15 @@ Google Analytics, property `G-56ZL175GS5` ("invojka.cz"), through the owner's Ta
 | `scene_caption_click` | `scene`, `phase` (1 to 3, as numbered on the page) | A click on a caption beside a scene |
 | `faq_open` | `question` (its text) | A question was opened |
 | `scroll_depth` | `percent`: 25, 50, 75, 100 | How far down the page, once each |
-| `outbound_click` | `target`: `github` | The link to the source code |
+| `outbound_click` | `target`: `github`, `demo`; for the demo also `place` | The link to the source code, or to the demo |
 
 When an event or parameter is added or renamed, change `SiteEvent`, this table, the container (the trigger's list and a variable, then `scripts/gtm-container.json`) and the custom dimensions in Analytics together. The banner's text must stay true to all of this. The FAQ does not mention measuring (the owner, 2026-11-27: measuring a website is normal and has nothing to do with the app).
+
+## The demo
+
+https://invojka.cz/demo/ is the showcase build (the app on made-up data, [development.md](development.md#showcase-for-testers)) on the website's own domain (the owner, 2026-11-27: "na webu by taky měl být odkaz na demo, ideálně na stejné doméně"). `scripts/deploy-website.sh` builds it (`npm run build:showcase`) and copies its one file into `demo/` of the published site, so every website deploy also publishes the current app as the demo. It keeps its own `noindex`. The app is never measured, so the demo carries no Tag Manager and no consent banner.
+
+The page links to it under both download buttons ("Nebo si nejdřív vyzkoušejte demo v prohlížeči"); the English page opens it with `?lang=en`. The click is measured as `outbound_click` with `target: demo` and `place`. The link leads nowhere on the dev server, which has no `demo/`. The older copy at https://premekzak.github.io/invojka-demo/ is still published by `scripts/deploy-showcase.sh` and is not linked from anywhere.
 
 ## Two languages
 

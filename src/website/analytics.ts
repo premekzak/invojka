@@ -32,7 +32,8 @@ export type SiteEvent =
   | { event: 'scene_caption_click'; scene: string; phase: number }
   | { event: 'faq_open'; question: string }
   | { event: 'scroll_depth'; percent: 25 | 50 | 75 | 100 }
-  | { event: 'outbound_click'; target: string }
+  /** A link that leaves the page: the source code, or the demo (with where on the page it was). */
+  | { event: 'outbound_click'; target: 'github' | 'demo'; place?: 'masthead' | 'closing' }
 
 /** Google's commands must be the `arguments` object itself in the data layer, not an array. */
 function gtag(..._args: unknown[]) {

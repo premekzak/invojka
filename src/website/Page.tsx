@@ -17,6 +17,10 @@ import { cz } from './text'
 const DOWNLOAD = 'https://github.com/premekzak/invojka/releases/latest/download/invojka.html'
 const SOURCE = 'https://github.com/premekzak/invojka'
 
+/** The app on made-up data, on the same domain: the deploy script puts the showcase build into demo/ (docs/website.md).
+ *  It opens in the page's language; the app reads ?lang=. Not there on the dev server. */
+const DEMO = LANG === 'en' ? '../demo/?lang=en' : 'demo/'
+
 /** Drives that sync a folder on the computer, which is all Invojka needs from them. */
 const DRIVES = [tr('Disk Google', "Google Drive"), 'OneDrive', 'Dropbox']
 
@@ -33,6 +37,15 @@ function DownloadLink({ large, inverse, place }: { large?: boolean; inverse?: bo
         inverse ? 'bg-brand text-brand-fg hover:bg-fg' : 'bg-accent text-accent-fg hover:bg-accent-deep',
         large ? 'h-12 px-6 text-base' : 'h-9 px-4 text-sm leading-label')}>
       <Download aria-hidden="true" className={large ? 'size-5' : 'size-4'} /> {tr('Stáhnout zdarma', "Download for free")}
+    </a>
+  )
+}
+
+/** The quiet second way in, under a download button: try the app first, with nothing to download. */
+function DemoLink({ place, className }: { place: 'masthead' | 'closing'; className?: string }) {
+  return (
+    <a href={DEMO} onClick={() => track({ event: 'outbound_click', target: 'demo', place })} className={cn('rounded text-sm underline underline-offset-2', focus, className)}>
+      {tr('Nebo si nejdřív vyzkoušejte demo v prohlížeči', 'Or try the demo in your browser first')}
     </a>
   )
 }
@@ -122,6 +135,7 @@ function Masthead() {
         <div className="flex flex-col items-start gap-2 pl-2">
           <DownloadLink large place="masthead" />
           <p className="text-sm text-fg-muted">{tr('Pro Chrome a Edge na počítači. Bez registrace.', 'For Chrome and Edge on a computer. No sign-up.')}</p>
+          <DemoLink place="masthead" className="text-link" />
         </div>
       </div>
     </section>
@@ -254,6 +268,7 @@ export function Page() {
             <div className="flex flex-col items-center gap-2">
               <DownloadLink large inverse place="closing" />
               <p className="text-sm">{tr('Pro Chrome a Edge na počítači.', "For Chrome and Edge on a computer.")}</p>
+              <DemoLink place="closing" />
             </div>
           </div>
         </section>

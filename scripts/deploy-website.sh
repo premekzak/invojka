@@ -15,6 +15,9 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 
 cd "$ROOT"
 npm run build:web
+# The demo at <site>/demo/: the showcase build, the app on made-up data (docs/development.md). Its names come from the
+# local src/domain/demo.ts and go only into the published repositories, never into this one's history.
+npm run build:showcase
 
 if ! gh repo view "$REPO" >/dev/null 2>&1; then
   gh repo create "$REPO" --public --description "The Invojka website (built pages; the source is in premekzak/invojka)"
@@ -23,6 +26,8 @@ fi
 WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
 cp -r dist-website/. "$WORK/"
+mkdir "$WORK/demo"
+cp dist-showcase/index.html "$WORK/demo/index.html"
 touch "$WORK/.nojekyll"
 printf 'User-agent: *\nDisallow: /\n' > "$WORK/robots.txt"
 if [ -n "$DOMAIN" ]; then printf '%s\n' "$DOMAIN" > "$WORK/CNAME"; fi

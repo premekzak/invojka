@@ -22,3 +22,6 @@ exports/
 
 # Made-up test businesses written by `npm run testdata` - regenerated, not committed
 testdata/
+
+# The website build (npm run build:web)
+dist-website

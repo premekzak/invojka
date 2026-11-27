@@ -24,6 +24,7 @@ Invojka is a local-first invoicing and analytics app in the browser. It is distr
 - [development and pitfalls](docs/development.md)
 - [decisions](docs/decisions.md)
 - [roadmap](docs/roadmap.md)
+- [website](docs/website.md): the public site and its animated feature scenes (`src/website/`)
 - [before launch](docs/launch.md): what must be done before the public download
 
 **Keep the docs current.** When you change behaviour, update the matching page. Add dated entries to `decisions.md` and tick items in `roadmap.md`.
@@ -35,6 +36,7 @@ Invojka is a local-first invoicing and analytics app in the browser. It is distr
 - `npm test` runs Vitest. For one file: `npx vitest run src/domain/vat.test.ts`, and add `-t "<name>"` for one test.
 - `npm run typecheck`
 - `npm run testdata` writes made-up test businesses as data folders into `testdata/` (git-ignored); open each once in the app, the business switcher keeps them ([development](docs/development.md)).
+- `npm run dev:web` runs the website (invojka.cz) on port 5183; `npm run build:web` builds it into `dist-website/`; `bash scripts/deploy-website.sh` publishes it to https://premekzak.github.io/invojka-web/ (separate repo, later invojka.cz). Redeploy only when the owner asks.
 - `npm run build:showcase` builds the public showcase on made-up data; `bash scripts/deploy-showcase.sh` publishes it to https://premekzak.github.io/invojka-demo/ (separate repo). Redeploy only when the owner asks.
 
 ## Rules that are easy to break

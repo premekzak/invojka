@@ -64,7 +64,7 @@ Checks needed before the launch moved to [launch.md](launch.md) (2026-11-01).
 - [x] **Showcase for testers** on GitHub Pages (2026-10-18): https://premekzak.github.io/invojka-demo/ (`?lang=en` for English), made-up data, redeployed only when the owner asks (`scripts/deploy-showcase.sh`)
 - [x] **Phones don't fall apart** (2026-10-18): a desktop-app notice, a menu button instead of tabs, stacked grids, sideways-scrolling tables. Not a mobile version: phones can't open a folder
 - [x] **`?lang=` in the address** picks the UI language without saving it (2026-10-18)
-- [ ] Website on invojka.cz: download, the privacy story, comparison with Fakturoid and iDoklad, screenshots (demo mode)
+- [ ] Website on invojka.cz: download, the privacy story, comparison with Fakturoid and iDoklad, features as animated scenes instead of screenshots ([website.md](website.md); started 2026-11-27 with one sample scene)
 - [ ] Research the other competitors (Vyfakturuj, SuperFaktura, Pohoda, Money S3)
 
 ## From the Fakturoid comparison (2026-10-18)

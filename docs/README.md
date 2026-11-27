@@ -21,6 +21,7 @@ This folder holds the project's lasting context: what the app is for, how it wor
 | [test-plan.md](test-plan.md) | How to find bugs and inconsistencies: automatic checks, user journeys, the checklist |
 | [decisions.md](decisions.md) | Dated log of decisions and the reasons behind them |
 | [roadmap.md](roadmap.md) | What's done, what's next, ideas for later |
+| [website.md](website.md) | The public website: where its code is, how the animated feature scenes work, its rules |
 | [launch.md](launch.md) | Before the public download: data safety, updates, correct documents, legal, first run, testing with people, support |
 
 `CLAUDE.md` in the repo root is the short version for AI assistants and points back here.

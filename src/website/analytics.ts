@@ -42,6 +42,7 @@ function gtag(..._args: unknown[]) {
 }
 
 export function readConsent(): Consent {
+  if (notrack) return 'denied'
   try {
     const v = localStorage.getItem(KEY)
     return v === 'granted' || v === 'denied' ? v : undefined
@@ -53,6 +54,8 @@ export function readConsent(): Consent {
 /** What happened before the visitor answered the banner: sent if they allow, dropped if they refuse. */
 let waiting: SiteEvent[] = []
 let loaded = false
+/** `?notrack` on this visit, for browsers that can't store the choice. */
+let notrack = false
 
 /** Every parameter any event has. The data layer remembers values, so each push clears the ones its event doesn't use;
  *  otherwise a question's text would ride along with the next scroll event. */
@@ -85,8 +88,20 @@ export function setConsent(choice: 'granted' | 'denied') {
   }
 }
 
-/** Call once at start: a visitor who allowed measuring before is measured from the first moment. */
+/**
+ * Call once at start, before the page is drawn: a visitor who allowed measuring before is measured from the first moment.
+ *
+ * `?notrack` in the address switches measuring off in this browser for good (the owner, 2026-11-27, so that his own
+ * visits don't count): it stores the same "denied" the banner's "Odmítnout" stores, so the banner doesn't ask and
+ * nothing is loaded from Google, on this visit and every later one. `?notrack=0` forgets it and the banner asks again.
+ */
 export function startMeasuring() {
+  const off = new URLSearchParams(location.search).get('notrack')
+  try {
+    if (off === '0') localStorage.removeItem(KEY)
+    else if (off !== null) localStorage.setItem(KEY, 'denied')
+  } catch { /* Without storage the parameter works for this visit only, through NOTRACK below. */ }
+  if (off !== null && off !== '0') notrack = true
   if (readConsent() === 'granted') load()
 }
 

@@ -5,7 +5,8 @@ import { cz } from './text'
 /* The questions a visitor asks before downloading. The first three come from the website mockup of October 2026; the
    rest are topics docs/launch.md asks for (another computer, updating) and the honest limits from docs/product.md.
    The owner (2026-11-27) took out "we don't earn on your data" (the competitors don't either; they earn on
-   subscriptions) and the question about the project ending; don't bring them back. Every answer must stay true to what the app does today: when a feature
+   subscriptions), the question about the project ending and the one about measuring this website ("že se něco měří
+   na webu je normální a s aplikací to nesouvisí"); don't bring them back. Every answer must stay true to what the app does today: when a feature
    changes (updates, browsers, the export), change its answer. No promise of legal correctness: the user answers for
    what they write on an invoice. */
 const QUESTIONS: { q: string; a: string }[] = [
@@ -17,11 +18,6 @@ const QUESTIONS: { q: string; a: string }[] = [
   {
     q: 'Kdo vidí moje faktury?',
     a: 'Jen vy. Faktury a odběratelé se ukládají do složky ve vašem počítači a nikam se neposílají. Na internet jde Invojka jen pro kurzy měn (pošle měnu a datum) a do registru ARES, když v něm sami hledáte firmu podle názvu nebo IČ.',
-  },
-  {
-    // Must stay true to src/website/analytics.ts and the consent banner.
-    q: 'Měří se něco na tomto webu?',
-    a: 'Jen když to povolíte: pak web Google Analytics řekne, které části stránky jste viděli a jestli jste klikli na stažení. Bez povolení se nic neměří a nic se z Googlu nenačítá. Samotná aplikace Invojka neměří nic nikdy.',
   },
   {
     q: 'Co když se mi rozbije počítač?',

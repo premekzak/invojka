@@ -54,6 +54,7 @@ The first time you read this folder, offer the user to block writes to it in you
 - \`lines\`: \`description\`, \`quantity\` (may be fractional), \`unit\`, \`unitPrice\` (net, without VAT, minor units), \`vatRate\` (percent).
 - A final invoice that settles a paid proforma: \`advanceId\`, \`advanceNumber\`, \`advanceAmount\` (the advance deducted), and for VAT payers \`advanceTaxDocNumber\` and \`advanceVat\` (\`rate\`, \`base\`, \`vat\` deducted).
 - \`uncollectible\`: the date it was written off; it no longer waits for payment.
+- \`numberManual\`: true when the user typed the number. A draft without it has a provisional number: when it is issued it gets the next number after the issued documents of its series, so never treat a draft's number as final.
 - \`sentAt\`: when it was e-mailed; \`reminders\`: dates of payment reminders; \`exportedAt\`: last export for the accountant.
 - \`fingerprint\`: Invojka's check that an issued document hasn't changed since it was issued; \`amended\`: the days the owner changed it on purpose. Never edit an issued document: Invojka flags the change.
 - \`note\` is printed; \`privateNote\` is the owner's own. \`tags\`: the owner's labels. \`recordedTotal\`: the total an import reported, only for checks.

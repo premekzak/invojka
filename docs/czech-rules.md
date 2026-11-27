@@ -22,6 +22,14 @@ Main source: zákon o DPH č. 235/2004 Sb. ([zakonyprolidi.cz](https://www.zakon
 - **To a consumer** (§ 9(2)): generally where the supplier is established, so a service to a foreign private person is usually supplied in Czechia and counts towards turnover. Some services have their own rules (§§ 10–10k).
 - **Double taxation treaties don't apply to VAT.** They cover income tax. Whether foreign revenue counts towards the VAT limit depends only on the place of supply. (The owner asked, 2026-10-18.)
 
+## Due dates on weekends and holidays
+
+*Checked 2026-11-27 by a web search (podnikatel.cz and mesec.cz for the Civil Code's text, epravo.cz and pravniprostor.cz for commentary, mpsv.gov.cz for the holidays act); not read in the acts' full current text.*
+
+- **§ 607 of the Civil Code (zákon č. 89/2012 Sb.):** when the last day of a period (lhůta) falls on a Saturday, a Sunday or a public holiday, the period ends on the nearest following working day.
+- **It is about periods, not fixed days.** Commentary says the rule doesn't apply to a "doba", and that a due date agreed as a specific calendar day isn't moved by a weekend (written about the old code's § 122 and about instalments; no court decision on invoices found). So whether an invoice's due date moves depends on how it was agreed. Invojka therefore only points out that the date is a day off and offers the next working day; it claims nothing about the law.
+- **Public holidays (zákon č. 245/2000 Sb.):** státní svátky 1 January, 8 May, 5 and 6 July, 28 September, 28 October, 17 November; ostatní svátky Good Friday (added by zákon č. 359/2015 Sb., from 2016), Easter Monday, 1 May, 24, 25 and 26 December. The search confirmed 1 January, 8 May, 5 and 6 July, 28 October, 17 November, Easter Monday, 1 May and 24–26 December; **28 September and Good Friday are from memory, to be rechecked in the act.** The list is `FIXED` plus Easter in `src/domain/workdays.ts`.
+
 ## ARES (business register)
 
 *Checked 2026-10-18 by calling the API.*

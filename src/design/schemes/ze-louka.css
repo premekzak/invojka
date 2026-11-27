@@ -1,0 +1,43 @@
+/* Colour scheme "Louka": green only, split into shades by role. A faint grey-green page under white cards, a green-grey bar and a deeper footer; emerald
+   buttons, deeper green links, a dark green logo, a pale green "new" tile with deep green text; both chart series are greens that
+   differ in lightness. The move: many steps of one hue, no companion.
+   A trial variant of 2026-11-26 (schemes/zelena/zadani.md). Built in OKLCH; every pair computed in light and dark
+   (src/design/schemes.test.ts). */
+@layer base {
+  :root[data-scheme="ze-louka"] {
+      --scheme-page: #f3f8f4; --scheme-card: #ffffff; --scheme-stripe: #f6faf7; --scheme-fill: #e7ede8; --scheme-rule: #d5dcd7; --scheme-line: #dbe2dd;
+      --scheme-field: #ffffff; --scheme-edge: #838c86; --scheme-muted: #556159; --scheme-ink: #0d1c11; --scheme-tint: #e3f5e7; --scheme-track: #dde4df;
+      --scheme-action: #137d41; --scheme-on-action: #ffffff; --scheme-action-deep: #036a34; --scheme-link: #0d6332; --scheme-on-feature: #074a24; --scheme-danger: #d02c2a;
+      --scheme-on-danger: #ffffff; --scheme-success: #02736e; --scheme-success-chip: #d3f9f6; --scheme-warning: #ae1320; --scheme-warning-chip: #ffebe9; --scheme-series-1: #168b49;
+      --scheme-series-2: #ade0b9; --scheme-cat-1: #168b49; --scheme-cat-2: #ade0b9; --scheme-cat-3: #c9e7d0; --scheme-brand: #004a27; --scheme-on-brand: #ffffff;
+      --scheme-brand-dot: #9fe4b1; --scheme-brand-inverse: #004a27; --scheme-on-brand-inverse: #ffffff; --scheme-brand-dot-inverse: #9fe4b1; --scheme-header: #e2ede5; --scheme-on-header: #0d1c11;
+      --scheme-on-header-muted: #505b53; --scheme-header-active: #ffffff; --scheme-header-hover: #d7e3da; --scheme-footer: #deeae1; --scheme-footer-deep: #d6e4da; --scheme-on-footer: #0d1c11;
+      --scheme-on-footer-muted: #505b53;
+      --scheme-header-image: linear-gradient(135deg, #e6f1e9, #dee8e1);
+      --scheme-footer-image: linear-gradient(#deeae1, #d6e4da);
+      --scheme-feature-image: linear-gradient(135deg, #dbf7e1, #cdf2d6);
+      --scheme-feature-image-hover: linear-gradient(135deg, #d2f5da, #c4f0ce);
+      --scheme-series-1-end: #5ac576;
+      --scheme-series-2-end: #cef0c7;
+      --scheme-error: #ae1320;
+      --scheme-error-chip: #ffebe9;
+  }
+  :root.dark[data-scheme="ze-louka"] {
+      --scheme-page: #090d0b; --scheme-card: #121613; --scheme-stripe: #151a16; --scheme-fill: #1c211d; --scheme-rule: #282d29; --scheme-line: #232824;
+      --scheme-field: #090d0b; --scheme-edge: #737975; --scheme-muted: #acb3ae; --scheme-ink: #e9eeeb; --scheme-tint: #18301f; --scheme-track: #2a2f2b;
+      --scheme-action: #79c58e; --scheme-on-action: #021407; --scheme-action-deep: #8ad79f; --scheme-link: #8cd09e; --scheme-on-feature: #ffffff; --scheme-danger: #f47b74;
+      --scheme-on-danger: #090d0b; --scheme-success: #0fc7c0; --scheme-success-chip: #003331; --scheme-warning: #f47b74; --scheme-warning-chip: #3a1d1c; --scheme-series-1: #79c58e;
+      --scheme-series-2: #507359; --scheme-cat-1: #79c58e; --scheme-cat-2: #507359; --scheme-cat-3: #3d5442; --scheme-brand: #79c58e; --scheme-on-brand: #021407;
+      --scheme-brand-dot: #021407; --scheme-brand-inverse: #79c58e; --scheme-on-brand-inverse: #021407; --scheme-brand-dot-inverse: #021407; --scheme-header: #111d15; --scheme-on-header: #e9eeeb;
+      --scheme-on-header-muted: #acb3ae; --scheme-header-active: #24352a; --scheme-header-hover: #1a281e; --scheme-footer: #020803; --scheme-footer-deep: #010502; --scheme-on-footer: #ffffff;
+      --scheme-on-footer-muted: #adb3ae;
+      --scheme-header-image: linear-gradient(135deg, #141f18, #0e1a12);
+      --scheme-footer-image: linear-gradient(135deg, #020803, #010502);
+      --scheme-feature-image: linear-gradient(135deg, #1a3e26, #14381f);
+      --scheme-feature-image-hover: linear-gradient(135deg, #1f472c, #194025);
+      --scheme-series-1-end: #9edcaa;
+      --scheme-series-2-end: #748f6f;
+      --scheme-error: #f47b74;
+      --scheme-error-chip: #3a1d1c;
+  }
+}

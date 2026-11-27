@@ -2,14 +2,52 @@ import { ChevronsUpDown, Plus } from 'lucide-react'
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { nameKey } from '@/domain/id'
+import { invoiceTotals, type CustomerSummary } from '@/domain/invoice'
 import type { Customer } from '@/domain/schema'
+import { useFormat } from '@/ui/format'
 import { cn } from '@/ui/primitives'
 
 const NO_RECENT: string[] = []
 
+/**
+ * One customer in the list, on two rows (the owner, 2026-11-27: the list is wide, so it can say more). The first is the
+ * customer: name, then city and IČ at the right. The second is their latest document, labelled as such ("Poslední faktura"
+ * with its date, amount and what it was for; without the label the text read as a description of the customer), and at
+ * the right how many are overdue (in the warning colour, with words) or how many documents there are.
+ */
+function CustomerRow({ customer: c, summary: s, active, onHover, onPick }: { customer: Customer; summary?: CustomerSummary; active: boolean; onHover: () => void; onPick: () => void }) {
+  const { t } = useTranslation()
+  const f = useFormat()
+  const where = [c.address.city || c.address.country, c.ic && `${t('fields.ic')} ${c.ic}`].filter(Boolean).join(' · ')
+  const lastFor = s?.last.lines.find((l) => l.description.trim())?.description
+  return (
+    <button type="button" onMouseEnter={onHover} onClick={onPick}
+      className={cn('block w-full space-y-0.5 rounded-xs px-3 py-2 text-left text-sm leading-label', active && 'bg-surface-2')}>
+      {/* Who: the name, with where they are and their IČ at the right. */}
+      <span className="flex items-baseline justify-between gap-6">
+        <span className="truncate font-medium">{c.name}</span>
+        <span className="shrink-0 text-xs whitespace-nowrap text-fg-muted tabular-nums">{where}</span>
+      </span>
+      {/* Their latest document, said to be that: its date, amount and what it was for; then what is overdue, or how many. */}
+      <span className="flex items-baseline justify-between gap-6 text-xs text-fg-muted">
+        {s ? <>
+          <span className="truncate">
+            <span className="tabular-nums">{t('editor.customerInfo.last', { date: f.date(s.last.issueDate) })} · {f.money(invoiceTotals(s.last).total, s.last.currency)}</span>
+            {lastFor && ` · ${lastFor}`}
+          </span>
+          {s.overdue > 0 ? <span className="shrink-0 font-medium whitespace-nowrap text-warning">{t('editor.customerInfo.overdue', { count: s.overdue })}</span>
+            : <span className="shrink-0 whitespace-nowrap">{t('editor.customerInfo.count', { count: s.count })}</span>}
+        </> : <span>{t('editor.customerInfo.none')}</span>}
+      </span>
+    </button>
+  )
+}
+
 /** Searchable customer select, keyboard-friendly (↑ ↓ Enter Esc). */
-export function CustomerPicker({ customers, value, name, onChange, onCreate, autoFocus, recent = NO_RECENT, ...aria }: {
+export function CustomerPicker({ customers, value, name, onChange, onCreate, autoFocus, recent = NO_RECENT, summaries, ...aria }: {
   customers: Customer[]; value: string | null; onChange: (c: Customer) => void
+  /** Per customer id: their documents so far, shown in each row (the latest one's text, date and amount, the overdue ones). */
+  summaries?: Map<string, CustomerSummary>
   /** Ids of the customers invoiced last; with nothing typed they come first, under their own heading. */
   recent?: string[]
   /** The name to show for the picked customer: the invoice's printed name, which an issued invoice keeps after the customer is renamed. */
@@ -72,7 +110,7 @@ export function CustomerPicker({ customers, value, name, onChange, onCreate, aut
         <ChevronsUpDown className="size-4 text-fg-subtle" />
       </div>
       {open && (
-        <div className="animate-rise absolute z-20 mt-1 max-h-72 w-full overflow-auto rounded-xl border border-line bg-surface p-1">
+        <div className="animate-rise absolute z-20 mt-1 max-h-96 w-full overflow-auto rounded-xl border border-line bg-surface p-1">
           {list.length === 0 && !canCreate && <div className="px-3 py-2 text-sm text-fg-muted">{t('editor.noCustomer')}</div>}
           {list.map((c, i) => (
             <Fragment key={c.id}>
@@ -81,11 +119,7 @@ export function CustomerPicker({ customers, value, name, onChange, onCreate, aut
                   {t(i === 0 ? 'editor.recentCustomers' : 'editor.allCustomers')}
                 </div>
               )}
-              <button type="button" onMouseEnter={() => setActive(i)} onClick={() => pick(c)}
-                className={cn('flex w-full items-center justify-between rounded-xs px-3 py-2 text-left text-sm leading-label', i === active && 'bg-surface-2')}>
-                <span className="truncate">{c.name}</span>
-                <span className="ml-3 shrink-0 tabular-nums text-xs text-fg-subtle">{c.ic || c.address.country}</span>
-              </button>
+              <CustomerRow customer={c} summary={summaries?.get(c.id)} active={i === active} onHover={() => setActive(i)} onPick={() => pick(c)} />
             </Fragment>
           ))}
           {canCreate && (

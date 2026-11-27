@@ -17,9 +17,14 @@ import { navigate, type Route } from '@/ui/router'
 import { AresLookup } from './AresLookup'
 
 /** What a customer paid: CZK, plus any amount without an exchange rate in its own currency ("8 500 Kč + 1 500 NZ$"). */
+/** What a customer has paid, as [currency, amount] parts: the total in Kč (left out when it is 0 and there is a foreign part), then each currency that has no rate. */
+export function paidParts(s: CustomerStats): [string, number][] {
+  const foreign = Object.entries(s.paidUnconverted)
+  return [...(s.paid || !foreign.length ? [['CZK', s.paid] as [string, number]] : []), ...foreign]
+}
+
 export function formatPaid(f: ReturnType<typeof useFormat>, s: CustomerStats): string {
-  const foreign = Object.entries(s.paidUnconverted).map(([cur, v]) => f.money(v, cur))
-  return [...(s.paid || !foreign.length ? [f.money(s.paid)] : []), ...foreign].join(' + ')
+  return paidParts(s).map(([cur, v]) => f.money(v, cur)).join(' + ')
 }
 
 export const emptyCustomer = (name = ''): Customer => ({

@@ -1,0 +1,43 @@
+/* Colour scheme "Hvozd a zlato": the structure of the official form, in green. A solid forest-green bar with white text (the current page a lighter step of
+   it, the logo a white square with a green letter) over a green-tinted paper under white cards; green buttons and links, a pale green
+   "new" tile, a footer of darker paper. The companion is gold, only in last year's bars. The move: one deliberate brand area, the bar.
+   A trial variant of 2026-11-26 (schemes/zelena/zadani.md). Built in OKLCH; every pair computed in light and dark
+   (src/design/schemes.test.ts). */
+@layer base {
+  :root[data-scheme="ze-hvozd"] {
+      --scheme-page: #ebf8ed; --scheme-card: #ffffff; --scheme-stripe: #f5fbf6; --scheme-fill: #e5eee6; --scheme-rule: #d3ddd4; --scheme-line: #d9e3da;
+      --scheme-field: #ffffff; --scheme-edge: #818d83; --scheme-muted: #516253; --scheme-ink: #0d1c11; --scheme-tint: #e3f5e7; --scheme-track: #dbe5dc;
+      --scheme-action: #1b6236; --scheme-on-action: #ffffff; --scheme-action-deep: #104f29; --scheme-link: #175f33; --scheme-on-feature: #104f29; --scheme-danger: #d02c2a;
+      --scheme-on-danger: #ffffff; --scheme-success: #02736e; --scheme-success-chip: #d3f9f6; --scheme-warning: #ae1320; --scheme-warning-chip: #ffebe9; --scheme-series-1: #217541;
+      --scheme-series-2: #ebc75e; --scheme-cat-1: #217541; --scheme-cat-2: #ebc75e; --scheme-cat-3: #c9e7d0; --scheme-brand: #ffffff; --scheme-on-brand: #1b6236;
+      --scheme-brand-dot: #1b6236; --scheme-brand-inverse: #1b6236; --scheme-on-brand-inverse: #ffffff; --scheme-brand-dot-inverse: #ffffff; --scheme-header: #1b6236; --scheme-on-header: #ffffff;
+      --scheme-on-header-muted: #daf5e0; --scheme-header-active: #2b7444; --scheme-header-hover: #276c3f; --scheme-footer: #e0f0e3; --scheme-footer-deep: #daeadc; --scheme-on-footer: #0d1c11;
+      --scheme-on-footer-muted: #4c5d4f;
+      --scheme-header-image: linear-gradient(135deg, #1f6539, #165e32);
+      --scheme-footer-image: linear-gradient(#e0f0e3, #daeadc);
+      --scheme-feature-image: linear-gradient(135deg, #daf8df, #cdf3d3);
+      --scheme-feature-image-hover: linear-gradient(135deg, #d1f6d7, #c3f1cb);
+      --scheme-series-1-end: #5cb572;
+      --scheme-series-2-end: #f2e38b;
+      --scheme-error: #ae1320;
+      --scheme-error-chip: #ffebe9;
+  }
+  :root.dark[data-scheme="ze-hvozd"] {
+      --scheme-page: #080e09; --scheme-card: #111712; --scheme-stripe: #141a15; --scheme-fill: #1b211c; --scheme-rule: #272d28; --scheme-line: #222823;
+      --scheme-field: #080e09; --scheme-edge: #727a73; --scheme-muted: #a9b5ab; --scheme-ink: #e8efe9; --scheme-tint: #18301f; --scheme-track: #283029;
+      --scheme-action: #79c58e; --scheme-on-action: #021407; --scheme-action-deep: #8ad79f; --scheme-link: #8cd09e; --scheme-on-feature: #ffffff; --scheme-danger: #f47b74;
+      --scheme-on-danger: #080e09; --scheme-success: #0fc7c0; --scheme-success-chip: #003331; --scheme-warning: #f47b74; --scheme-warning-chip: #3a1d1c; --scheme-series-1: #79c58e;
+      --scheme-series-2: #7f6617; --scheme-cat-1: #79c58e; --scheme-cat-2: #7f6617; --scheme-cat-3: #3d5442; --scheme-brand: #79c58e; --scheme-on-brand: #021407;
+      --scheme-brand-dot: #021407; --scheme-brand-inverse: #79c58e; --scheme-on-brand-inverse: #021407; --scheme-brand-dot-inverse: #021407; --scheme-header: #121c14; --scheme-on-header: #e8efe9;
+      --scheme-on-header-muted: #a9b5ab; --scheme-header-active: #253529; --scheme-header-hover: #1b281e; --scheme-footer: #020703; --scheme-footer-deep: #010502; --scheme-on-footer: #ffffff;
+      --scheme-on-footer-muted: #abb4ac;
+      --scheme-header-image: linear-gradient(135deg, #141f17, #0f1a12);
+      --scheme-footer-image: linear-gradient(135deg, #020703, #010502);
+      --scheme-feature-image: linear-gradient(135deg, #1c3e24, #15371e);
+      --scheme-feature-image-hover: linear-gradient(135deg, #21472a, #1a4024);
+      --scheme-series-1-end: #9edcaa;
+      --scheme-series-2-end: #94873c;
+      --scheme-error: #f47b74;
+      --scheme-error-chip: #3a1d1c;
+  }
+}

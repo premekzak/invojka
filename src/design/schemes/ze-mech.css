@@ -1,0 +1,43 @@
+/* Colour scheme "Mech a levandule": green sits in the frame. A pale moss-green bar (the current page a lighter step of it) and a footer of the same green
+   round a white page with near-neutral greys; moss green buttons, links and logo. The companion is lavender: the "new" tile, the row
+   hover, last year's bars and the logo's dot. The move: one deliberate pale brand area, the content neutral.
+   A trial variant of 2026-11-26 (schemes/zelena/zadani.md). Built in OKLCH; every pair computed in light and dark
+   (src/design/schemes.test.ts). */
+@layer base {
+  :root[data-scheme="ze-mech"] {
+      --scheme-page: #fafbfa; --scheme-card: #ffffff; --scheme-stripe: #f8f9f8; --scheme-fill: #eef0ee; --scheme-rule: #d8dbd8; --scheme-line: #dee0de;
+      --scheme-field: #ffffff; --scheme-edge: #878a87; --scheme-muted: #5a5e59; --scheme-ink: #101c0f; --scheme-tint: #efedfe; --scheme-track: #e0e3e0;
+      --scheme-action: #30662e; --scheme-on-action: #ffffff; --scheme-action-deep: #245422; --scheme-link: #276125; --scheme-on-feature: #4e3e89; --scheme-danger: #d02c2a;
+      --scheme-on-danger: #ffffff; --scheme-success: #00736a; --scheme-success-chip: #d3f9f4; --scheme-warning: #ae1320; --scheme-warning-chip: #ffebe9; --scheme-series-1: #40843d;
+      --scheme-series-2: #b8aeea; --scheme-cat-1: #40843d; --scheme-cat-2: #b8aeea; --scheme-cat-3: #cde6cb; --scheme-brand: #30662e; --scheme-on-brand: #ffffff;
+      --scheme-brand-dot: #d4cdfe; --scheme-brand-inverse: #30662e; --scheme-on-brand-inverse: #ffffff; --scheme-brand-dot-inverse: #d4cdfe; --scheme-header: #d7efd8; --scheme-on-header: #0b200d;
+      --scheme-on-header-muted: #466047; --scheme-header-active: #eefaee; --scheme-header-hover: #cbe7cb; --scheme-footer: #d7efd8; --scheme-footer-deep: #cfead0; --scheme-on-footer: #0b200d;
+      --scheme-on-footer-muted: #466047;
+      --scheme-header-image: linear-gradient(135deg, #dbf3dc, #d3ebd3);
+      --scheme-footer-image: linear-gradient(#d7efd8, #cfead0);
+      --scheme-feature-image: linear-gradient(135deg, #f0eefe, #e9e5ff);
+      --scheme-feature-image-hover: linear-gradient(135deg, #ece9ff, #e5e1ff);
+      --scheme-series-1-end: #8dbc58;
+      --scheme-series-2-end: #e3c5ea;
+      --scheme-error: #ae1320;
+      --scheme-error-chip: #ffebe9;
+  }
+  :root.dark[data-scheme="ze-mech"] {
+      --scheme-page: #0b0d0b; --scheme-card: #131613; --scheme-stripe: #171917; --scheme-fill: #1e201d; --scheme-rule: #2a2c29; --scheme-line: #252725;
+      --scheme-field: #0b0d0b; --scheme-edge: #757875; --scheme-muted: #aeb2ae; --scheme-ink: #ebeeeb; --scheme-tint: #2b263f; --scheme-track: #2c2f2c;
+      --scheme-action: #87c383; --scheme-on-action: #051404; --scheme-action-deep: #98d594; --scheme-link: #98cf94; --scheme-on-feature: #ffffff; --scheme-danger: #f47b74;
+      --scheme-on-danger: #0b0d0b; --scheme-success: #13c8b9; --scheme-success-chip: #02332f; --scheme-warning: #f47b74; --scheme-warning-chip: #3a1d1c; --scheme-series-1: #87c383;
+      --scheme-series-2: #69628b; --scheme-cat-1: #87c383; --scheme-cat-2: #69628b; --scheme-cat-3: #40533f; --scheme-brand: #87c383; --scheme-on-brand: #051404;
+      --scheme-brand-dot: #051404; --scheme-brand-inverse: #87c383; --scheme-on-brand-inverse: #051404; --scheme-brand-dot-inverse: #051404; --scheme-header: #131c13; --scheme-on-header: #ebeeeb;
+      --scheme-on-header-muted: #aeb2ae; --scheme-header-active: #273527; --scheme-header-hover: #1c271c; --scheme-footer: #020703; --scheme-footer-deep: #010401; --scheme-on-footer: #ffffff;
+      --scheme-on-footer-muted: #afb2af;
+      --scheme-header-image: linear-gradient(135deg, #161f16, #101911);
+      --scheme-footer-image: linear-gradient(135deg, #020703, #010401);
+      --scheme-feature-image: linear-gradient(135deg, #362f52, #30294b);
+      --scheme-feature-image-hover: linear-gradient(135deg, #3e365c, #383055);
+      --scheme-series-1-end: #b6d796;
+      --scheme-series-2-end: #987a9e;
+      --scheme-error: #f47b74;
+      --scheme-error-chip: #3a1d1c;
+  }
+}

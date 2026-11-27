@@ -1,0 +1,42 @@
+/* Colour scheme "Pistácie a kakao": the page is clearly green, a pistachio (C 0.032) under white cards, the bar the colour of the page, and the "new" tile a
+   deeper pistachio; leaf-green buttons and links. The companion is cocoa: the logo square, a dark cocoa footer and last year's bars
+   in tan. The move: green as the ground everything sits on.
+   A trial variant of 2026-11-26 (schemes/zelena/zadani.md). Built in OKLCH; every pair computed in light and dark
+   (src/design/schemes.test.ts). */
+@layer base {
+  :root[data-scheme="ze-pistacie"] {
+      --scheme-page: #e7f5e0; --scheme-card: #ffffff; --scheme-stripe: #f6fbf4; --scheme-fill: #e7ede4; --scheme-rule: #d5ddd2; --scheme-line: #dbe2d8;
+      --scheme-field: #ffffff; --scheme-edge: #848c80; --scheme-muted: #55614f; --scheme-ink: #111c0e; --scheme-tint: #e7f4e4; --scheme-track: #dde5da;
+      --scheme-action: #34622a; --scheme-on-action: #ffffff; --scheme-action-deep: #28501f; --scheme-link: #2c5a21; --scheme-on-feature: #22441a; --scheme-danger: #cf2a29;
+      --scheme-on-danger: #ffffff; --scheme-success: #04755d; --scheme-success-chip: #d6f9ed; --scheme-warning: #ae1320; --scheme-warning-chip: #ffebe9; --scheme-series-1: #3f7932;
+      --scheme-series-2: #d3b08f; --scheme-cat-1: #3f7932; --scheme-cat-2: #d3b08f; --scheme-cat-3: #cfe6ca; --scheme-brand: #492e1b; --scheme-on-brand: #c5ecb0;
+      --scheme-brand-dot: #c5ecb0; --scheme-brand-inverse: #ffffff; --scheme-on-brand-inverse: #492e1b; --scheme-brand-dot-inverse: #492e1b; --scheme-header: #e7f5e0; --scheme-on-header: #111c0e;
+      --scheme-on-header-muted: #515c4b; --scheme-header-active: #dde5da; --scheme-header-hover: #e7ede4; --scheme-footer: #3d281a; --scheme-footer-deep: #372214; --scheme-on-footer: #ffffff;
+      --scheme-on-footer-muted: #dbc6b8;
+      --scheme-footer-image: linear-gradient(135deg, #3d281a, #372214);
+      --scheme-feature-image: linear-gradient(135deg, #d5f0c8, #c9ebb7);
+      --scheme-feature-image-hover: linear-gradient(135deg, #cdeebc, #c1e9ab);
+      --scheme-series-1-end: #90bf5b;
+      --scheme-series-2-end: #e6cda5;
+      --scheme-error: #ae1320;
+      --scheme-error-chip: #ffebe9;
+  }
+  :root.dark[data-scheme="ze-pistacie"] {
+      --scheme-page: #0a0e08; --scheme-card: #121610; --scheme-stripe: #161a13; --scheme-fill: #1c211a; --scheme-rule: #282d26; --scheme-line: #242821;
+      --scheme-field: #0a0e08; --scheme-edge: #747971; --scheme-muted: #acb4a8; --scheme-ink: #eaefe7; --scheme-tint: #1e301a; --scheme-track: #2a3027;
+      --scheme-action: #8bc27f; --scheme-on-action: #061304; --scheme-action-deep: #9cd490; --scheme-link: #9cce91; --scheme-on-feature: #ffffff; --scheme-danger: #f47b74;
+      --scheme-on-danger: #0a0e08; --scheme-success: #3ac8a4; --scheme-success-chip: #083328; --scheme-warning: #f47b74; --scheme-warning-chip: #3a1d1c; --scheme-series-1: #8bc27f;
+      --scheme-series-2: #7d634f; --scheme-cat-1: #8bc27f; --scheme-cat-2: #7d634f; --scheme-cat-3: #42533e; --scheme-brand: #8bc27f; --scheme-on-brand: #061304;
+      --scheme-brand-dot: #061304; --scheme-brand-inverse: #8bc27f; --scheme-on-brand-inverse: #061304; --scheme-brand-dot-inverse: #061304; --scheme-header: #121610; --scheme-on-header: #eaefe7;
+      --scheme-on-header-muted: #acb4a8; --scheme-header-active: #2a3027; --scheme-header-hover: #1e221b; --scheme-footer: #0b0401; --scheme-footer-deep: #070200; --scheme-on-footer: #ffffff;
+      --scheme-on-footer-muted: #adb3aa;
+      --scheme-header-image: linear-gradient(135deg, #151913, #10140d);
+      --scheme-footer-image: linear-gradient(135deg, #0b0401, #070200);
+      --scheme-feature-image: linear-gradient(135deg, #283c1b, #213615);
+      --scheme-feature-image-hover: linear-gradient(135deg, #2e4520, #273e1a);
+      --scheme-series-1-end: #b6d796;
+      --scheme-series-2-end: #958468;
+      --scheme-error: #f47b74;
+      --scheme-error-chip: #3a1d1c;
+  }
+}

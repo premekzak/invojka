@@ -85,6 +85,9 @@
   --color-warning: var(--scheme-warning);
   --color-warning-chip: var(--scheme-warning-chip);
   --color-warning-chip-fg: var(--scheme-warning);
+  /* Optional: the box that lists a form's mistakes; without --scheme-error and --scheme-error-chip it uses the warning pair. */
+  --color-error: var(--scheme-error, var(--scheme-warning));
+  --color-error-chip: var(--scheme-error-chip, var(--scheme-warning-chip));
   --color-success: var(--scheme-success);
   --color-success-chip: var(--scheme-success-chip);
 

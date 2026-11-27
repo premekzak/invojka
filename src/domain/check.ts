@@ -81,6 +81,8 @@ export function checkData(data: { settings: Settings; customers: Customer[]; inv
   const pattern = settings.numbering.pattern
   const periods = new Map<string, { seq: number; inv: Invoice }[]>()
   for (const inv of invoices) {
+    // Drafts hold provisional numbers (they are numbered when issued), so they neither fill nor make a gap.
+    if (inv.status === 'draft') continue
     const seq = sequenceOf(pattern, inv.issueDate, inv.number)
     if (seq === undefined) continue
     const p = periodOf(pattern, inv.issueDate)

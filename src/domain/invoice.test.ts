@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { displayStatus, newInvoice, recentCustomerIds, snapshotDiffers, withVatMode } from './invoice'
+import { customerSummaries, displayStatus, newInvoice, recentCustomerIds, snapshotDiffers, withIssueNumber, withVatMode } from './invoice'
 import { SCHEMA_VERSION, Settings, type Customer, type Invoice } from './schema'
 
 const settings = Settings.parse({ schemaVersion: SCHEMA_VERSION, supplier: { name: 'Me' }, vatMode: 'nonPayer' })
@@ -20,6 +20,56 @@ describe('recentCustomerIds', () => {
     expect(recentCustomerIds(invoices)).toEqual(['a', 'b', 'c'])
     expect(recentCustomerIds(invoices, 2)).toEqual(['a', 'b'])
     expect(recentCustomerIds([])).toEqual([])
+  })
+})
+
+describe('customerSummaries', () => {
+  it('counts documents, keeps the latest and counts the overdue ones, without cancelled', () => {
+    const at = (customerId: string | null, issueDate: string, number: string, more: Partial<Invoice> = {}): Invoice => ({ ...previous, customerId, issueDate, dueDate: issueDate, number, ...more })
+    const invoices = [
+      at('a', '2026-01-10', '1', { status: 'paid' }), at('a', '2026-04-01', '3'), at('a', '2026-04-01', '2'),
+      at('a', '2026-05-01', '6', { status: 'cancelled' }), at('b', '2026-09-01', '4'), at(null, '2026-05-01', '5'),
+    ]
+    const s = customerSummaries(invoices, '2026-06-01')
+    expect(s.get('a')).toMatchObject({ count: 3, overdue: 2, last: { number: '3' } })
+    expect(s.get('b')).toMatchObject({ count: 1, overdue: 0 })
+    expect(s.size).toBe(2)
+  })
+})
+
+describe('withIssueNumber', () => {
+  const doc = (id: string, number: string, status: Invoice['status'], more: Partial<Invoice> = {}): Invoice =>
+    ({ ...previous, id, number, variableSymbol: number, status, issueDate: '2026-09-10', ...more })
+  const issued = [doc('i7', '20260007', 'paid'), doc('i8', '20260008', 'issued')]
+
+  it('keeps a draft that is next in the issued series', () => {
+    const draft = doc('d', '20260009', 'draft')
+    expect(withIssueNumber(settings, [...issued, draft], draft)).toEqual({ invoice: draft, moved: [] })
+  })
+  it('numbers by the issued series, not by older drafts, and moves the draft that held the number', () => {
+    // An older draft waits with 9; the newer draft (10) is issued first and must be 9, so nothing is missing.
+    const waiting = doc('a', '20260009', 'draft'), draft = doc('b', '20260010', 'draft')
+    const { invoice, moved } = withIssueNumber(settings, [...issued, waiting, draft], draft)
+    expect(invoice).toMatchObject({ number: '20260009', variableSymbol: '20260009' })
+    expect(moved).toEqual([{ ...waiting, number: '20260010', variableSymbol: '20260010' }])
+  })
+  it('fills the number a deleted draft left behind', () => {
+    // Draft 9 was deleted, draft 10 remains: issued it becomes 9.
+    const draft = doc('b', '20260010', 'draft')
+    expect(withIssueNumber(settings, [...issued, draft], draft).invoice.number).toBe('20260009')
+  })
+  it('keeps a number the user typed, one outside the pattern, and its own payment reference', () => {
+    const typed = doc('d', '20260020', 'draft', { numberManual: true })
+    expect(withIssueNumber(settings, [...issued, typed], typed).invoice.number).toBe('20260020')
+    const custom = doc('d', 'FV-12', 'draft')
+    expect(withIssueNumber(settings, [...issued, custom], custom).invoice.number).toBe('FV-12')
+    const ownVs = doc('d', '20260010', 'draft', { variableSymbol: '555' })
+    expect(withIssueNumber(settings, [...issued, ownVs], ownVs).invoice).toMatchObject({ number: '20260009', variableSymbol: '555' })
+  })
+  it('counts each kind in its own series and leaves issued documents alone', () => {
+    const proforma = doc('p', 'Z20260003', 'draft', { kind: 'proforma' })
+    expect(withIssueNumber(settings, [...issued, proforma], proforma).invoice.number).toBe('Z20260001')
+    expect(withIssueNumber(settings, issued, issued[1]!)).toEqual({ invoice: issued[1], moved: [] })
   })
 })
 

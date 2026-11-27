@@ -37,6 +37,7 @@ The rules live in `domain/vat.ts`:
 - **The sequence restarts every year, or every month when the pattern contains `{MM}`.** `nextNumber(pattern, issueDate, existing)` takes the highest existing number that matches the pattern for that period, plus one. Numbers stay unique because the month is part of them. The owner's historical numbers (`20260008`) fit the default `{YYYY}{NNNN}`.
 - The payment reference (variable symbol) defaults to the number's digits, at most 10 of them in QR Platba; a reference without digits leaves `X-VS` out of the QR code rather than sending it empty.
 - The editor rejects a number that another invoice already has.
+- **A draft's number is provisional; the final one is given at issue** (the owner, 2026-11-27: a draft can stay while a later invoice is issued, or be deleted, and the series stopped following). A new draft still shows the next free number, but "Vystavit" calls `withIssueNumber` (`domain/invoice.ts`): the document gets the next number after the *issued* documents of its kind and period, so the issued series has no gaps and runs in the order of issue whatever happens to drafts. Another draft that held that number moves to the next provisional one. The payment reference follows when it was the number's digits. Kept as they are: a number the user typed (`numberManual`, set by editing the field) and a number outside the pattern. The review step shows the PDF with the final number and says when it differs from the draft's. `checkData()` judges gaps and order on issued documents only.
 
 ## New invoices
 

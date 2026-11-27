@@ -9,9 +9,9 @@ const lang = z.enum(['cs', 'en'])
 /** An invoice can also be printed in German or Slovak; the app itself speaks Czech and English (domain/language.ts). */
 const invoiceLang = z.enum(INVOICE_LANGS)
 /** Colour schemes, in the order Settings offers them; each has a file in src/design/schemes/. */
-export const SCHEMES = ['jasny-oblak', 'ur-protokol', 'warm', 'zl-uredni', 'ur-formular', 'ur-kolek', 'ur-spis', 'ur-obalka', 'ur-archiv', 'ur-svetla', 'ob-seda', 'ob-g-lista', 'ob-g-dlazdice', 'ob-g-ramec', 'ob-g-nadech', 'ob-g-oba', 'ob-g-grafy', 'ob-gs-more', 'ob-gs-soumrak', 'ob-gs-dlazdice', 'ob-gs-nadech', 'ob-gs-ramec', 'nv-fialka', 'nv-les', 'nv-terakota', 'nv-led'] as const
+export const SCHEMES = ['nv-terakota', 'jasny-oblak', 'ur-protokol', 'warm', 'zl-uredni', 'ur-formular', 'ur-kolek', 'ur-spis', 'ur-obalka', 'ur-archiv', 'ur-svetla', 'ob-seda', 'ob-g-lista', 'ob-g-dlazdice', 'ob-g-ramec', 'ob-g-nadech', 'ob-g-oba', 'ob-g-grafy', 'ob-gs-more', 'ob-gs-soumrak', 'ob-gs-dlazdice', 'ob-gs-nadech', 'ob-gs-ramec', 'nv-fialka', 'nv-les', 'nv-led', 'ze-salvej', 'ze-mata', 'ze-eukalyptus', 'ze-mech', 'ze-jedle', 'ze-louka', 'ze-hvozd', 'ze-pistacie', 'ze-limetka', 'ze-oliva'] as const
 /** The scheme with no data-scheme attribute: new folders, the welcome screen, and any saved id no longer in SCHEMES. */
-export const DEFAULT_SCHEME = 'jasny-oblak' satisfies (typeof SCHEMES)[number]
+export const DEFAULT_SCHEME = 'nv-terakota' satisfies (typeof SCHEMES)[number]
 /** Accent colours offered for the invoice PDF; the values are in pdf/palette.ts. */
 export const INVOICE_COLORS = ['neutral', 'blue', 'teal', 'green', 'wine', 'orange'] as const
 /** How the customer pays: bank transfer, cash, or cash on delivery (dobírka). Only 'bank' prints the account and QR. */
@@ -129,7 +129,7 @@ export const Settings = z.object({
     language: lang.default('cs'),
     theme: z.enum(['system', 'light', 'dark']).default('system'),
     /**
-     * Colour scheme (docs/ui.md#colour-schemes); the default is DEFAULT_SCHEME, Jasný oblak since 2026-11-04 (Protokol, 'ur-protokol', from 2026-11-01; Warm paper, 'warm', before). Light and dark come from `theme`.
+     * Colour scheme (docs/ui.md#colour-schemes); the default is DEFAULT_SCHEME, Terakota since 2026-11-20 (Jasný oblak, 'jasny-oblak', from 2026-11-04; Protokol, 'ur-protokol', from 2026-11-01; Warm paper, 'warm', before). Light and dark come from `theme`.
      * A scheme that no longer exists (removed or renamed) falls back to the default instead of failing the whole settings file.
      */
     scheme: z.enum(SCHEMES).default(DEFAULT_SCHEME).catch(DEFAULT_SCHEME),
@@ -227,6 +227,11 @@ export const Invoice = z.object({
   privateNote: z.string().default(''),
   /** Written off as uncollectible (nedobytná) on this date; it stays revenue but no longer waits for payment. */
   uncollectible: isoDate.optional(),
+  /**
+   * The user typed this number themselves, so issuing keeps it. Without it a draft's number is provisional: the
+   * document gets the next number of the issued series when it is issued (`withIssueNumber` in invoice.ts).
+   */
+  numberManual: z.boolean().optional(),
   /** The user's own labels, for finding and filtering. */
   tags: z.array(z.string()).default([]),
   /** When the invoice was sent and when reminders went out (yyyy-mm-dd), as the user opened them in their mail program. */

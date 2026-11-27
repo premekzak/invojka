@@ -5,7 +5,7 @@ import { today } from '@/domain/id'
 import { amountDue, daysOverdue, displayStatus, invoiceTotals, type DisplayStatus } from '@/domain/invoice'
 import { countsAsRevenue } from '@/domain/stats'
 import { useStore } from '@/state/store'
-import { StatusBadge, useFormat } from '@/ui/format'
+import { Money, StatusBadge, useFormat } from '@/ui/format'
 import { Button, Card, Input, Select, cn } from '@/ui/primitives'
 import { markChanged, recentlyChanged } from '@/ui/highlight'
 import { MoreMenu } from '@/ui/MoreMenu'
@@ -72,8 +72,8 @@ export function InvoiceList({ route }: { route: Route }) {
   const sumByCurrency = useMemo(() => {
     const m = new Map<string, number>()
     for (const r of summed) m.set(r.inv.currency, (m.get(r.inv.currency) ?? 0) + r.totals.total)
-    return [...m.entries()].map(([c, v]) => f.money(v, c))
-  }, [summed, f])
+    return [...m.entries()]
+  }, [summed])
 
   function markPaid(id: string) {
     const inv = invoices.find((i) => i.id === id)!
@@ -135,28 +135,34 @@ export function InvoiceList({ route }: { route: Route }) {
 
       <Card className="overflow-x-auto">
         <table className="w-full text-sm leading-label max-md:min-w-[36rem]">
-          {/* Soft stripes instead of row lines (the owner's choice "T-C", 2026-10-17): even rows stripe, hover one step darker. */}
-          <thead className="text-left text-xs text-fg-muted">
+          {/* A pale band for the header and a hairline between rows (the owner's pick "F" of eight looks, 2026-11-27; soft
+              stripes with no lines before, "T-C" of 2026-10-17); hover is a tint.
+              Type (the owner, 2026-11-27): three levels, by weight and lightness: who and how much (the name 500, the figure 600),
+              the number in plain ink, then dates and second lines muted. Cells are top-aligned, so every first line sits on
+              one line and the second line (what it was for, the kind of document) hangs under it. */}
+          <thead className="bg-surface-2 text-left text-xs whitespace-nowrap text-fg-muted">
             <tr>
-              <th className="py-3 pr-4 pl-6 font-medium">{t('invoices.number')}</th>
-              <th className="px-4 py-3 font-medium">{t('invoices.customer')}</th>
-              <th className="px-4 py-3 text-right font-medium">{t('invoices.issued')}</th>
-              <th className="px-4 py-3 text-right font-medium">{t('invoices.due')}</th>
-              <th className="px-4 py-3 text-right font-medium">{t('invoices.total')}</th>
-              <th className="py-3 pr-6 pl-4 text-right font-medium">{t('invoices.status')}</th>
+              <th className="py-2.5 pr-4 pl-6 font-medium">{t('invoices.number')}</th>
+              <th className="px-4 py-2.5 font-medium">{t('invoices.customer')}</th>
+              <th className="px-4 py-2.5 text-right font-medium">{t('invoices.issued')}</th>
+              <th className="px-4 py-2.5 text-right font-medium">{t('invoices.due')}</th>
+              <th className="px-4 py-2.5 text-right font-medium">{t('invoices.total')}</th>
+              <th className="py-2.5 pr-6 pl-4 text-right font-medium">{t('invoices.status')}</th>
             </tr>
           </thead>
           <tbody>
             {rows.slice(0, 300).map(({ inv, status: s, totals }) => (
               <tr key={inv.id} onClick={() => navigate(`/invoices/${inv.id}`)}
-                className={cn('group cursor-pointer transition-colors even:bg-stripe hover:bg-tint', recentlyChanged(inv.id) && 'animate-highlight')}>
-                <td className="py-3 pr-4 pl-6 tabular-nums text-fg-muted">
+                className={cn('group cursor-pointer border-t border-rule align-top transition-colors hover:bg-tint', recentlyChanged(inv.id) && 'animate-highlight')}>
+                <td className="py-3 pr-4 pl-6 whitespace-nowrap tabular-nums">
                   {inv.number}
-                  {inv.kind !== 'invoice' && <div className="text-xs text-fg-subtle">{t(`invoices.kindTag.${inv.kind}`)}</div>}
+                  {inv.kind !== 'invoice' && <div className="mt-0.5 text-xs text-fg-muted">{t(`invoices.kindTag.${inv.kind}`)}</div>}
                 </td>
-                <td className="max-w-xs px-4 py-3">
-                  <div className="truncate font-medium">{inv.customerSnapshot.name}</div>
-                  <div className="truncate text-xs text-fg-subtle">
+                {/* The one column that takes the room that is left (w-full with max-w-0), so a long description is cut where
+                    the table ends, not at a fixed width. */}
+                <td className="w-full max-w-0 px-4 py-3">
+                  <div className="truncate font-medium" title={inv.customerSnapshot.name}>{inv.customerSnapshot.name}</div>
+                  <div className="mt-0.5 truncate text-xs text-fg-muted" title={inv.lines[0]?.description}>
                     {inv.tags.length > 0 && <span className="mr-2 text-fg-muted">{inv.tags.map((tag) => `#${tag}`).join(' ')}</span>}
                     {inv.lines[0]?.description}
                   </div>
@@ -168,11 +174,12 @@ export function InvoiceList({ route }: { route: Route }) {
                   title={s === 'overdue' ? t('invoices.daysOverdue', { count: daysOverdue(inv, on) }) : undefined}>
                   {f.date(inv.dueDate)}
                 </td>
-                <td className="px-4 py-3 text-right font-medium whitespace-nowrap tabular-nums">{f.money(totals.total, inv.currency)}</td>
+                <td className="px-4 py-3 text-right"><Money minor={totals.total} currency={inv.currency} /></td>
                 {/* "Mark paid" sits in the status cell, before the label, so there is no empty column at the right edge.
                     Icon-only; the verb is in the tooltip and the accessible name. */}
-                <td className="py-2 pr-6 pl-4">
-                  <div className="flex items-center justify-end gap-2">
+                {/* As tall as the first line, so the label sits on it; the 32 px button overflows it evenly and adds no height. */}
+                <td className="py-3 pr-6 pl-4">
+                  <div className="flex h-[1.125rem] items-center justify-end gap-2">
                     {(s === 'issued' || s === 'overdue') && (
                       <Button size="sm" variant="secondary" className="w-8 px-0 opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
                         title={t('invoices.markPaid')} aria-label={t('invoices.markPaid')}
@@ -190,13 +197,13 @@ export function InvoiceList({ route }: { route: Route }) {
               enough to sit under the title). */}
           {rows.length > 0 && (
             <tfoot>
-              <tr>
+              <tr className="border-t border-rule">
                 <td colSpan={4} className="py-3 pr-4 pl-6 align-top text-fg-muted">
                   {t('invoices.count', { count: rows.length })}{summed.length < rows.length && t('invoices.countExcludes')}
                 </td>
                 {/* One line per currency, so several never wrap mid-sum. */}
-                <td className="px-4 py-3 text-right font-medium whitespace-nowrap tabular-nums">
-                  {sumByCurrency.length ? sumByCurrency.map((s) => <div key={s}>{s}</div>) : f.money(0)}
+                <td className="px-4 py-3 text-right">
+                  {sumByCurrency.length ? sumByCurrency.map(([c, v]) => <div key={c}><Money minor={v} currency={c} /></div>) : <Money minor={0} />}
                 </td>
                 <td />
               </tr>

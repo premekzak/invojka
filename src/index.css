@@ -28,6 +28,18 @@
 @import "./design/schemes/nv-les.css";
 @import "./design/schemes/nv-terakota.css";
 @import "./design/schemes/nv-led.css";
+/* Trial variants of 2026-11-26: mildly green with one companion hue (schemes/zelena/zadani.md). */
+@import "./design/schemes/ze-salvej.css";
+@import "./design/schemes/ze-mata.css";
+@import "./design/schemes/ze-eukalyptus.css";
+@import "./design/schemes/ze-mech.css";
+@import "./design/schemes/ze-jedle.css";
+/* The second round, same day: green takes more of the screen. */
+@import "./design/schemes/ze-louka.css";
+@import "./design/schemes/ze-hvozd.css";
+@import "./design/schemes/ze-pistacie.css";
+@import "./design/schemes/ze-limetka.css";
+@import "./design/schemes/ze-oliva.css";
 
 /* Invojka's faces for the kit's font roles (docs/ui.md#typography). All embedded by loadUiFonts (src/pdf/fonts.ts). */
 @theme {

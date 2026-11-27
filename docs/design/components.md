@@ -4,7 +4,7 @@ Patterns built on the roles in [tokens.md](tokens.md) and the sizes in [typograp
 
 ## Shapes
 
-- **Small corners.** The radius scale is capped in `theme.css`: `rounded-sm` 2 px, `rounded` and `rounded-md` 3 px, `rounded-lg` 4 px, `rounded-xl` 5 px, `rounded-2xl` 6 px. Status labels use the pill radius `rounded-[12px]`; `rounded-full` only for dots and avatars.
+- **Small corners.** The radius scale is capped in `theme.css`: `rounded-sm` 2 px, `rounded` and `rounded-md` 3 px, `rounded-lg` 4 px, `rounded-xl` 5 px, `rounded-2xl` 6 px. Status labels use the control radius `rounded` (3 px), not a pill (the owner, 2026-11-11: too round); `rounded-full` only for dots and avatars.
 - **Two levels of corner:** controls (`rounded-lg`) and large surfaces one level up (`rounded-2xl` for boxes and dialogs). This kit sits at the square end of the survey ([S2] in [typography.md](typography.md#sources): controls are mostly 6 px elsewhere, surfaces 8–12 px); a project may scale the whole scale up, but keeps the two levels. **Nested corners are concentric:** inner radius = outer radius − the padding between them, never larger than the outer one. So menu items in a `rounded-xl p-1` menu are `rounded-xs`, segments in a `rounded-2xl p-1` track `rounded-sm`.
 - **No shadows.** Depth comes from the page being a step darker than the cards.
 - **Few borders.** A card has a 1 px hairline drawn outside it (`ring-1 ring-rule`), so nothing inside moves. Borders stay where they do a job: fields, secondary buttons, choice cards, and things floating over content (menus, pickers, tooltips).
@@ -70,17 +70,32 @@ Sizes `h-8 px-3`, `h-9 px-4` (the default), `h-12 px-6` (only on a title screen)
 - **Choices** are cards with `role="radio"` in a `role="radiogroup"`: `border-line`, hover `line-strong`, selected `surface-2` with a 2 px `link` edge.
 - **Setting rows:** title and a one-line hint on the left (`max-w-hint`), the control on the right (`sm:w-56`), rows in one card divided by `rule`.
 
+## Steps
+
+A longer task that has a natural order (who, what, how, check) is split into steps: a numbered row under the page title (`Steps`), one box per step, "Back" on the left and the primary "Continue" on the right under the box. The last step is a read-only review of everything, and only there is the button that finishes the task. When the task produces a document, the review shows the document itself, not a summary of it, beside a narrow column with what to fix and the ways back.
+
+- The current step's number sits in an `accent` circle with its name in `fg` at 600; finished steps show a tick, later ones their number, both in `surface-2` with `fg-muted`; a short `line-strong` rule joins them. The row wraps on a phone.
+- Every step is a button. A later step opens only when the earlier ones have no mistake; otherwise the step with the mistake opens, shows it and focuses the field.
+- Don't repeat the finishing button in the page header; things that are not part of the order (save for later, preview, delete) stay there.
+- Each part of the review has an "Edit" link to its step. What blocks finishing is listed in an `error-chip` box, what is only worth a look in a `surface-2` box, each with a link to where it is fixed.
+
 ## Tables and lists
 
-- **Soft stripes, no row lines:** even rows `stripe`, hover `tint`. The header row is 12 px `fg-muted` labels on the card, no fill and no line under it.
+- **A page's main table: a pale header band and hairlines.** The header row is 12 px `fg-muted` labels on a `surface-2` band (40 px tall, clipped by the box's corners), every row has a 1 px `rule` line above it, and hover is `tint`; no stripes (the owner's pick of eight looks, 2026-11-27: stripes in a card, a frameless table, row slips, a ledger with ink rules and an inset card all lost). The band is the lightest neutral step, not a colour: a dark or accent header bar would compete with the data.
+- **Small tables inside a box** (a breakdown under a chart, a short ranking) keep soft stripes with no lines: even rows `stripe`, a plain header.
+- Stripes or lines, never both in one table.
 - Amounts, quantities and dates right-aligned with `tabular-nums`, their headers too; text and codes left-aligned.
+- **Three levels of text, by weight and lightness, no more:** what the row is and its key figure (the name 500, the figure 600), supporting facts in plain ink (a number, a count), and the rest muted (dates, codes, places, second lines). When most columns are grey nothing leads; when most are dark nothing does either.
+- **An amount is a figure with a quiet unit** (`Money`): the digits 600 in ink, the currency 400 muted, so a column of amounts reads as numbers.
+- **Cells are top-aligned**, so every first line sits on one line; a second line (a description, an e-mail, 12 px muted, 2 px under) hangs below it instead of pushing the single-line cells to the middle of the row. A label or button in the last cell sits in a box as tall as the first line.
+- **One column takes the room that is left** (the name; `w-full max-w-0` with `truncate` and the full text in `title`), so long text is cut where the table ends, not at a fixed width. Header labels never wrap. The first and last columns keep 24 px to the box's edge, the others 16 px each side; header and rows share the padding.
 - No empty trailing column: a row action sits in the last cell, shown on hover and on keyboard focus.
 - A summary (count, total) closes the table as its last row, under the column it sums.
 - On phones tables keep a minimum width (36 rem) and scroll sideways inside their box; the page itself never scrolls sideways.
 
 ## Status labels
 
-One style for every state: a soft label (`rounded-[12px] px-2.5 py-0.5 text-xs font-medium`) with a 6 px dot and the word. Neutral states on `surface-2` (a hollow dot for a draft, a `line-strong` dot when active, struck through when cancelled), attention on `warning-chip` with `warning` text, done on `success-chip` with `success` text. Labels aren't clickable, so none uses the accent. The word always says it, so grayscale and colour blindness are fine.
+One style for every state: a soft label (`rounded px-2 py-0.5 text-xs font-medium`) with a 6 px dot and the word. Neutral states on `surface-2` (a hollow dot for a draft, a `line-strong` dot when active, struck through when cancelled), attention on `warning-chip` with `warning` text, done on `success-chip` with `success` text. Labels aren't clickable, so none uses the accent. The word always says it, so grayscale and colour blindness are fine.
 
 ## Segmented controls and filters
 

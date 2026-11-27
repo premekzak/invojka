@@ -1,33 +1,49 @@
-/* Colour scheme "Terakota" (2026-11-04). Warm clay: a cream page under white cards, warm greys, a terracotta for actions and the logo, an olive companion; the bars drift terracotta → amber and olive → sage-yellow.
-   A bar a step off the page with no rule and a white current tab, a faint 135° gradient in the bar and the "new" tile, chart bars
-   fading to a shifted hue at the top. Every pair computed in light and dark (src/design/schemes.test.ts). */
+/* Colour scheme "Terakota" (2026-11-04), the default since 2026-11-20 (active with no data-scheme attribute too), in the
+   apricot colours the owner picked that day (the trial variant "Terakota, meruňka"; the cream page, brown terracotta and olive
+   of 2026-11-04 are gone). The bright pair: buttons are a light, vivid apricot with a dark brown label (hover goes more
+   saturated, not darker), so links, focus and the main chart series take a deeper rust; the logo is a dark brown square with an
+   apricot letter. A white page with warm greys and a warm grey bar a step off the page, no rule under it, a white current tab;
+   a pale apricot "new" tile; the bars drift rust → apricot and apricot → pale yellow.
+   Recorded exception: a light accent has no 3:1 edge on white; its dark label carries it.
+   Warnings, arrears and errors are red (2026-11-05); since 2026-11-27 a brick red (hue 31) and "paid" an olive green
+   (hue 136), both calmer, so the status colours belong to the warm family, and the bars only a small step lighter at the top
+   (about 0.04 L in their own hue) instead of fading into another colour. Built in OKLCH; every pair computed in light and dark
+   (src/design/schemes.test.ts). */
 @layer base {
-  :root[data-scheme="nv-terakota"] {
-      --scheme-page: #fff8f1; --scheme-card: #ffffff; --scheme-stripe: #fdf8f2; --scheme-fill: #f7f0e9; --scheme-rule: #e5ded7; --scheme-line: #e8e2db;
-      --scheme-field: #ffffff; --scheme-edge: #857f79; --scheme-muted: #665849; --scheme-ink: #1f1306; --scheme-tint: #feece5; --scheme-track: #ede7df;
-      --scheme-action: #ad4216; --scheme-on-action: #ffffff; --scheme-action-deep: #923002; --scheme-link: #ad4216; --scheme-on-feature: #a63c0c; --scheme-danger: #cc2827;
-      --scheme-on-danger: #ffffff; --scheme-success: #047e39; --scheme-success-chip: #d8f9dd; --scheme-warning: #9d5d03; --scheme-warning-chip: #feecce; --scheme-series-1: #ad4216;
-      --scheme-series-2: #88a36e; --scheme-cat-1: #ad4216; --scheme-cat-2: #88a36e; --scheme-cat-3: #d3cdc6; --scheme-brand: #ad4216; --scheme-on-brand: #ffffff;
-      --scheme-brand-dot: #ffffff; --scheme-brand-inverse: #ad4216; --scheme-on-brand-inverse: #ffffff; --scheme-brand-dot-inverse: #ffffff; --scheme-header: #f3ede5; --scheme-on-header: #1f1306;
-      --scheme-on-header-muted: #665849; --scheme-header-active: #ffffff; --scheme-header-hover: #ede6df; --scheme-footer: #f3ede5; --scheme-footer-deep: #f3ede5; --scheme-on-footer: #1f1306;
-      --scheme-on-footer-muted: #665849;
-      --scheme-header-image: linear-gradient(135deg, #f5eee7, #ede6df);
-      --scheme-footer-image: linear-gradient(#f3ede5, #f3ede5);
-      --scheme-feature-image: linear-gradient(135deg, #feefea, #fee5dc); --scheme-feature-image-hover: linear-gradient(135deg, #ffe7df, #feded4);
-      --scheme-series-1-end: #dc9242; --scheme-series-2-end: #cac792;
+  :root:where(:not([data-scheme]), [data-scheme="nv-terakota"]) {
+      --scheme-page: #fcfaf8; --scheme-card: #ffffff; --scheme-stripe: #fbf9f6; --scheme-fill: #f3efec; --scheme-rule: #e0dbd7; --scheme-line: #e4e0dd;
+      --scheme-field: #ffffff; --scheme-edge: #898582; --scheme-muted: #645c54; --scheme-ink: #221509; --scheme-tint: #fdeddd; --scheme-track: #e6e2de;
+      --scheme-action: #ffa752; --scheme-on-action: #351501; --scheme-action-deep: #fd9539; --scheme-link: #ac4403; --scheme-on-feature: #773913; --scheme-danger: #bf412f;
+      --scheme-on-danger: #ffffff; --scheme-success: #487033; --scheme-success-chip: #e9f6db; --scheme-warning: #aa3525; --scheme-warning-chip: #ffece6; --scheme-series-1: #e16c10;
+      --scheme-series-2: #fac787; --scheme-cat-1: #e16c10; --scheme-cat-2: #ffa752; --scheme-cat-3: #f7deb5; --scheme-brand: #422616; --scheme-on-brand: #ffb169;
+      --scheme-brand-dot: #ffb169; --scheme-brand-inverse: #422616; --scheme-on-brand-inverse: #ffb169; --scheme-brand-dot-inverse: #ffb169; --scheme-header: #f1eeea; --scheme-on-header: #221509;
+      --scheme-on-header-muted: #615952; --scheme-header-active: #ffffff; --scheme-header-hover: #e9e5e2; --scheme-footer: #f2eeea; --scheme-footer-deep: #ede8e3; --scheme-on-footer: #221509;
+      --scheme-on-footer-muted: #615952;
+      --scheme-header-image: linear-gradient(135deg, #f5f1ee, #ede9e6);
+      --scheme-footer-image: linear-gradient(#f2eeea, #ede8e3);
+      --scheme-feature-image: linear-gradient(135deg, #fff1e1, #ffe8cd);
+      --scheme-feature-image-hover: linear-gradient(135deg, #ffebd3, #ffe2bf);
+      --scheme-series-1-end: #ee7c32;
+      --scheme-series-2-end: #ffd29c;
+      --scheme-error: #aa3525;
+      --scheme-error-chip: #ffece6;
   }
-  :root.dark[data-scheme="nv-terakota"] {
-      --scheme-page: #100d0a; --scheme-card: #181512; --scheme-stripe: #1c1916; --scheme-fill: #23201c; --scheme-rule: #2e2b27; --scheme-line: #292622;
-      --scheme-field: #100d0a; --scheme-edge: #7d7a75; --scheme-muted: #b8b3ad; --scheme-ink: #f1eeea; --scheme-tint: #402218; --scheme-track: #302d2a;
-      --scheme-action: #f9875e; --scheme-on-action: #1d0803; --scheme-action-deep: #ffa383; --scheme-link: #ffa383; --scheme-on-feature: #ffffff; --scheme-danger: #f47b74;
-      --scheme-on-danger: #0d0b08; --scheme-success: #65c67d; --scheme-success-chip: #14361d; --scheme-warning: #eeb154; --scheme-warning-chip: #442e09; --scheme-series-1: #f9875e;
-      --scheme-series-2: #9ab184; --scheme-cat-1: #f9875e; --scheme-cat-2: #9ab184; --scheme-cat-3: #585551; --scheme-brand: #f9875e; --scheme-on-brand: #1d0803;
-      --scheme-brand-dot: #1d0803; --scheme-brand-inverse: #f9875e; --scheme-on-brand-inverse: #1d0803; --scheme-brand-dot-inverse: #1d0803; --scheme-header: #181512; --scheme-on-header: #f1eeea;
-      --scheme-on-header-muted: #b8b3ad; --scheme-header-active: #302d2a; --scheme-header-hover: #24211e; --scheme-footer: #070504; --scheme-footer-deep: #040302; --scheme-on-footer: #ffffff;
-      --scheme-on-footer-muted: #b8b3af;
-      --scheme-header-image: linear-gradient(135deg, #1b1814, #161310);
-      --scheme-footer-image: linear-gradient(135deg, #070504, #040302);
-      --scheme-feature-image: linear-gradient(135deg, #4d2213, #451a0b); --scheme-feature-image-hover: linear-gradient(135deg, #592715, #511f0c);
-      --scheme-series-1-end: #f0b780; --scheme-series-2-end: #d6d4aa;
+  :root.dark:where(:not([data-scheme]), [data-scheme="nv-terakota"]) {
+      --scheme-page: #110e0b; --scheme-card: #181513; --scheme-stripe: #1c1916; --scheme-fill: #23201d; --scheme-rule: #2f2c29; --scheme-line: #292623;
+      --scheme-field: #110e0b; --scheme-edge: #7d7976; --scheme-muted: #b5b0ab; --scheme-ink: #f0eeeb; --scheme-tint: #36210e; --scheme-track: #322e2b;
+      --scheme-action: #fba95b; --scheme-on-action: #1b0b00; --scheme-action-deep: #ffbf86; --scheme-link: #f0ae73; --scheme-on-feature: #ffffff; --scheme-danger: #ec8d79;
+      --scheme-on-danger: #0d0b08; --scheme-success: #96c480; --scheme-success-chip: #232e19; --scheme-warning: #ec8d79; --scheme-warning-chip: #371f19; --scheme-series-1: #fba95b;
+      --scheme-series-2: #8c5c3a; --scheme-cat-1: #fba95b; --scheme-cat-2: #8c5c3a; --scheme-cat-3: #595450; --scheme-brand: #fba95b; --scheme-on-brand: #1b0b00;
+      --scheme-brand-dot: #1b0b00; --scheme-brand-inverse: #fba95b; --scheme-on-brand-inverse: #1b0b00; --scheme-brand-dot-inverse: #1b0b00; --scheme-header: #181513; --scheme-on-header: #f0eeeb;
+      --scheme-on-header-muted: #b5b0ab; --scheme-header-active: #322e2b; --scheme-header-hover: #24211e; --scheme-footer: #080604; --scheme-footer-deep: #040302; --scheme-on-footer: #ffffff;
+      --scheme-on-footer-muted: #b4b0ac;
+      --scheme-header-image: linear-gradient(135deg, #1b1815, #161310);
+      --scheme-footer-image: linear-gradient(135deg, #080604, #040302);
+      --scheme-feature-image: linear-gradient(135deg, #502a0c, #492405);
+      --scheme-feature-image-hover: linear-gradient(135deg, #5c300b, #552903);
+      --scheme-series-1-end: #ffba7d;
+      --scheme-series-2-end: #976847;
+      --scheme-error: #ec8d79;
+      --scheme-error-chip: #371f19;
   }
 }

@@ -1,12 +1,12 @@
-import { Ban, BellRing, Check, Copy, Percent, Truck, CircleSlash, CloudDownload, FileDown, FileMinus2, Loader2, Lock, Mail, Plus, ReceiptText, RefreshCw, RotateCcw, Send, Trash2, X } from 'lucide-react'
-import { useEffect, useMemo, useState, type InputHTMLAttributes } from 'react'
+import { ArrowLeft, ArrowRight, Ban, BellRing, Check, Copy, Percent, Truck, CircleSlash, CloudDownload, FileDown, FileMinus2, Loader2, Lock, Mail, Plus, ReceiptText, RefreshCw, RotateCcw, Send, Trash2, X } from 'lucide-react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type InputHTMLAttributes } from 'react'
 import { useTranslation } from 'react-i18next'
 import { today } from '@/domain/id'
-import { advanceTaxDocDeadline, advanceTaxDocOf, amountDue, creditNotesOf, discountLines, duplicateInvoice, invoiceHistory, displayStatus, finalInvoiceOf, invoiceTotals, issuedStatus, isoPlusDays, newAdvanceTaxDoc, newCreditNote, newFinalInvoice, newInvoice, recentCustomerIds, snapshotDiffers, snapshotOf, withKind } from '@/domain/invoice'
+import { advanceTaxDocDeadline, advanceTaxDocOf, amountDue, creditNotesOf, customerSummaries, discountLines, duplicateInvoice, invoiceHistory, displayStatus, finalInvoiceOf, invoiceTotals, issuedStatus, isoPlusDays, latestFor, newAdvanceTaxDoc, newCreditNote, newFinalInvoice, newInvoice, recentCustomerIds, snapshotDiffers, snapshotOf, withIssueNumber, withKind } from '@/domain/invoice'
 import { tampered } from '@/domain/lock'
 import { INVOICE_LANGS, LANG_NAMES, type InvoiceLang } from '@/domain/language'
 import { CURRENCIES, mulRound, toMajor, toMinor } from '@/domain/money'
-import { CASH_LIMIT, hasReceipt, overCashLimit } from '@/domain/payment'
+import { CASH_LIMIT, hasReceipt, overCashLimit, paysByBank } from '@/domain/payment'
 import { PaymentMethod, type Customer, type Invoice, type InvoiceKind, type InvoiceLine } from '@/domain/schema'
 import { chargesVat, lineBase, VAT_RATES } from '@/domain/vat'
 import { useStore } from '@/state/store'
@@ -23,6 +23,19 @@ import { fetchEcbRate } from '@/fx/ecb'
 import { PdfPreview, savePdfToFolder } from './PdfPreview'
 import { EmailDialog } from './EmailDialog'
 import type { EmailKind } from '@/domain/email'
+import { missingSupplierDetails } from '@/domain/supplier'
+import { dayOff, nextWorkday } from '@/domain/workdays'
+import { Steps } from '@/ui/Steps'
+import { InvoiceReview } from './InvoiceReview'
+
+/** The step of a draft on which each validated field sits. */
+const STEP_OF: Record<string, number> = { 'invoice-customer': 1, 'invoice-reason': 1, 'invoice-number': 3 }
+
+/**
+ * The step a draft was last on. The first save of a new invoice changes its URL from "new" to its id, and the page is
+ * keyed by the URL, so the editor mounts again; without this it would jump to the review in the middle of the work.
+ */
+let lastStep: { id: string; step: number } | undefined
 
 /** Number input that lets the user type freely ("1 234,50") and commits the parsed value. */
 function NumberInput({ value, onChange, className, ...p }: Omit<InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'> & { value: number | undefined; onChange: (n: number) => void }) {
@@ -41,6 +54,61 @@ function NumberInput({ value, onChange, className, ...p }: Omit<InputHTMLAttribu
         if (Number.isFinite(n)) onChange(n)
       }}
       onBlur={() => setText(show(value))} />
+  )
+}
+
+/**
+ * A line's description: one row tall like the other fields, growing as the text wraps, so a long description is all visible
+ * (the owner, 2026-11-20). Enter adds the next line instead of a line break. A textarea has no datalist, so the price list
+ * is offered in a small list under it: items containing what is typed, ↑ ↓ and Enter or a click to take one.
+ */
+function LineDescription({ value, onChange, onEnter, suggestions, onPick, className, placeholder, autoFocus }: {
+  value: string; onChange: (text: string) => void; onEnter: () => void
+  suggestions: string[]; onPick: (description: string) => void
+  className?: string; placeholder?: string; autoFocus?: boolean
+}) {
+  const ref = useRef<HTMLTextAreaElement>(null)
+  const [focused, setFocused] = useState(false)
+  const [active, setActive] = useState(-1)
+  // `field-sizing: content` does the growing (Chrome and Edge 123+); elsewhere set the height from the content.
+  useLayoutEffect(() => {
+    const el = ref.current
+    if (!el || CSS.supports('field-sizing', 'content')) return
+    el.style.height = 'auto'
+    el.style.height = `${el.scrollHeight + 2}px`
+  }, [value])
+  // A textarea that takes focus puts the caret at the start; continue after a prefilled description instead.
+  useEffect(() => {
+    if (autoFocus) ref.current?.setSelectionRange(ref.current.value.length, ref.current.value.length)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+  const q = value.trim().toLocaleLowerCase()
+  const matches = focused ? suggestions.filter((s) => s !== value && s.toLocaleLowerCase().includes(q)).slice(0, 8) : []
+  useEffect(() => setActive(-1), [value])
+  return (
+    <div className={cn('relative', className)}>
+      <textarea ref={ref} rows={1} value={value} placeholder={placeholder} autoFocus={autoFocus}
+        className="control block min-h-9 w-full resize-none overflow-hidden px-3 py-[7px] text-sm leading-5 [field-sizing:content] placeholder:text-fg-subtle"
+        onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}
+        onChange={(e) => onChange(e.target.value.replace(/\s*\n\s*/g, ' '))}
+        onKeyDown={(e) => {
+          if (e.key === 'ArrowDown' && matches.length) { e.preventDefault(); setActive((a) => Math.min(a + 1, matches.length - 1)) }
+          else if (e.key === 'ArrowUp' && active >= 0) { e.preventDefault(); setActive((a) => a - 1) }
+          else if (e.key === 'Enter') { e.preventDefault(); if (matches[active]) onPick(matches[active]); else onEnter() }
+          else if (e.key === 'Escape') setFocused(false)
+        }} />
+      {matches.length > 0 && (
+        <div className="animate-rise absolute z-20 mt-1 max-h-60 w-full overflow-auto rounded-xl border border-line bg-surface p-1">
+          {matches.map((m, i) => (
+            // mousedown, not click: the textarea's blur would close the list first.
+            <button key={m} type="button" onMouseEnter={() => setActive(i)} onMouseDown={(e) => { e.preventDefault(); onPick(m) }}
+              className={cn('block w-full rounded-xs px-3 py-2 text-left text-sm leading-label', i === active && 'bg-surface-2')}>
+              {m}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
   )
 }
 
@@ -66,15 +134,25 @@ export function InvoiceEditor({ route }: { route: Route }) {
     if (copied) return duplicateInvoice(settings!, invoices, copied)
     return newInvoice(settings!, invoices, customers.find((c) => c.id === route.query.get('customer')))
   })
+  // The number of the document a new invoice's lines came from (a copy, or the customer's latest), to say so on the lines step.
+  const [prefilledFrom] = useState(() => {
+    if (!isNew) return undefined
+    const { invoices } = useStore.getState()
+    const copied = invoices.find((i) => i.id === route.query.get('copy'))
+    if (copied) return copied.number
+    const customerId = route.query.get('customer')
+    return customerId ? latestFor(invoices, customerId)?.number : undefined
+  })
   if (!initial) return <p className="text-fg-muted">{t('editor.notFound')}</p>
-  return <Editor initial={initial} isNew={isNew} />
+  return <Editor initial={initial} isNew={isNew} prefilledFrom={prefilledFrom} />
 }
 
-function Editor({ initial, isNew }: { initial: Invoice; isNew: boolean }) {
+function Editor({ initial, isNew, prefilledFrom }: { initial: Invoice; isNew: boolean; prefilledFrom?: string }) {
   const { t } = useTranslation()
   const f = useFormat()
-  const { settings, invoices, customers, upsertInvoice, removeInvoice, upsertCustomer } = useStore()
+  const { settings, invoices, customers, upsertInvoice, upsertInvoices, removeInvoice, upsertCustomer } = useStore()
   const [draft, setDraft] = useState(initial)
+  const [prefilled, setPrefilled] = useState(prefilledFrom)
   const [saved, setSaved] = useState(isNew ? undefined : initial)
   const [preview, setPreview] = useState<Invoice>()
   const [receipt, setReceipt] = useState<Invoice>()
@@ -141,8 +219,13 @@ function Editor({ initial, isNew }: { initial: Invoice; isNew: boolean }) {
   const events = useMemo(() => (saved ? invoiceHistory(draft, invoices) : []), [saved, draft, invoices])
   const allTags = useMemo(() => [...new Set(invoices.flatMap((i) => i.tags))].sort(), [invoices])
   const recentCustomers = useMemo(() => recentCustomerIds(invoices), [invoices])
+  const summaries = useMemo(() => customerSummaries(invoices), [invoices])
+  const priceNames = useMemo(() => [...new Set(settings!.priceList.map((p) => p.description))], [settings])
   const corrected = credit ? invoices.find((i) => i.id === draft.correctsId) : undefined
   const dirty = !saved || JSON.stringify(draft) !== JSON.stringify(saved)
+  // Step one of a brand-new invoice is only "who is it for": the lines, totals and notes come once a customer is picked
+  // (the owner, 2026-11-20). The side card stays. Picking fills the invoice from that customer's last one anyway.
+  const pickingCustomer = !saved && !draft.customerSnapshot.name
   const numberTaken = invoices.some((i) => i.number === draft.number && i.id !== draft.id)
   const canSave = !!draft.customerSnapshot.name && draft.lines.length > 0 && !numberTaken
   // Saving with mistakes shows them all (and a summary when there is more than one) instead of a disabled button.
@@ -158,10 +241,44 @@ function Editor({ initial, isNew }: { initial: Invoice; isNew: boolean }) {
   const guarded = (action: () => void) => () => {
     if (errors.length) {
       setShowErrors(true)
-      document.getElementById(errors[0].id)?.focus()
+      if (stepped) goTo(problems[0].step, problems[0].id)
+      else document.getElementById(errors[0].id)?.focus()
       return
     }
     action()
+  }
+  // A draft is written in steps (the owner, 2026-11-27): who it is for, what is invoiced, how and when it is paid, then a
+  // review of the whole document with "Vystavit". Issued documents keep everything on one screen. A new draft that already
+  // has its customer (a copy, a final invoice) opens on the lines, a saved draft on the review.
+  const stepped = draft.status === 'draft'
+  const [step, setStepState] = useState(() => (lastStep?.id === initial.id ? lastStep.step
+    : !initial.customerSnapshot.name || (isNew && initial.kind === 'creditNote') ? 1 : isNew ? 2 : 4))
+  const setStep = (n: number) => { lastStep = { id: draft.id, step: n }; setStepState(n) }
+  const show = (n: number) => !stepped || step === n
+  const problems = errors.map((e) => ({ ...e, step: STEP_OF[e.id] ?? 1 }))
+  const focusAfterStep = useRef<string | undefined>(undefined)
+  useEffect(() => {
+    if (focusAfterStep.current) document.getElementById(focusAfterStep.current)?.focus()
+    focusAfterStep.current = undefined
+  }, [step])
+  /** Opens a step. A mistake on an earlier step (no customer yet) is shown there instead of moving on. */
+  function goTo(n: number, focusId?: string) {
+    const blocking = problems.find((e) => e.step < n)
+    if (blocking) {
+      setShowErrors(true)
+      focusId = blocking.id
+      n = blocking.step
+    }
+    if (n === step) {
+      if (focusId) document.getElementById(focusId)?.focus()
+      return
+    }
+    // Moving between steps keeps the work: the draft is stored as soon as it can be (a customer and a free number), so
+    // going back in the browser or closing the tab loses nothing (the owner agreed, 2026-11-27).
+    if (dirty && canSave) save()
+    focusAfterStep.current = focusId
+    setStep(n)
+    window.scrollTo({ top: 0 })
   }
 
   /** Starts a credit note for this invoice, keeping unsaved work first. */
@@ -174,7 +291,15 @@ function Editor({ initial, isNew }: { initial: Invoice; isNew: boolean }) {
     // A brand-new invoice starts from this customer's last one; a saved one only switches the customer.
     if (!saved) {
       const fresh = newInvoice(settings!, invoices, c)
-      setDraft((d) => ({ ...fresh, id: d.id, number: d.number, variableSymbol: d.variableSymbol, issueDate: d.issueDate, dueDate: d.dueDate }))
+      // The kind of document is chosen above the customer, so it survives the pick (with its own number series).
+      setDraft((d) => {
+        const base = { ...fresh, id: d.id, issueDate: d.issueDate, dueDate: d.dueDate }
+        return d.kind === fresh.kind ? { ...base, number: d.number, variableSymbol: d.variableSymbol } : withKind(base, d.kind, settings!, invoices)
+      })
+      setPrefilled(latestFor(invoices, c.id)?.number)
+      // Continue with the lines, in the first description.
+      if (pickingCustomer) setFocusLine(0)
+      if (step === 1) setStep(2)
     } else {
       set({ customerId: c.id, customerSnapshot: snapshotOf(c) })
     }
@@ -223,13 +348,201 @@ function Editor({ initial, isNew }: { initial: Invoice; isNew: boolean }) {
     // A foreign-currency invoice gets its rate when issued, so analytics can count it (best effort, offline is fine).
     const rate = draft.currency !== 'CZK' && !draft.exchangeRate ? await loadRate() : undefined
     // A final invoice fully covered by its advance is paid the moment it's issued.
-    const inv = save({ ...issuedStatus(draft, invoices), ...rate })
+    // The number is given now, after the issued documents of the series; a draft's own number was provisional.
+    const { invoice: numbered, moved } = withIssueNumber(settings!, invoices, cleaned())
+    const inv = save({ ...issuedStatus(draft, invoices), ...rate, number: numbered.number, variableSymbol: numbered.variableSymbol })
+    if (moved.length) upsertInvoices(moved)
     markChanged([inv.id])
     navigate(`/invoices/${inv.id}/pdf?issued=1`)
   }
 
   /** A saved, issued document shows its PDF screen; a draft or unsaved changes open the preview of what's on screen. */
   const showPdf = () => (saved && !dirty && draft.status !== 'draft' ? navigate(`/invoices/${draft.id}/pdf`) : setPreview(cleaned()))
+
+
+  // The fields of "Platba a termíny" as pieces, so the step can lay them out in sections with room to breathe and an
+  // issued document can keep them in its narrow side column.
+  const chipCls = cn('border transition-colors', stepped ? 'h-9 rounded-lg px-4 text-sm' : 'rounded px-2.5 py-0.5 text-xs')
+  const kindField = draft.status === 'draft' && !credit && !draft.advanceId && (
+            <div role="radiogroup" aria-labelledby="invoice-kind" className="space-y-1.5">
+              <span id="invoice-kind" className="block text-sm text-fg-muted">{t('editor.kind')}</span>
+              <div className="flex gap-1.5">
+                {(['invoice', 'proforma'] as InvoiceKind[]).map((k) => (
+                  <button key={k} type="button" role="radio" aria-checked={draft.kind === k}
+                    onClick={() => draft.kind !== k && setDraft(withKind(draft, k, settings!, invoices))}
+                    className={cn(chipCls,
+                      draft.kind === k ? 'border-link bg-surface-2 text-link' : 'border-line text-fg-muted hover:border-line-strong')}>
+                    {t(`editor.kinds.${k}`)}
+                  </button>
+                ))}
+              </div>
+              {proforma && <p className="max-w-hint text-xs text-fg-muted">{t('editor.proformaHint')}</p>}
+            </div>
+  )
+  const numberField = (
+          <Labeled label={t('invoices.number')} error={errorFor('invoice-number')}
+      hint={stepped ? t(draft.numberManual ? 'editor.numberManualHint' : 'editor.numberProvisionalHint') : undefined}>
+            <Input id="invoice-number" value={draft.number} className="tabular-nums"
+              onChange={(e) => set({ number: e.target.value, variableSymbol: e.target.value.replace(/\D/g, ''), numberManual: draft.status === 'draft' ? true : draft.numberManual })} />
+          </Labeled>
+  )
+  const vsField = draft.paymentMethod !== 'cash' && (
+            <Labeled label={t('editor.vs')}>
+              <Input value={draft.variableSymbol} className="tabular-nums" onChange={(e) => set({ variableSymbol: e.target.value })} />
+            </Labeled>
+  )
+  const issueField = (
+            <Labeled label={t('invoices.issued')}>
+              <Input type="date" value={draft.issueDate} onChange={(e) => {
+                const days = Math.round((Date.parse(draft.dueDate) - Date.parse(draft.issueDate)) / 864e5)
+                const ownSupply = isPayer && !proforma && !taxDoc
+                set({ issueDate: e.target.value, dueDate: isoPlusDays(e.target.value, days), ...(ownSupply ? { taxableSupplyDate: e.target.value } : {}), ...clearAutoRate(draft) })
+              }} />
+            </Labeled>
+  )
+  // A tax document for a received payment has no due date or payment method: the money is already in.
+  const dueField = !taxDoc && (
+              <Labeled label={t('invoices.due')}>
+                <Input type="date" value={draft.dueDate} onChange={(e) => set({ dueDate: e.target.value })} />
+              </Labeled>
+  )
+  // A due date on a weekend or a public holiday is said plainly, with one click to the next working day. No more than
+  // that: whether the law moves such a date depends on how the due date was agreed (docs/czech-rules.md).
+  const dueOff = taxDoc ? undefined : dayOff(draft.dueDate)
+  const dueOffHint = dueOff && (
+    <p className="max-w-hint text-xs text-fg-muted">
+      {t(`editor.dueOff.${dueOff}`)}{' '}
+      <button type="button" className="font-medium text-link underline underline-offset-2 decoration-line-strong hover:decoration-current" onClick={() => set({ dueDate: nextWorkday(draft.dueDate) })}>
+        {t('editor.dueOff.move', { date: f.date(nextWorkday(draft.dueDate)) })}
+      </button>
+    </p>
+  )
+  const editSupplier = () => { if (dirty && canSave) save(); navigate('/settings') }
+  const supplierMissing = missingSupplierDetails(settings!).map((k) => t(`editor.review.missing.${k}`))
+  // The review renders the PDF again whenever this object changes, so it must change only with the draft.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const reviewInvoice = useMemo(() => withIssueNumber(settings!, invoices, cleaned()).invoice, [draft, invoices, settings])
+  const dueChips = !taxDoc && (
+          <div className="flex gap-1.5">
+            {[7, 14, 30].map((d) => (
+              <button key={d} onClick={() => set({ dueDate: isoPlusDays(draft.issueDate, d) })}
+                className={cn(chipCls,
+                  isoPlusDays(draft.issueDate, d) === draft.dueDate ? 'border-link bg-surface-2 text-link' : 'border-line text-fg-muted hover:border-line-strong')}>
+                {t('editor.days', { count: d })}
+              </button>
+            ))}
+          </div>
+  )
+  const methodField = !taxDoc && (
+          <div role="radiogroup" aria-labelledby="invoice-method" className="space-y-1.5">
+            <span id="invoice-method" className="block text-sm text-fg-muted">{t('editor.paymentMethod')}</span>
+            <div className="flex gap-1.5">
+              {PaymentMethod.options.map((m) => (
+                <button key={m} type="button" role="radio" aria-checked={draft.paymentMethod === m} onClick={() => set({ paymentMethod: m })}
+                  className={cn(chipCls,
+                    draft.paymentMethod === m ? 'border-link bg-surface-2 text-link' : 'border-line text-fg-muted hover:border-line-strong')}>
+                  {t(`editor.method.${m}`)}
+                </button>
+              ))}
+            </div>
+            {overCashLimit(draft) ? <p className="max-w-hint text-xs font-medium text-warning">{t('editor.cashLimit', { limit: f.moneyWhole(CASH_LIMIT) })}</p>
+              : draft.paymentMethod !== 'bank' && <p className="max-w-hint text-xs text-fg-muted">{t(`editor.methodHint.${draft.paymentMethod}`)}</p>}
+          </div>
+  )
+  // Where the money goes, as the PDF prints it. It is the supplier's account from Settings, so here it is only shown,
+  // with the way to change it; a missing one is said in the warning colour, because the customer couldn't pay.
+  const bank = settings!.supplier.bank
+  const hasAccount = !!(bank.account || bank.iban)
+  const accountField = paysByBank(draft) && (
+    <div className="space-y-1.5">
+      <span className="block text-sm text-fg-muted">{t('editor.account')}</span>
+      {hasAccount ? (
+        <p className="flex min-h-9 flex-col justify-center text-sm tabular-nums">
+          {bank.account && <span>{bank.account}/{bank.bankCode}</span>}
+          {bank.iban && <span className={cn(bank.account && 'text-xs text-fg-muted')}>IBAN {bank.iban.replace(/(.{4})/g, '$1 ').trim()}</span>}
+        </p>
+      ) : <p className="flex min-h-9 items-center text-sm font-medium text-warning">{t('editor.accountMissing')}</p>}
+      <p className="max-w-hint text-xs text-fg-muted">
+        {!hasAccount && <>{t('editor.accountMissingHint')} </>}
+        <a href="#/settings" className="text-link underline underline-offset-2 decoration-line-strong hover:decoration-current" onClick={(e) => {
+          // Keep the work: store the draft before leaving for Settings.
+          e.preventDefault()
+          if (dirty && canSave) save()
+          navigate('/settings')
+        }}>{t(hasAccount ? 'editor.accountEdit' : 'editor.accountAdd')}</a>
+      </p>
+    </div>
+  )
+  const duzpField = isPayer && !proforma && (
+            <Labeled label={taxDoc ? t('editor.paymentReceived') : t('editor.taxableSupplyDate')}>
+              <Input type="date" value={draft.taxableSupplyDate ?? ''} onChange={(e) => set({ taxableSupplyDate: e.target.value || undefined, ...clearAutoRate(draft) })} />
+            </Labeled>
+  )
+  const currencyField = (
+            <Labeled label={t('editor.currency')}>
+              <Select value={draft.currency} onChange={(e) => set({ currency: e.target.value, exchangeRate: undefined, exchangeRateSource: undefined })}>
+                {[...new Set([...CURRENCIES, draft.currency])].map((c) => <option key={c}>{c}</option>)}
+              </Select>
+            </Labeled>
+  )
+  const languageField = (
+            <Labeled label={t('editor.language')}>
+              <Select value={draft.language} onChange={(e) => set({ language: e.target.value as InvoiceLang })}>
+                {INVOICE_LANGS.map((l) => <option key={l} value={l}>{LANG_NAMES[l]}</option>)}
+              </Select>
+            </Labeled>
+  )
+  const reverseField = isPayer && (
+            <Checkbox label={t('editor.reverseCharge')} checked={draft.reverseCharge} onChange={(e) => set({ reverseCharge: e.target.checked })} />
+  )
+  const rateField = draft.currency !== 'CZK' && (
+            <div className="space-y-1.5">
+              <label htmlFor="invoice-rate" className="block text-sm text-fg-muted">{t('editor.exchangeRate', { currency: draft.currency })}</label>
+              <div className="flex gap-2">
+                <NumberInput id="invoice-rate" className="flex-1" value={draft.exchangeRate}
+                  onChange={(n) => set({ exchangeRate: n > 0 ? n : undefined, exchangeRateSource: n > 0 ? 'manual' : undefined })} />
+                <Button variant="secondary" disabled={rateBusy} title={t('rates.ecbOne')} onClick={() => void loadRate()}>
+                  {rateBusy ? <Loader2 className="size-4 animate-spin" /> : <CloudDownload className="size-4" />} ECB
+                </Button>
+              </div>
+              <p className="text-xs text-fg-muted">
+                {rateError ? <span className="text-danger">{rateError}</span>
+                  : draft.exchangeRate ? <>{t(`rates.source.${draft.exchangeRateSource ?? 'manual'}`)} · ≈ {f.money(mulRound(totals.total, draft.exchangeRate))}</>
+                  : t('rates.noneYet')}
+              </p>
+            </div>
+  )
+  const paidField = draft.status === 'paid' && (
+            <Labeled label={t('editor.paidDate')}>
+              <Input type="date" value={draft.paidDate ?? ''} onChange={(e) => set({ paidDate: e.target.value || undefined })} />
+            </Labeled>
+  )
+  // Tags stay editable on a locked invoice: they're the user's own filing, not what the customer got.
+  const tagsField = (
+    <>
+          <Labeled label={t('editor.tags')} hint={t('editor.tagsHint')}>
+            <Input list="tag-list" defaultValue={draft.tags.join(', ')} key={draft.id}
+              onBlur={(e) => {
+                const tags = [...new Set(e.target.value.split(',').map((x) => x.trim()).filter(Boolean))]
+                if (tags.join() !== draft.tags.join()) set({ tags })
+              }} />
+          </Labeled>
+          <datalist id="tag-list">{allTags.map((tag) => <option key={tag} value={tag} />)}</datalist>
+    </>
+  )
+  const historyBlock = events.length > 0 && (
+            <div className="space-y-1.5 border-t border-line pt-4">
+              <span className="block text-sm text-fg-muted">{t('editor.history')}</span>
+              <ol className="space-y-1 text-xs text-fg-muted">
+                {events.map((e, i) => (
+                  <li key={i} className="flex gap-2">
+                    <span className="w-20 shrink-0 tabular-nums">{f.date(e.date)}</span>
+                    <span>{t(`editor.event.${e.type}`)}{e.number && <> <a href={`#/invoices/${e.id}`} className="text-link underline underline-offset-2 decoration-line-strong hover:decoration-current">{e.number}</a></>}</span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+  )
 
   return (
     <div className="space-y-6">
@@ -255,10 +568,8 @@ function Editor({ initial, isNew }: { initial: Invoice; isNew: boolean }) {
         <div className="ml-auto flex flex-wrap justify-end gap-2 [&>button]:whitespace-nowrap">
           {/* The main action first, then the secondary ones, Delete, and the more menu last (the owner, 2026-10-18). */}
           {draft.status === 'draft' ? (
-            <>
-              <Button onClick={guarded(() => void issue())}><Send className="size-4" /> {t('editor.issue')}</Button>
-              <Button variant="secondary" disabled={!dirty} onClick={guarded(() => save())}>{t('editor.saveDraft')}</Button>
-            </>
+            // "Vystavit" is the last step's button, under the review; up here a draft can only be put aside.
+            <Button variant="secondary" disabled={!dirty} onClick={guarded(() => save())}>{t('editor.saveDraft')}</Button>
           ) : (
             // Locked, only the note, rate and paid date can change; Save shows up once one of them does.
             (!locked || dirty) && <Button disabled={!dirty} onClick={guarded(saveChanges)}>{t('common.save')}</Button>
@@ -300,6 +611,10 @@ function Editor({ initial, isNew }: { initial: Invoice; isNew: boolean }) {
           ] as (MoreItem | false)[]).filter((x): x is MoreItem => !!x)} />
         </div>
       </div>
+      {stepped && (
+        <Steps label={t('editor.steps.label')} current={step} onGo={(n) => goTo(n)}
+          steps={[t('editor.steps.customer'), t('editor.steps.lines'), t('editor.steps.payment'), t('editor.steps.review')]} />
+      )}
       {unlocked && draft.status !== 'draft' && (
         <div role="status" className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-surface-2 p-4 text-sm">
           <div className="min-w-0 max-w-hint flex-1">
@@ -382,10 +697,19 @@ function Editor({ initial, isNew }: { initial: Invoice; isNew: boolean }) {
       )}
 
       <div className="grid grid-cols-3 gap-6 mobile-stack">
-        <Card className="col-span-2 space-y-5 px-6 py-5">
+        {(!stepped || step < 3) && (
+        <Card className={cn(stepped ? 'col-span-3' : 'col-span-2', 'space-y-5 px-6 py-5')}>
+          {show(1) && <>
+          {stepped && supplierMissing.length > 0 && (
+            <div role="status" className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-surface-2 p-4 text-sm">
+              <p className="min-w-0 max-w-hint flex-1">{t('editor.review.supplierIncomplete', { list: supplierMissing.join(', ') })}</p>
+              <Button size="sm" variant="secondary" onClick={editSupplier}>{t('editor.review.editSupplier')}</Button>
+            </div>
+          )}
+          {stepped && kindField}
           <fieldset disabled={locked || credit || taxDoc} className="min-w-0 space-y-5">
-          <Labeled label={t('invoices.customer')} required error={errorFor('invoice-customer')}>
-            <CustomerPicker id="invoice-customer" customers={customers} value={draft.customerId} name={draft.customerSnapshot.name} onChange={pickCustomer} recent={recentCustomers}
+          <Labeled label={t('invoices.customer')} required error={errorFor('invoice-customer')} hint={pickingCustomer ? t('editor.pickCustomerFirst') : undefined}>
+            <CustomerPicker id="invoice-customer" customers={customers} value={draft.customerId} name={draft.customerSnapshot.name} onChange={pickCustomer} recent={recentCustomers} summaries={summaries}
               onCreate={(name) => { const c = emptyCustomer(name); upsertCustomer(c); pickCustomer(c) }}
               autoFocus={!saved && !draft.customerId} />
           </Labeled>
@@ -446,6 +770,26 @@ function Editor({ initial, isNew }: { initial: Invoice; isNew: boolean }) {
             </fieldset>
           )}
 
+          </>}
+          {show(2) && <>
+          {/* As a step the currency comes before the prices typed in it (the owner, 2026-11-27), with its rate and, for a
+              VAT payer, reverse charge, which decides whether the lines carry VAT. */}
+          {stepped && (
+            <div className="flex flex-wrap items-start gap-x-6 gap-y-4">
+              <div className="w-40">{currencyField}</div>
+              {rateField && <div className="w-72">{rateField}</div>}
+              {reverseField && <div className="flex h-9 items-center self-end">{reverseField}</div>}
+            </div>
+          )}
+          {stepped && prefilled && !saved && (
+            <p className="text-sm text-fg-muted">
+              {t('editor.prefilled', { number: prefilled })}{' '}
+              <button type="button" className="font-medium text-link underline underline-offset-2 decoration-line-strong hover:decoration-current" onClick={() => {
+                set({ lines: [{ description: '', quantity: 1, unit: settings!.defaults.unit, unitPrice: 0, vatRate: isPayer ? settings!.defaultVatRate : 0 }] })
+                setPrefilled(undefined)
+              }}>{t('editor.startBlank')}</button>
+            </p>
+          )}
           <fieldset disabled={locked} className="min-w-0">
 
           <div>
@@ -459,14 +803,15 @@ function Editor({ initial, isNew }: { initial: Invoice; isNew: boolean }) {
             </div>
             <div className="space-y-2">
               {draft.lines.map((l, i) => (
-                <div key={i} className="group relative grid grid-cols-12 items-center gap-2 mobile-stack">
-                  <Input className={vatOn ? 'col-span-5' : 'col-span-6'} value={l.description} placeholder={t('editor.descriptionPlaceholder')}
-                    autoFocus={focusLine === i} list="price-list"
-                    onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addLine() } }}
-                    onChange={(e) => {
+                // Top-aligned: when a long description grows, the other fields stay level with its first row.
+                <div key={i} className="group relative grid grid-cols-12 items-start gap-2 mobile-stack">
+                  <LineDescription className={vatOn ? 'col-span-5' : 'col-span-6'} value={l.description} placeholder={t('editor.descriptionPlaceholder')}
+                    autoFocus={focusLine === i} onEnter={addLine} suggestions={priceNames}
+                    onChange={(description) => setLine(i, { description })}
+                    onPick={(description) => {
                       // Picking an item of the price list (ceník) fills in its unit, price and VAT rate.
-                      const item = settings!.priceList.find((p) => p.description === e.target.value)
-                      setLine(i, item ? { description: item.description, unit: item.unit, unitPrice: item.unitPrice, vatRate: isPayer ? item.vatRate : 0 } : { description: e.target.value })
+                      const item = settings!.priceList.find((p) => p.description === description)
+                      if (item) setLine(i, { description: item.description, unit: item.unit, unitPrice: item.unitPrice, vatRate: isPayer ? item.vatRate : 0 })
                     }} />
                   <NumberInput className="col-span-1 px-2" value={l.quantity} onChange={(n) => setLine(i, { quantity: n })} />
                   <Input className="col-span-1 px-2" value={l.unit} placeholder="ks" onChange={(e) => setLine(i, { unit: e.target.value })} />
@@ -476,17 +821,16 @@ function Editor({ initial, isNew }: { initial: Invoice; isNew: boolean }) {
                       {VAT_RATES.map((r) => <option key={r} value={r}>{r} %</option>)}
                     </Select>
                   )}
-                  <span className="col-span-2 pr-1 text-right text-sm font-medium tabular-nums">{f.money(lineBase(l), draft.currency)}</span>
+                  <span className="col-span-2 flex h-9 items-center justify-end pr-1 text-sm font-medium tabular-nums">{f.money(lineBase(l), draft.currency)}</span>
                   {draft.lines.length > 1 && (
                     <button onClick={() => set({ lines: draft.lines.filter((_, j) => j !== i) })}
-                      className="absolute -right-8 rounded p-1 text-fg-subtle opacity-0 transition-opacity group-hover:opacity-100 hover:text-danger">
+                      className="absolute top-1.5 -right-8 rounded p-1 text-fg-subtle opacity-0 transition-opacity group-hover:opacity-100 hover:text-danger">
                       <X className="size-4" />
                     </button>
                   )}
                 </div>
               ))}
             </div>
-            <datalist id="price-list">{settings!.priceList.map((p) => <option key={p.description} value={p.description} />)}</datalist>
             <div className="mt-2 flex flex-wrap items-center gap-2">
               <Button variant="ghost" size="sm" onClick={addLine}>
                 <Plus className="size-4" /> {t('editor.addLine')}
@@ -546,142 +890,80 @@ function Editor({ initial, isNew }: { initial: Invoice; isNew: boolean }) {
           <Labeled label={t('editor.privateNote')} hint={t('editor.privateNoteHint')}>
             <Textarea value={draft.privateNote} onChange={(e) => set({ privateNote: e.target.value })} />
           </Labeled>
+          </>}
         </Card>
+        )}
+        {stepped && step === 4 && (
+          <InvoiceReview invoice={reviewInvoice} provisionalNumber={draft.number} settings={settings!} problems={problems} due={due} onEdit={goTo} onEditSupplier={editSupplier}
+            dueLabel={taxDoc ? t('editor.received') : credit ? t('editor.difference') : draft.advanceId ? t('editor.balanceDue') : t('editor.toPay')} />
+        )}
 
+        {show(3) && (stepped ? (
+        // As a step: when it is due, how it is paid, then the document itself (the owner, 2026-11-27).
+        <Card className="col-span-3 space-y-6 px-6 py-6">
+          <section className="space-y-4">
+            <h2 className="text-base font-semibold">{t('editor.sections.dates')}</h2>
+            <div className="grid grid-cols-3 gap-x-6 gap-y-4 mobile-stack">
+              {issueField}
+              {dueField && <div className="space-y-2">{dueField}{dueChips}{dueOffHint}</div>}
+              {duzpField}
+            </div>
+          </section>
+          <section className="space-y-4 border-t border-line pt-6">
+            <h2 className="text-base font-semibold">{t('editor.sections.payment')}</h2>
+            {methodField}
+            {/* How, where to, under which symbol. The currency is with the prices, on the lines step. */}
+            <div className="grid grid-cols-3 gap-x-6 gap-y-4 mobile-stack">
+              {accountField}
+              {vsField}
+            </div>
+          </section>
+          <section className="space-y-4 border-t border-line pt-6">
+            <h2 className="text-base font-semibold">{t('editor.sections.document')}</h2>
+            <div className="grid grid-cols-3 gap-x-6 gap-y-4 mobile-stack">
+              {numberField}
+              {languageField}
+              {tagsField}
+            </div>
+          </section>
+        </Card>
+        ) : (
         <Card className="h-fit space-y-4 px-6 py-5">
           <fieldset disabled={locked} className="min-w-0 space-y-4">
-          {draft.status === 'draft' && !credit && !draft.advanceId && (
-            <div role="radiogroup" aria-labelledby="invoice-kind" className="space-y-1.5">
-              <span id="invoice-kind" className="block text-sm text-fg-muted">{t('editor.kind')}</span>
-              <div className="flex gap-1.5">
-                {(['invoice', 'proforma'] as InvoiceKind[]).map((k) => (
-                  <button key={k} type="button" role="radio" aria-checked={draft.kind === k}
-                    onClick={() => draft.kind !== k && setDraft(withKind(draft, k, settings!, invoices))}
-                    className={cn('rounded border px-2.5 py-0.5 text-xs transition-colors',
-                      draft.kind === k ? 'border-link bg-surface-2 text-link' : 'border-line text-fg-muted hover:border-line-strong')}>
-                    {t(`editor.kinds.${k}`)}
-                  </button>
-                ))}
-              </div>
-              {proforma && <p className="max-w-hint text-xs text-fg-muted">{t('editor.proformaHint')}</p>}
-            </div>
-          )}
-          <Labeled label={t('invoices.number')} error={errorFor('invoice-number')}>
-            <Input id="invoice-number" value={draft.number} className="tabular-nums"
-              onChange={(e) => set({ number: e.target.value, variableSymbol: e.target.value.replace(/\D/g, '') })} />
-          </Labeled>
-          {draft.paymentMethod !== 'cash' && (
-            <Labeled label={t('editor.vs')}>
-              <Input value={draft.variableSymbol} className="tabular-nums" onChange={(e) => set({ variableSymbol: e.target.value })} />
-            </Labeled>
-          )}
-          {/* A tax document for a received payment has no due date or payment method: the money is already in. */}
-          <div className="grid grid-cols-2 gap-3 mobile-stack">
-            <Labeled label={t('invoices.issued')}>
-              <Input type="date" value={draft.issueDate} onChange={(e) => {
-                const days = Math.round((Date.parse(draft.dueDate) - Date.parse(draft.issueDate)) / 864e5)
-                const ownSupply = isPayer && !proforma && !taxDoc
-                set({ issueDate: e.target.value, dueDate: isoPlusDays(e.target.value, days), ...(ownSupply ? { taxableSupplyDate: e.target.value } : {}), ...clearAutoRate(draft) })
-              }} />
-            </Labeled>
-            {!taxDoc && (
-              <Labeled label={t('invoices.due')}>
-                <Input type="date" value={draft.dueDate} onChange={(e) => set({ dueDate: e.target.value })} />
-              </Labeled>
-            )}
-          </div>
-          {!taxDoc && <>
-          <div className="flex gap-1.5">
-            {[7, 14, 30].map((d) => (
-              <button key={d} onClick={() => set({ dueDate: isoPlusDays(draft.issueDate, d) })}
-                className={cn('rounded border px-2.5 py-0.5 text-xs transition-colors',
-                  isoPlusDays(draft.issueDate, d) === draft.dueDate ? 'border-link bg-surface-2 text-link' : 'border-line text-fg-muted hover:border-line-strong')}>
-                {t('editor.days', { count: d })}
-              </button>
-            ))}
-          </div>
-          <div role="radiogroup" aria-labelledby="invoice-method" className="space-y-1.5">
-            <span id="invoice-method" className="block text-sm text-fg-muted">{t('editor.paymentMethod')}</span>
-            <div className="flex gap-1.5">
-              {PaymentMethod.options.map((m) => (
-                <button key={m} type="button" role="radio" aria-checked={draft.paymentMethod === m} onClick={() => set({ paymentMethod: m })}
-                  className={cn('rounded border px-2.5 py-0.5 text-xs transition-colors',
-                    draft.paymentMethod === m ? 'border-link bg-surface-2 text-link' : 'border-line text-fg-muted hover:border-line-strong')}>
-                  {t(`editor.method.${m}`)}
-                </button>
-              ))}
-            </div>
-            {overCashLimit(draft) ? <p className="max-w-hint text-xs font-medium text-warning">{t('editor.cashLimit', { limit: f.moneyWhole(CASH_LIMIT) })}</p>
-              : draft.paymentMethod !== 'bank' && <p className="max-w-hint text-xs text-fg-muted">{t(`editor.methodHint.${draft.paymentMethod}`)}</p>}
-          </div>
-          </>}
-          {isPayer && !proforma && (
-            <Labeled label={taxDoc ? t('editor.paymentReceived') : t('editor.taxableSupplyDate')}>
-              <Input type="date" value={draft.taxableSupplyDate ?? ''} onChange={(e) => set({ taxableSupplyDate: e.target.value || undefined, ...clearAutoRate(draft) })} />
-            </Labeled>
-          )}
-          <div className="grid grid-cols-2 gap-3 mobile-stack">
-            <Labeled label={t('editor.currency')}>
-              <Select value={draft.currency} onChange={(e) => set({ currency: e.target.value, exchangeRate: undefined, exchangeRateSource: undefined })}>
-                {[...new Set([...CURRENCIES, draft.currency])].map((c) => <option key={c}>{c}</option>)}
-              </Select>
-            </Labeled>
-            <Labeled label={t('editor.language')}>
-              <Select value={draft.language} onChange={(e) => set({ language: e.target.value as InvoiceLang })}>
-                {INVOICE_LANGS.map((l) => <option key={l} value={l}>{LANG_NAMES[l]}</option>)}
-              </Select>
-            </Labeled>
-          </div>
-          {isPayer && (
-            <Checkbox label={t('editor.reverseCharge')} checked={draft.reverseCharge} onChange={(e) => set({ reverseCharge: e.target.checked })} />
-          )}
+            {kindField}
+            {numberField}
+            {vsField}
+            <div className="grid grid-cols-2 gap-3 mobile-stack">{issueField}{dueField}</div>
+            {dueChips}
+            {methodField}
+            {duzpField}
+            <div className="grid grid-cols-2 gap-3 mobile-stack">{currencyField}{languageField}</div>
+            {reverseField}
           </fieldset>
-          {draft.currency !== 'CZK' && (
-            <div className="space-y-1.5">
-              <label htmlFor="invoice-rate" className="block text-sm text-fg-muted">{t('editor.exchangeRate', { currency: draft.currency })}</label>
-              <div className="flex gap-2">
-                <NumberInput id="invoice-rate" className="flex-1" value={draft.exchangeRate}
-                  onChange={(n) => set({ exchangeRate: n > 0 ? n : undefined, exchangeRateSource: n > 0 ? 'manual' : undefined })} />
-                <Button variant="secondary" disabled={rateBusy} title={t('rates.ecbOne')} onClick={() => void loadRate()}>
-                  {rateBusy ? <Loader2 className="size-4 animate-spin" /> : <CloudDownload className="size-4" />} ECB
-                </Button>
-              </div>
-              <p className="text-xs text-fg-muted">
-                {rateError ? <span className="text-danger">{rateError}</span>
-                  : draft.exchangeRate ? <>{t(`rates.source.${draft.exchangeRateSource ?? 'manual'}`)} · ≈ {f.money(mulRound(totals.total, draft.exchangeRate))}</>
-                  : t('rates.noneYet')}
-              </p>
-            </div>
-          )}
-          {draft.status === 'paid' && (
-            <Labeled label={t('editor.paidDate')}>
-              <Input type="date" value={draft.paidDate ?? ''} onChange={(e) => set({ paidDate: e.target.value || undefined })} />
-            </Labeled>
-          )}
-          {/* Tags stay editable on a locked invoice: they're the user's own filing, not what the customer got. */}
-          <Labeled label={t('editor.tags')} hint={t('editor.tagsHint')}>
-            <Input list="tag-list" defaultValue={draft.tags.join(', ')} key={draft.id}
-              onBlur={(e) => {
-                const tags = [...new Set(e.target.value.split(',').map((x) => x.trim()).filter(Boolean))]
-                if (tags.join() !== draft.tags.join()) set({ tags })
-              }} />
-          </Labeled>
-          <datalist id="tag-list">{allTags.map((tag) => <option key={tag} value={tag} />)}</datalist>
-          {events.length > 0 && (
-            <div className="space-y-1.5 border-t border-line pt-4">
-              <span className="block text-sm text-fg-muted">{t('editor.history')}</span>
-              <ol className="space-y-1 text-xs text-fg-muted">
-                {events.map((e, i) => (
-                  <li key={i} className="flex gap-2">
-                    <span className="w-20 shrink-0 tabular-nums">{f.date(e.date)}</span>
-                    <span>{t(`editor.event.${e.type}`)}{e.number && <> <a href={`#/invoices/${e.id}`} className="text-link underline underline-offset-2 decoration-line-strong hover:decoration-current">{e.number}</a></>}</span>
-                  </li>
-                ))}
-              </ol>
-            </div>
-          )}
+          {rateField}
+          {paidField}
+          {tagsField}
+          {historyBlock}
         </Card>
+        ))}
       </div>
+      {stepped && (
+        <div className="flex flex-wrap items-center gap-2">
+          {step > 1 && <Button variant="secondary" onClick={() => goTo(step - 1)}><ArrowLeft className="size-4" /> {t('common.back')}</Button>}
+          <div className="ml-auto flex flex-wrap items-center justify-end gap-x-3 gap-y-2">
+            {/* The payment step rarely changes, so the lines step says what it holds and offers to skip it. */}
+            {step === 2 && <>
+              <span className="text-xs text-fg-muted tabular-nums">
+                {[!taxDoc && `${t('invoices.due')} ${t('editor.days', { count: Math.round((Date.parse(draft.dueDate) - Date.parse(draft.issueDate)) / 864e5) })}`,
+                  !taxDoc && t(`editor.method.${draft.paymentMethod}`), `${t('invoices.number')} ${draft.number}`].filter(Boolean).join(' · ')}
+              </span>
+              <Button variant="secondary" onClick={() => goTo(4)}>{t('editor.steps.toReview')}</Button>
+            </>}
+            {step < 4 ? <Button onClick={() => goTo(step + 1)}>{t('common.continue')} <ArrowRight className="size-4" /></Button>
+              : <Button onClick={guarded(() => void issue())}><Send className="size-4" /> {t('editor.issue')}</Button>}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

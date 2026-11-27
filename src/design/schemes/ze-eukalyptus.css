@@ -1,0 +1,42 @@
+/* Colour scheme "Eukalyptus a okr": the page itself is tinted, a pale blue-green under white cards, with the bar and the light footer in the page's
+   colour; a deep eucalyptus for buttons, links and the logo. The companion is ochre: a pale ochre "new" tile, last year's bars and
+   the logo's dot. The move: colour in the page, not the chrome. Warnings stay red, so ochre never means a status.
+   A trial variant of 2026-11-26 (schemes/zelena/zadani.md). Built in OKLCH; every pair computed in light and dark
+   (src/design/schemes.test.ts). */
+@layer base {
+  :root[data-scheme="ze-eukalyptus"] {
+      --scheme-page: #ecf7f3; --scheme-card: #ffffff; --scheme-stripe: #f4fbf8; --scheme-fill: #e4eeea; --scheme-rule: #d1ddd9; --scheme-line: #d7e3de;
+      --scheme-field: #ffffff; --scheme-edge: #7f8d88; --scheme-muted: #4e625b; --scheme-ink: #071d18; --scheme-tint: #def6ef; --scheme-track: #d9e5e1;
+      --scheme-action: #1e685b; --scheme-on-action: #ffffff; --scheme-action-deep: #0f574a; --scheme-link: #106355; --scheme-on-feature: #664610; --scheme-danger: #d02c2a;
+      --scheme-on-danger: #ffffff; --scheme-success: #2f7434; --scheme-success-chip: #e0f8e0; --scheme-warning: #ae1320; --scheme-warning-chip: #ffebe9; --scheme-series-1: #257c6c;
+      --scheme-series-2: #eac26b; --scheme-cat-1: #257c6c; --scheme-cat-2: #eac26b; --scheme-cat-3: #bfe8de; --scheme-brand: #1e685b; --scheme-on-brand: #ffffff;
+      --scheme-brand-dot: #f2cd6f; --scheme-brand-inverse: #1e685b; --scheme-on-brand-inverse: #ffffff; --scheme-brand-dot-inverse: #f2cd6f; --scheme-header: #ecf7f3; --scheme-on-header: #071d18;
+      --scheme-on-header-muted: #495d56; --scheme-header-active: #d9e5e1; --scheme-header-hover: #e4eeea; --scheme-footer: #e5f1ed; --scheme-footer-deep: #dfece7; --scheme-on-footer: #071d18;
+      --scheme-on-footer-muted: #495d56;
+      --scheme-footer-image: linear-gradient(#e5f1ed, #dfece7);
+      --scheme-feature-image: linear-gradient(135deg, #fbf0cf, #f7e8bd);
+      --scheme-feature-image-hover: linear-gradient(135deg, #faecc2, #f5e4b0);
+      --scheme-series-1-end: #65b090;
+      --scheme-series-2-end: #ede091;
+      --scheme-error: #ae1320;
+      --scheme-error-chip: #ffebe9;
+  }
+  :root.dark[data-scheme="ze-eukalyptus"] {
+      --scheme-page: #070e0c; --scheme-card: #0f1714; --scheme-stripe: #131a18; --scheme-fill: #1a211f; --scheme-rule: #262d2b; --scheme-line: #212826;
+      --scheme-field: #070e0c; --scheme-edge: #717a76; --scheme-muted: #a8b4b0; --scheme-ink: #e7efec; --scheme-tint: #0a312a; --scheme-track: #27302d;
+      --scheme-action: #54c8b1; --scheme-on-action: #00140f; --scheme-action-deep: #68dac2; --scheme-link: #70d3be; --scheme-on-feature: #ffffff; --scheme-danger: #f47b74;
+      --scheme-on-danger: #070e0c; --scheme-success: #76c479; --scheme-success-chip: #1a321b; --scheme-warning: #f47b74; --scheme-warning-chip: #3a1d1c; --scheme-series-1: #54c8b1;
+      --scheme-series-2: #806527; --scheme-cat-1: #54c8b1; --scheme-cat-2: #806527; --scheme-cat-3: #34544d; --scheme-brand: #54c8b1; --scheme-on-brand: #00140f;
+      --scheme-brand-dot: #00140f; --scheme-brand-inverse: #54c8b1; --scheme-on-brand-inverse: #00140f; --scheme-brand-dot-inverse: #00140f; --scheme-header: #0f1714; --scheme-on-header: #e7efec;
+      --scheme-on-header-muted: #a8b4b0; --scheme-header-active: #27302d; --scheme-header-hover: #1b2220; --scheme-footer: #030705; --scheme-footer-deep: #010403; --scheme-on-footer: #ffffff;
+      --scheme-on-footer-muted: #aab4b0;
+      --scheme-header-image: linear-gradient(135deg, #121917, #0d1412);
+      --scheme-footer-image: linear-gradient(135deg, #030705, #010403);
+      --scheme-feature-image: linear-gradient(135deg, #40340a, #3a2e03);
+      --scheme-feature-image-hover: linear-gradient(135deg, #493c0d, #433505);
+      --scheme-series-1-end: #8edebb;
+      --scheme-series-2-end: #928747;
+      --scheme-error: #f47b74;
+      --scheme-error-chip: #3a1d1c;
+  }
+}

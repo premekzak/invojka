@@ -1,0 +1,43 @@
+/* Colour scheme "Oliva a terakota": the warm side of green. Olive-tinted greys, an olive-grey bar and a light footer, olive green buttons, links and logo;
+   bars drift olive → yellow-green. The companion is terracotta, in the pale "new" tile, last year's bars and the logo's dot.
+   The move: a yellow-green family with its warm neighbour.
+   A trial variant of 2026-11-26 (schemes/zelena/zadani.md). Built in OKLCH; every pair computed in light and dark
+   (src/design/schemes.test.ts). */
+@layer base {
+  :root[data-scheme="ze-oliva"] {
+      --scheme-page: #fbfcf7; --scheme-card: #ffffff; --scheme-stripe: #f8f9f4; --scheme-fill: #eff0e8; --scheme-rule: #d9dbd2; --scheme-line: #dfe1d8;
+      --scheme-field: #ffffff; --scheme-edge: #888a7f; --scheme-muted: #5d5f50; --scheme-ink: #161a0a; --scheme-tint: #ecf3e0; --scheme-track: #e1e3d9;
+      --scheme-action: #5a6c23; --scheme-on-action: #ffffff; --scheme-action-deep: #4a5a1a; --scheme-link: #4d5d18; --scheme-on-feature: #783818; --scheme-danger: #d02c2a;
+      --scheme-on-danger: #ffffff; --scheme-success: #00764f; --scheme-success-chip: #d9f9e8; --scheme-warning: #ae1320; --scheme-warning-chip: #ffebe9; --scheme-series-1: #677b29;
+      --scheme-series-2: #eca47f; --scheme-cat-1: #677b29; --scheme-cat-2: #eca47f; --scheme-cat-3: #d9e3c3; --scheme-brand: #5a6c23; --scheme-on-brand: #ffffff;
+      --scheme-brand-dot: #feb98b; --scheme-brand-inverse: #5a6c23; --scheme-on-brand-inverse: #ffffff; --scheme-brand-dot-inverse: #feb98b; --scheme-header: #eaedde; --scheme-on-header: #161a0a;
+      --scheme-on-header-muted: #575a4b; --scheme-header-active: #ffffff; --scheme-header-hover: #e1e4d2; --scheme-footer: #eceee2; --scheme-footer-deep: #e6e9db; --scheme-on-footer: #161a0a;
+      --scheme-on-footer-muted: #575a4b;
+      --scheme-header-image: linear-gradient(135deg, #eef1e2, #e6e9da);
+      --scheme-footer-image: linear-gradient(#eceee2, #e6e9db);
+      --scheme-feature-image: linear-gradient(135deg, #ffece0, #ffe3d0);
+      --scheme-feature-image-hover: linear-gradient(135deg, #fee7d8, #fedec9);
+      --scheme-series-1-end: #afbb47;
+      --scheme-series-2-end: #f9cb92;
+      --scheme-error: #ae1320;
+      --scheme-error-chip: #ffebe9;
+  }
+  :root.dark[data-scheme="ze-oliva"] {
+      --scheme-page: #0c0d08; --scheme-card: #151610; --scheme-stripe: #181913; --scheme-fill: #1f201a; --scheme-rule: #2b2c26; --scheme-line: #262721;
+      --scheme-field: #0c0d08; --scheme-edge: #777871; --scheme-muted: #b0b2a8; --scheme-ink: #eceee7; --scheme-tint: #262e13; --scheme-track: #2d2f27;
+      --scheme-action: #a5bc6b; --scheme-on-action: #0d1200; --scheme-action-deep: #b6ce7c; --scheme-link: #b3c87f; --scheme-on-feature: #ffffff; --scheme-danger: #f47b74;
+      --scheme-on-danger: #0c0d08; --scheme-success: #52c794; --scheme-success-chip: #103324; --scheme-warning: #f47b74; --scheme-warning-chip: #3a1d1c; --scheme-series-1: #a5bc6b;
+      --scheme-series-2: #8c5b42; --scheme-cat-1: #a5bc6b; --scheme-cat-2: #8c5b42; --scheme-cat-3: #495138; --scheme-brand: #a5bc6b; --scheme-on-brand: #0d1200;
+      --scheme-brand-dot: #0d1200; --scheme-brand-inverse: #a5bc6b; --scheme-on-brand-inverse: #0d1200; --scheme-brand-dot-inverse: #0d1200; --scheme-header: #191b0f; --scheme-on-header: #eceee7;
+      --scheme-on-header-muted: #b0b2a8; --scheme-header-active: #303221; --scheme-header-hover: #232617; --scheme-footer: #060601; --scheme-footer-deep: #030400; --scheme-on-footer: #ffffff;
+      --scheme-on-footer-muted: #b1b2aa;
+      --scheme-header-image: linear-gradient(135deg, #1c1e12, #16180c);
+      --scheme-footer-image: linear-gradient(135deg, #060601, #030400);
+      --scheme-feature-image: linear-gradient(135deg, #4d2c15, #46260e);
+      --scheme-feature-image-hover: linear-gradient(135deg, #573319, #502d12);
+      --scheme-series-1-end: #c8d28b;
+      --scheme-series-2-end: #a27f52;
+      --scheme-error: #f47b74;
+      --scheme-error-chip: #3a1d1c;
+  }
+}

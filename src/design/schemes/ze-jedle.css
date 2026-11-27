@@ -1,0 +1,43 @@
+/* Colour scheme "Jedle a nebe": the green is almost black. Fir buttons and logo (L 0.33) on a white page with cool green-grey steps and a light grey bar;
+   links a readable fir green. The companion carries the colour: a sky blue "new" tile, last year's bars in sky blue, this year's
+   drifting fir → teal. The move: the brand kept nearly out of the UI, one bright companion.
+   A trial variant of 2026-11-26 (schemes/zelena/zadani.md). Built in OKLCH; every pair computed in light and dark
+   (src/design/schemes.test.ts). */
+@layer base {
+  :root[data-scheme="ze-jedle"] {
+      --scheme-page: #f9fcfb; --scheme-card: #ffffff; --scheme-stripe: #f6faf9; --scheme-fill: #ebf1f0; --scheme-rule: #d5dcdb; --scheme-line: #dbe1e0;
+      --scheme-field: #ffffff; --scheme-edge: #838b8a; --scheme-muted: #56605e; --scheme-ink: #0a1d14; --scheme-tint: #e2f2fc; --scheme-track: #dde3e2;
+      --scheme-action: #123f2c; --scheme-on-action: #ffffff; --scheme-action-deep: #0a2e1f; --scheme-link: #115b3e; --scheme-on-feature: #014b79; --scheme-danger: #d02c2a;
+      --scheme-on-danger: #ffffff; --scheme-success: #21763c; --scheme-success-chip: #def8e2; --scheme-warning: #ae1320; --scheme-warning-chip: #ffebe9; --scheme-series-1: #135b42;
+      --scheme-series-2: #86c7ed; --scheme-cat-1: #135b42; --scheme-cat-2: #86c7ed; --scheme-cat-3: #c5e8d5; --scheme-brand: #123f2c; --scheme-on-brand: #ffffff;
+      --scheme-brand-dot: #81cffc; --scheme-brand-inverse: #123f2c; --scheme-on-brand-inverse: #ffffff; --scheme-brand-dot-inverse: #81cffc; --scheme-header: #eaefee; --scheme-on-header: #0a1d14;
+      --scheme-on-header-muted: #505b59; --scheme-header-active: #ffffff; --scheme-header-hover: #dfe6e5; --scheme-footer: #ecf1f0; --scheme-footer-deep: #e6eceb; --scheme-on-footer: #0a1d14;
+      --scheme-on-footer-muted: #505b59;
+      --scheme-header-image: linear-gradient(135deg, #eef3f2, #e5ebea);
+      --scheme-footer-image: linear-gradient(#ecf1f0, #e6eceb);
+      --scheme-feature-image: linear-gradient(135deg, #def2fe, #cfecfe);
+      --scheme-feature-image-hover: linear-gradient(135deg, #d6effe, #c7e9fe);
+      --scheme-series-1-end: #37a69a;
+      --scheme-series-2-end: #a6e3f2;
+      --scheme-error: #ae1320;
+      --scheme-error-chip: #ffebe9;
+  }
+  :root.dark[data-scheme="ze-jedle"] {
+      --scheme-page: #090d0c; --scheme-card: #121615; --scheme-stripe: #151919; --scheme-fill: #1c2020; --scheme-rule: #282c2c; --scheme-line: #232727;
+      --scheme-field: #090d0c; --scheme-edge: #747978; --scheme-muted: #acb3b2; --scheme-ink: #e9eeed; --scheme-tint: #102e3d; --scheme-track: #2a2f2e;
+      --scheme-action: #6cbf97; --scheme-on-action: #00150a; --scheme-action-deep: #7ed0a8; --scheme-link: #87d0ac; --scheme-on-feature: #ffffff; --scheme-danger: #f47b74;
+      --scheme-on-danger: #090d0c; --scheme-success: #6cc581; --scheme-success-chip: #17321e; --scheme-warning: #f47b74; --scheme-warning-chip: #3a1d1c; --scheme-series-1: #6cbf97;
+      --scheme-series-2: #426f89; --scheme-cat-1: #6cbf97; --scheme-cat-2: #426f89; --scheme-cat-3: #395446; --scheme-brand: #6cbf97; --scheme-on-brand: #00150a;
+      --scheme-brand-dot: #00150a; --scheme-brand-inverse: #6cbf97; --scheme-on-brand-inverse: #00150a; --scheme-brand-dot-inverse: #00150a; --scheme-header: #121615; --scheme-on-header: #e9eeed;
+      --scheme-on-header-muted: #acb3b2; --scheme-header-active: #2a2f2e; --scheme-header-hover: #1d2121; --scheme-footer: #040606; --scheme-footer-deep: #020403; --scheme-on-footer: #ffffff;
+      --scheme-on-footer-muted: #adb2b1;
+      --scheme-header-image: linear-gradient(135deg, #151918, #0f1313);
+      --scheme-footer-image: linear-gradient(135deg, #040606, #020403);
+      --scheme-feature-image: linear-gradient(135deg, #0f3a50, #063349);
+      --scheme-feature-image-hover: linear-gradient(135deg, #12425a, #093b53);
+      --scheme-series-1-end: #81d6cb;
+      --scheme-series-2-end: #57909e;
+      --scheme-error: #f47b74;
+      --scheme-error-chip: #3a1d1c;
+  }
+}

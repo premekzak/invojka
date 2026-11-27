@@ -1,33 +1,40 @@
-/* Colour scheme "Jasný oblak" (Bright cloud, 2026-11-04), the default since 2026-11-04 (active with no data-scheme attribute too), Bright cloud with a grey bar: neutral greys, a vivid blue (#075ffe) for buttons, links, the
-   logo and the main chart series, a vivid orange (#fe7802) as the second chart series; no rule under the bar. The default since 2026-11-04. The chart bars fade and turn a little, kept subtle: the blue from a slightly lighter, slightly cyan top, the orange from a slightly lighter, slightly yellow top; plus the faint grey gradient in the bar.
+/* Colour scheme "Jasný oblak" (Bright cloud, 2026-11-04), the default from 2026-11-04 to 2026-11-20 (Terakota since).
+   One colour, blue, in many shades, and a full ramp of cool greys (2026-11-11). The greys are OKLCH hue 255 at very low chroma,
+   one job per step: a faint grey page under white cards, stripe, fill, a blue-grey bar with a faint 135° gradient, hover, track,
+   line, rule, a deeper grey footer, edge, muted, ink. The blues are hue 262: vivid #075ffe for buttons and the main chart
+   series, a deeper blue for links and the button hover, a navy logo, a deep blue on the "Nová faktura" tile over a pale blue 135°
+   gradient, pale blue row hover; every other chart colour is a lighter or darker shade of the same blue. No second hue. No
+   rule under the bar. Status keeps its own colours: errors, warnings and arrears red (2026-11-04/05), paid green.
    Every pair computed in light and dark (src/design/schemes.test.ts). */
 @layer base {
-  :root:where(:not([data-scheme]), [data-scheme="jasny-oblak"]) {
-      --scheme-page: #ffffff; --scheme-card: #ffffff; --scheme-stripe: #fafafa; --scheme-fill: #f2f2f2; --scheme-rule: #d9d9d9; --scheme-line: #e3e3e3;
-      --scheme-field: #ffffff; --scheme-edge: #878787; --scheme-muted: #565656; --scheme-ink: #2b2b2b; --scheme-tint: #e9f1fe; --scheme-track: #e8e8e8;
-      --scheme-action: #075ffe; --scheme-on-action: #ffffff; --scheme-action-deep: #004cd7; --scheme-link: #075ffe; --scheme-on-feature: #0157f2; --scheme-danger: #d1242b;
-      --scheme-on-danger: #ffffff; --scheme-success: #0f7536; --scheme-success-chip: #ddf6e4; --scheme-warning: #8a5300; --scheme-warning-chip: #fff0d2; --scheme-series-1: #075ffe;
-      --scheme-series-2: #fe7802; --scheme-cat-1: #075ffe; --scheme-cat-2: #fe7802; --scheme-cat-3: #d9d9d9; --scheme-brand: #075ffe; --scheme-on-brand: #ffffff;
-      --scheme-brand-dot: #ffffff; --scheme-brand-inverse: #075ffe; --scheme-on-brand-inverse: #ffffff; --scheme-brand-dot-inverse: #ffffff; --scheme-header: #f2f3f5; --scheme-on-header: #2b2b2b;
-      --scheme-on-header-muted: #57585a; --scheme-header-active: #ffffff; --scheme-header-hover: #e8e9ec; --scheme-footer: #f2f2f2; --scheme-footer-deep: #f2f2f2; --scheme-on-footer: #2b2b2b;
-      --scheme-on-footer-muted: #535353;
-      --scheme-header-image: linear-gradient(135deg, #f4f5f7, #ebedf0);
-      --scheme-footer-image: linear-gradient(#f2f2f2, #f2f2f2);
-      --scheme-feature-image: linear-gradient(#e9f1fe, #e9f1fe); --scheme-feature-image-hover: linear-gradient(#dce9ff, #dce9ff);
-      --scheme-series-1-end: #0589e9; --scheme-series-2-end: #fe9823;
+  :root[data-scheme="jasny-oblak"] {
+      --scheme-page: #f8f9fb; --scheme-card: #ffffff; --scheme-stripe: #f9fafc; --scheme-fill: #f0f3f6; --scheme-rule: #cfd3d9; --scheme-line: #dde0e4;
+      --scheme-field: #ffffff; --scheme-edge: #7b8187; --scheme-muted: #535961; --scheme-ink: #1b222b; --scheme-tint: #eff5ff; --scheme-track: #dfe3e8;
+      --scheme-action: #075ffe; --scheme-on-action: #ffffff; --scheme-action-deep: #064cce; --scheme-link: #1256d8; --scheme-on-feature: #1346ab; --scheme-danger: #d1242b;
+      --scheme-on-danger: #ffffff; --scheme-success: #0f7536; --scheme-success-chip: #ddf6e4; --scheme-warning: #b3161f; --scheme-warning-chip: #fdeceb; --scheme-series-1: #075ffe;
+      --scheme-series-2: #a6c5fc; --scheme-cat-1: #075ffe; --scheme-cat-2: #8bb1f7; --scheme-cat-3: #bfd2f3; --scheme-brand: #0a46b9; --scheme-on-brand: #ffffff;
+      --scheme-brand-dot: #ffffff; --scheme-brand-inverse: #0a46b9; --scheme-on-brand-inverse: #ffffff; --scheme-brand-dot-inverse: #ffffff; --scheme-header: #ebeff4; --scheme-on-header: #1b222b;
+      --scheme-on-header-muted: #4f565f; --scheme-header-active: #ffffff; --scheme-header-hover: #e0e4eb; --scheme-footer: #eaedf2; --scheme-footer-deep: #e4e8ed; --scheme-on-footer: #1b222b;
+      --scheme-on-footer-muted: #4f565f;
+      --scheme-header-image: linear-gradient(135deg, #eef1f6, #e8ecf2);
+      --scheme-footer-image: linear-gradient(#eaedf2, #e4e8ed);
+      --scheme-feature-image: linear-gradient(135deg, #edf5ff, #e0eeff); --scheme-feature-image-hover: linear-gradient(135deg, #e4efff, #d4e7ff);
+      --scheme-series-1-end: #3d7efc; --scheme-series-2-end: #bfd5fd;
+      --scheme-error: #b3161f; --scheme-error-chip: #fdeceb;
   }
-  :root.dark:where(:not([data-scheme]), [data-scheme="jasny-oblak"]) {
-      --scheme-page: #1a1a1a; --scheme-card: #232323; --scheme-stripe: #262626; --scheme-fill: #2d2d2d; --scheme-rule: #3c3c3c; --scheme-line: #333333;
-      --scheme-field: #1a1a1a; --scheme-edge: #858585; --scheme-muted: #b3b3b3; --scheme-ink: #f2f2f2; --scheme-tint: #1d2d4c; --scheme-track: #363636;
+  :root.dark[data-scheme="jasny-oblak"] {
+      --scheme-page: #121417; --scheme-card: #191c20; --scheme-stripe: #1d1f23; --scheme-fill: #212428; --scheme-rule: #2f3338; --scheme-line: #272a2f;
+      --scheme-field: #121417; --scheme-edge: #81878d; --scheme-muted: #b5bbc2; --scheme-ink: #eff2f6; --scheme-tint: #1d2d4c; --scheme-track: #2a2e33;
       --scheme-action: #72a3fe; --scheme-on-action: #020d29; --scheme-action-deep: #91b7fe; --scheme-link: #9bbeff; --scheme-on-feature: #ffffff; --scheme-danger: #ff7b72;
-      --scheme-on-danger: #1a1a1a; --scheme-success: #5cc77a; --scheme-success-chip: #1c3324; --scheme-warning: #f0ad4e; --scheme-warning-chip: #3a2c15; --scheme-series-1: #72a3fe;
-      --scheme-series-2: #fd923e; --scheme-cat-1: #72a3fe; --scheme-cat-2: #fd923e; --scheme-cat-3: #454545; --scheme-brand: #72a3fe; --scheme-on-brand: #020d29;
-      --scheme-brand-dot: #020d29; --scheme-brand-inverse: #72a3fe; --scheme-on-brand-inverse: #020d29; --scheme-brand-dot-inverse: #020d29; --scheme-header: #232323; --scheme-on-header: #f2f2f2;
-      --scheme-on-header-muted: #b3b3b3; --scheme-header-active: #363636; --scheme-header-hover: #232323; --scheme-footer: #131313; --scheme-footer-deep: #131313; --scheme-on-footer: #f2f2f2;
-      --scheme-on-footer-muted: #b3b3b3;
-      --scheme-header-image: linear-gradient(135deg, #262626, #1f1f1f);
-      --scheme-footer-image: linear-gradient(#131313, #131313);
-      --scheme-feature-image: linear-gradient(#192f58, #192f58); --scheme-feature-image-hover: linear-gradient(#1d3666, #1d3666);
-      --scheme-series-1-end: #75baff; --scheme-series-2-end: #fea754;
+      --scheme-on-danger: #121417; --scheme-success: #5cc77a; --scheme-success-chip: #1c3324; --scheme-warning: #ff7b72; --scheme-warning-chip: #3d1d1c; --scheme-series-1: #72a3fe;
+      --scheme-series-2: #3860ac; --scheme-cat-1: #72a3fe; --scheme-cat-2: #3a65b8; --scheme-cat-3: #7b93be; --scheme-brand: #5e8fed; --scheme-on-brand: #020d29;
+      --scheme-brand-dot: #020d29; --scheme-brand-inverse: #5e8fed; --scheme-on-brand-inverse: #020d29; --scheme-brand-dot-inverse: #020d29; --scheme-header: #1d2126; --scheme-on-header: #eff2f6;
+      --scheme-on-header-muted: #b5bbc2; --scheme-header-active: #31363c; --scheme-header-hover: #25292f; --scheme-footer: #0b0d10; --scheme-footer-deep: #07090c; --scheme-on-footer: #eff2f6;
+      --scheme-on-footer-muted: #b5bbc2;
+      --scheme-header-image: linear-gradient(135deg, #1f2329, #1a1e24);
+      --scheme-footer-image: linear-gradient(#0b0d10, #07090c);
+      --scheme-feature-image: linear-gradient(135deg, #1a2d51, #0f244d); --scheme-feature-image-hover: linear-gradient(135deg, #1e345e, #132b5a);
+      --scheme-series-1-end: #97bbfb; --scheme-series-2-end: #4c73ba;
+      --scheme-error: #ff7b72; --scheme-error-chip: #3d1d1c;
   }
 }

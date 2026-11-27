@@ -111,11 +111,11 @@ export function Checkbox({ label, hint, className, ...p }: InputHTMLAttributes<H
   )
 }
 
-/** Pale warning box above a form that lists every mistake; each item moves focus to its field. */
+/** Pale error box (warning-coloured unless the scheme sets an error pair) above a form that lists every mistake; each item moves focus to its field. */
 export function ErrorSummary({ title, errors }: { title: string; errors: { id: string; message: string }[] }) {
   if (errors.length === 0) return null
   return (
-    <div role="alert" className="rounded-lg bg-warning-chip px-4 py-3 text-sm text-warning-chip-fg">
+    <div role="alert" className="rounded-lg bg-error-chip px-4 py-3 text-sm text-error">
       <p className="font-semibold">{title}</p>
       <ul className="mt-1 list-inside list-disc">
         {errors.map((e) => (

@@ -1,0 +1,44 @@
+/* Colour scheme "Limetka": the bright pair, all in green. Buttons are a light, vivid lime with a forest-green label (hover goes more saturated, not darker);
+   the ink, the logo and the dark footer are forest green, links and the main chart series a mid green; green-tinted greys and a pale
+   green bar; a pale lime "new" tile; bars drift green → lime. The move: coloured ink with a bright partner, no second hue.
+   Recorded exception: a light accent has no 3:1 edge on white; its dark label carries it.
+   A trial variant of 2026-11-26 (schemes/zelena/zadani.md). Built in OKLCH; every pair computed in light and dark
+   (src/design/schemes.test.ts). */
+@layer base {
+  :root[data-scheme="ze-limetka"] {
+      --scheme-page: #f9fcf8; --scheme-card: #ffffff; --scheme-stripe: #f6faf5; --scheme-fill: #ebf2ea; --scheme-rule: #d5ddd4; --scheme-line: #dbe2da;
+      --scheme-field: #ffffff; --scheme-edge: #848c82; --scheme-muted: #566153; --scheme-ink: #031f0c; --scheme-tint: #e4f5e6; --scheme-track: #dde4db;
+      --scheme-action: #aaf464; --scheme-on-action: #063215; --scheme-action-deep: #9bec44; --scheme-link: #195c2e; --scheme-on-feature: #174825; --scheme-danger: #d02c2a;
+      --scheme-on-danger: #ffffff; --scheme-success: #007463; --scheme-success-chip: #d5faf0; --scheme-warning: #ae1320; --scheme-warning-chip: #ffebe9; --scheme-series-1: #21763c;
+      --scheme-series-2: #c8e49a; --scheme-cat-1: #21763c; --scheme-cat-2: #c8e49a; --scheme-cat-3: #cae7cf; --scheme-brand: #0e371d; --scheme-on-brand: #aaf464;
+      --scheme-brand-dot: #aaf464; --scheme-brand-inverse: #ffffff; --scheme-on-brand-inverse: #0e371d; --scheme-brand-dot-inverse: #0e371d; --scheme-header: #e8f2e5; --scheme-on-header: #031f0c;
+      --scheme-on-header-muted: #505c4e; --scheme-header-active: #ffffff; --scheme-header-hover: #deeadb; --scheme-footer: #112d1a; --scheme-footer-deep: #0a2714; --scheme-on-footer: #ffffff;
+      --scheme-on-footer-muted: #bdd1c1;
+      --scheme-header-image: linear-gradient(135deg, #ecf6e9, #e3eee1);
+      --scheme-footer-image: linear-gradient(135deg, #112d1a, #0a2714);
+      --scheme-feature-image: linear-gradient(135deg, #e3f9cf, #d8f4bd);
+      --scheme-feature-image-hover: linear-gradient(135deg, #dcf7c2, #d1f2b0);
+      --scheme-series-1-end: #a1ea5a;
+      --scheme-series-2-end: #ecf2ac;
+      --scheme-error: #ae1320;
+      --scheme-error-chip: #ffebe9;
+  }
+  :root.dark[data-scheme="ze-limetka"] {
+      --scheme-page: #0a0d09; --scheme-card: #121611; --scheme-stripe: #151a14; --scheme-fill: #1c211b; --scheme-rule: #282d27; --scheme-line: #232822;
+      --scheme-field: #0a0d09; --scheme-edge: #747973; --scheme-muted: #acb4aa; --scheme-ink: #e9eee8; --scheme-tint: #19301e; --scheme-track: #2a3029;
+      --scheme-action: #7bee98; --scheme-on-action: #021406; --scheme-action-deep: #95ffad; --scheme-link: #94f9ab; --scheme-on-feature: #ffffff; --scheme-danger: #f47b74;
+      --scheme-on-danger: #0a0d09; --scheme-success: #2ac8ae; --scheme-success-chip: #05332b; --scheme-warning: #f47b74; --scheme-warning-chip: #3a1d1c; --scheme-series-1: #7bee98;
+      --scheme-series-2: #5b7243; --scheme-cat-1: #7bee98; --scheme-cat-2: #5b7243; --scheme-cat-3: #3d5342; --scheme-brand: #7bee98; --scheme-on-brand: #021406;
+      --scheme-brand-dot: #021406; --scheme-brand-inverse: #7bee98; --scheme-on-brand-inverse: #021406; --scheme-brand-dot-inverse: #021406; --scheme-header: #141c12; --scheme-on-header: #e9eee8;
+      --scheme-on-header-muted: #acb4aa; --scheme-header-active: #283426; --scheme-header-hover: #1d271b; --scheme-footer: #020703; --scheme-footer-deep: #010502; --scheme-on-footer: #ffffff;
+      --scheme-on-footer-muted: #adb3ac;
+      --scheme-header-image: linear-gradient(135deg, #171f15, #111910);
+      --scheme-footer-image: linear-gradient(135deg, #020703, #010502);
+      --scheme-feature-image: linear-gradient(135deg, #2b3b19, #253512);
+      --scheme-feature-image-hover: linear-gradient(135deg, #32441d, #2b3d17);
+      --scheme-series-1-end: #bcf191;
+      --scheme-series-2-end: #878b55;
+      --scheme-error: #f47b74;
+      --scheme-error-chip: #3a1d1c;
+  }
+}

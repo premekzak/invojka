@@ -88,6 +88,7 @@ The name `AGENTS.md` is the convention several agent tools look for. Read-only a
 | `note`, `sentAt?`, `exportedAt?` | `sentAt` is the date the user opened the invoice e-mail in their mail program ([email.md](email.md)); `exportedAt` is the date of the last export for the accountant ([accounting-export.md](accounting-export.md)). |
 | `reminders` | Dates the user opened a reminder e-mail, oldest first. Defaults to `[]`. |
 | `privateNote` | A note for the user only, never printed. Defaults to `''`. |
+| `numberManual?` | True when the user typed the number themselves; issuing then keeps it. Without it a draft's `number` is provisional (see [invoicing-rules.md](invoicing-rules.md#numbering)). |
 | `uncollectible?` | The date the invoice was written off; it shows as "Nedobytná" and no longer waits for payment. |
 | `tags` | The user's labels. Defaults to `[]`. |
 | `fingerprint?` | Issued documents: a hash of the locked fields taken when issued (`v1:` + hex), so a change made outside Invojka shows. Set by the store, never by hand. See [invoicing-rules.md](invoicing-rules.md#locked-documents-and-credit-notes). |

@@ -13,10 +13,11 @@ export const SLOTS = [
 export type Slot = (typeof SLOTS)[number]
 
 /** Optional motif hooks (see theme.css). A gradient here is checked at each of its colours against the text on it. */
-export const MOTIFS = ['header-image', 'feature-image', 'feature-image-hover', 'footer-image', 'tab-edge', 'header-pad', 'series-1-end', 'series-2-end'] as const
+export const MOTIFS = ['header-image', 'feature-image', 'feature-image-hover', 'footer-image', 'tab-edge', 'header-pad', 'series-1-end', 'series-2-end', 'error', 'error-chip'] as const
 
 /** [text or mark, background, minimum ratio]. 4.5 for text, 3 for field edges and chart marks (WCAG 1.4.3 and 1.4.11). */
-export const PAIRS: readonly (readonly [Slot, Slot, number])[] = [
+type Colour = Slot | (typeof MOTIFS)[number]
+export const PAIRS: readonly (readonly [Colour, Colour, number])[] = [
   ...(['page', 'card', 'fill', 'stripe', 'tint', 'track'] as const).flatMap((bg) => [['ink', bg, 4.5], ['muted', bg, 4.5]] as const),
   ['muted', 'line', 4.5],
   ['link', 'page', 4.5], ['link', 'card', 4.5], ['link', 'fill', 4.5],
@@ -26,6 +27,8 @@ export const PAIRS: readonly (readonly [Slot, Slot, number])[] = [
   ['danger', 'page', 4.5], ['danger', 'card', 4.5], ['on-danger', 'danger', 4.5],
   ['warning', 'page', 4.5], ['warning', 'card', 4.5], ['warning', 'fill', 4.5], ['warning', 'warning-chip', 4.5],
   ['success', 'card', 4.5], ['success', 'success-chip', 4.5],
+  // Optional: the error box (checked only when a scheme sets them; otherwise it uses the warning pair).
+  ['error', 'error-chip', 4.5], ['error', 'card', 4.5],
   ['edge', 'field', 3], ['series-1', 'card', 3],
   // Not text: a hovered row must visibly differ from a plain and a striped one.
   ['tint', 'card', 1.1], ['tint', 'stripe', 1.05],

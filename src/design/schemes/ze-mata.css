@@ -1,0 +1,43 @@
+/* Colour scheme "Máta a švestka": the bright pair. Buttons are a light, vivid mint with a dark green label (hover goes more saturated, not darker), so
+   links, focus and the main chart series take a deeper green; the bar is the page itself, the current page a grey rectangle. The companion
+   is plum: the logo square, a dark plum footer and last year's bars. A pale mint "new" tile.
+   Recorded exception: a light accent has no 3:1 edge on white; its dark label carries it.
+   A trial variant of 2026-11-26 (schemes/zelena/zadani.md). Built in OKLCH; every pair computed in light and dark
+   (src/design/schemes.test.ts). */
+@layer base {
+  :root[data-scheme="ze-mata"] {
+      --scheme-page: #f9fcfa; --scheme-card: #ffffff; --scheme-stripe: #f7f9f8; --scheme-fill: #ecf0ee; --scheme-rule: #d7dbd9; --scheme-line: #dce1df;
+      --scheme-field: #ffffff; --scheme-edge: #858b88; --scheme-muted: #575f5b; --scheme-ink: #0b1d13; --scheme-tint: #e1f5ea; --scheme-track: #dee3e1;
+      --scheme-action: #8aecbd; --scheme-on-action: #012f1c; --scheme-action-deep: #61e8a8; --scheme-link: #006940; --scheme-on-feature: #025032; --scheme-danger: #d02c2a;
+      --scheme-on-danger: #ffffff; --scheme-success: #2f7434; --scheme-success-chip: #e0f8e0; --scheme-warning: #ae1320; --scheme-warning-chip: #ffebe9; --scheme-series-1: #179765;
+      --scheme-series-2: #d8a6c4; --scheme-cat-1: #179765; --scheme-cat-2: #d8a6c4; --scheme-cat-3: #c5e8d4; --scheme-brand: #562245; --scheme-on-brand: #94f2c5;
+      --scheme-brand-dot: #94f2c5; --scheme-brand-inverse: #ffffff; --scheme-on-brand-inverse: #562245; --scheme-brand-dot-inverse: #562245; --scheme-header: #f9fcfa; --scheme-on-header: #0b1d13;
+      --scheme-on-header-muted: #535a56; --scheme-header-active: #dee3e1; --scheme-header-hover: #ecf0ee; --scheme-footer: #36182b; --scheme-footer-deep: #2f1225; --scheme-on-footer: #ffffff;
+      --scheme-on-footer-muted: #d9c3d0;
+      --scheme-footer-image: linear-gradient(135deg, #36182b, #2f1225);
+      --scheme-feature-image: linear-gradient(135deg, #d9f9e8, #cbf4de);
+      --scheme-feature-image-hover: linear-gradient(135deg, #d0f7e2, #c1f2d8);
+      --scheme-series-1-end: #8aecbd;
+      --scheme-series-2-end: #f6c6cc;
+      --scheme-error: #ae1320;
+      --scheme-error-chip: #ffebe9;
+  }
+  :root.dark[data-scheme="ze-mata"] {
+      --scheme-page: #0a0d0c; --scheme-card: #131614; --scheme-stripe: #161918; --scheme-fill: #1d201e; --scheme-rule: #292c2b; --scheme-line: #242726;
+      --scheme-field: #0a0d0c; --scheme-edge: #747876; --scheme-muted: #adb3b0; --scheme-ink: #eaeeec; --scheme-tint: #133122; --scheme-track: #2b2f2d;
+      --scheme-action: #7bdfac; --scheme-on-action: #001409; --scheme-action-deep: #8ef2be; --scheme-link: #92eabc; --scheme-on-feature: #ffffff; --scheme-danger: #f47b74;
+      --scheme-on-danger: #0a0d0c; --scheme-success: #76c479; --scheme-success-chip: #1a321b; --scheme-warning: #f47b74; --scheme-warning-chip: #3a1d1c; --scheme-series-1: #7bdfac;
+      --scheme-series-2: #7f5d71; --scheme-cat-1: #7bdfac; --scheme-cat-2: #7f5d71; --scheme-cat-3: #3a5446; --scheme-brand: #7bdfac; --scheme-on-brand: #001409;
+      --scheme-brand-dot: #001409; --scheme-brand-inverse: #7bdfac; --scheme-on-brand-inverse: #001409; --scheme-brand-dot-inverse: #001409; --scheme-header: #131614; --scheme-on-header: #eaeeec;
+      --scheme-on-header-muted: #adb3b0; --scheme-header-active: #2b2f2d; --scheme-header-hover: #1e2120; --scheme-footer: #0a0407; --scheme-footer-deep: #070205; --scheme-on-footer: #ffffff;
+      --scheme-on-footer-muted: #aeb2b0;
+      --scheme-header-image: linear-gradient(135deg, #151817, #101312);
+      --scheme-footer-image: linear-gradient(135deg, #0a0407, #070205);
+      --scheme-feature-image: linear-gradient(135deg, #123f2c, #093826);
+      --scheme-feature-image-hover: linear-gradient(135deg, #164832, #0d412c);
+      --scheme-series-1-end: #9ef4c9;
+      --scheme-series-2-end: #a3797f;
+      --scheme-error: #f47b74;
+      --scheme-error-chip: #3a1d1c;
+  }
+}

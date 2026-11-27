@@ -1,0 +1,43 @@
+/* Colour scheme "Šalvěj a meruňka": a white page with faintly green greys and a grey-green bar a step off the page (no rule, a white current tab); a muted
+   sage green for buttons, links and the logo; the companion is apricot (kept well away from the red of warnings), only in the pale "new" tile, last year's bars and the logo's dot.
+   The move: a quiet dark-fill accent with one warm counterweight.
+   A trial variant of 2026-11-26 (schemes/zelena/zadani.md). Built in OKLCH; every pair computed in light and dark
+   (src/design/schemes.test.ts). */
+@layer base {
+  :root[data-scheme="ze-salvej"] {
+      --scheme-page: #f9fcfa; --scheme-card: #ffffff; --scheme-stripe: #f6faf7; --scheme-fill: #ecf1ed; --scheme-rule: #d6dcd7; --scheme-line: #dce1dd;
+      --scheme-field: #ffffff; --scheme-edge: #858b86; --scheme-muted: #576059; --scheme-ink: #0c1c12; --scheme-tint: #e3f5e8; --scheme-track: #dee4df;
+      --scheme-action: #36714e; --scheme-on-action: #ffffff; --scheme-action-deep: #285f3f; --scheme-link: #296944; --scheme-on-feature: #743c13; --scheme-danger: #d02c2a;
+      --scheme-on-danger: #ffffff; --scheme-success: #02736e; --scheme-success-chip: #d3f9f6; --scheme-warning: #ae1320; --scheme-warning-chip: #ffebe9; --scheme-series-1: #3d865a;
+      --scheme-series-2: #f8b884; --scheme-cat-1: #3d865a; --scheme-cat-2: #f8b884; --scheme-cat-3: #c8e7d1; --scheme-brand: #36714e; --scheme-on-brand: #ffffff;
+      --scheme-brand-dot: #ffc898; --scheme-brand-inverse: #36714e; --scheme-on-brand-inverse: #ffffff; --scheme-brand-dot-inverse: #ffc898; --scheme-header: #e9efea; --scheme-on-header: #0c1c12;
+      --scheme-on-header-muted: #525b54; --scheme-header-active: #ffffff; --scheme-header-hover: #dfe6e0; --scheme-footer: #ebf1ec; --scheme-footer-deep: #e5ebe7; --scheme-on-footer: #0c1c12;
+      --scheme-on-footer-muted: #525b54;
+      --scheme-header-image: linear-gradient(135deg, #edf3ee, #e4eae6);
+      --scheme-footer-image: linear-gradient(#ebf1ec, #e5ebe7);
+      --scheme-feature-image: linear-gradient(135deg, #ffeede, #fee5cd);
+      --scheme-feature-image-hover: linear-gradient(135deg, #ffe9d4, #ffe0c2);
+      --scheme-series-1-end: #5cb99b;
+      --scheme-series-2-end: #f7e09c;
+      --scheme-error: #ae1320;
+      --scheme-error-chip: #ffebe9;
+  }
+  :root.dark[data-scheme="ze-salvej"] {
+      --scheme-page: #0a0d0b; --scheme-card: #131613; --scheme-stripe: #161917; --scheme-fill: #1d201e; --scheme-rule: #292c2a; --scheme-line: #242725;
+      --scheme-field: #0a0d0b; --scheme-edge: #747975; --scheme-muted: #adb3ae; --scheme-ink: #eaeeeb; --scheme-tint: #163120; --scheme-track: #2b2f2c;
+      --scheme-action: #74c692; --scheme-on-action: #011408; --scheme-action-deep: #86d8a3; --scheme-link: #89d1a2; --scheme-on-feature: #ffffff; --scheme-danger: #f47b74;
+      --scheme-on-danger: #0a0d0b; --scheme-success: #0fc7c0; --scheme-success-chip: #003331; --scheme-warning: #f47b74; --scheme-warning-chip: #3a1d1c; --scheme-series-1: #74c692;
+      --scheme-series-2: #895e3c; --scheme-cat-1: #74c692; --scheme-cat-2: #895e3c; --scheme-cat-3: #3c5444; --scheme-brand: #74c692; --scheme-on-brand: #011408;
+      --scheme-brand-dot: #011408; --scheme-brand-inverse: #74c692; --scheme-on-brand-inverse: #011408; --scheme-brand-dot-inverse: #011408; --scheme-header: #131613; --scheme-on-header: #eaeeeb;
+      --scheme-on-header-muted: #adb3ae; --scheme-header-active: #2b2f2c; --scheme-header-hover: #1e211f; --scheme-footer: #040605; --scheme-footer-deep: #020403; --scheme-on-footer: #ffffff;
+      --scheme-on-footer-muted: #aeb2af;
+      --scheme-header-image: linear-gradient(135deg, #151916, #101311);
+      --scheme-footer-image: linear-gradient(135deg, #040605, #020403);
+      --scheme-feature-image: linear-gradient(135deg, #4a2e0f, #432808);
+      --scheme-feature-image-hover: linear-gradient(135deg, #543513, #4d2f0c);
+      --scheme-series-1-end: #89dfc1;
+      --scheme-series-2-end: #968550;
+      --scheme-error: #f47b74;
+      --scheme-error-chip: #3a1d1c;
+  }
+}

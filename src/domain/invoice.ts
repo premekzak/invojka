@@ -1,7 +1,7 @@
 import { addDays, differenceInCalendarDays, format, parseISO } from 'date-fns'
 import { newId, today } from './id'
 import { mulRound } from './money'
-import { nextNumber } from './numbering'
+import { nextNumber, sequenceOf } from './numbering'
 import { monthsBetween, shiftMonths } from './recurring'
 import type { Customer, Invoice, InvoiceKind, Settings } from './schema'
 import { computeTotals, netFromGross, type Totals } from './vat'
@@ -133,6 +133,53 @@ export function recentCustomerIds(invoices: Invoice[], n = 3): string[] {
   return ids
 }
 
+/** What the customer picker says about a customer: how many documents they have, the latest one, and how many are overdue. */
+export type CustomerSummary = { count: number; last: Invoice; overdue: number }
+
+/** One summary per customer who has a document; cancelled documents don't count. `last` is the latest by issue date, then number. */
+export function customerSummaries(invoices: Invoice[], on = today()): Map<string, CustomerSummary> {
+  const out = new Map<string, CustomerSummary>()
+  for (const inv of invoices) {
+    if (!inv.customerId || inv.status === 'cancelled') continue
+    const s = out.get(inv.customerId) ?? { count: 0, last: inv, overdue: 0 }
+    s.count++
+    if (displayStatus(inv, on) === 'overdue') s.overdue++
+    if (inv.issueDate > s.last.issueDate || (inv.issueDate === s.last.issueDate && inv.number > s.last.number)) s.last = inv
+    out.set(inv.customerId, s)
+  }
+  return out
+}
+
+/**
+ * A draft as it will be issued: with the next number of the series of *issued* documents of its kind, not the number it
+ * got when it was started. A draft's number is only provisional, because a draft can wait, or be deleted, while later
+ * documents are issued; numbering at issue keeps the issued series without gaps and in the order of issue (the owner,
+ * 2026-11-27). A number the user typed (`numberManual`) or one that doesn't follow the pattern is kept. The payment
+ * reference follows the number when it was derived from it. `moved` are other drafts that held the number now taken:
+ * they get the next provisional numbers, so no two documents share one.
+ */
+export function withIssueNumber(settings: Settings, invoices: Invoice[], draft: Invoice): { invoice: Invoice; moved: Invoice[] } {
+  const others = invoices.filter((i) => i.id !== draft.id)
+  const pattern = patternFor(settings, draft.kind)
+  if (draft.status !== 'draft' || draft.numberManual || sequenceOf(pattern, draft.issueDate, draft.number) === undefined) return { invoice: draft, moved: [] }
+  const number = nextNumber(pattern, draft.issueDate, usedNumbers(settings, others.filter((i) => i.status !== 'draft')))
+  if (number === draft.number) return { invoice: draft, moved: [] }
+  const invoice = renumbered(draft, number)
+  const moved: Invoice[] = []
+  for (const d of others.filter((i) => i.status === 'draft' && i.number === number && !i.numberManual)) {
+    const taken = usedNumbers(settings, [...others.filter((i) => !moved.some((m) => m.id === i.id)), ...moved, invoice])
+    moved.push(renumbered(d, nextNumber(patternFor(settings, d.kind), d.issueDate, taken)))
+  }
+  return { invoice, moved }
+}
+
+const digits = (number: string) => number.replace(/\D/g, '')
+/** The document under another number; its payment reference follows when it was the old number's digits. */
+function renumbered(inv: Invoice, number: string): Invoice {
+  const follows = inv.variableSymbol === digits(inv.number) || inv.variableSymbol === digits(inv.number).slice(-10)
+  return { ...inv, number, variableSymbol: follows ? digits(number).slice(-10) : inv.variableSymbol }
+}
+
 /**
  * A draft switched to another kind of document (invoice ⇄ proforma) before it's issued: it takes the next number of
  * that kind's series, and a proforma has no DUZP because it isn't a tax document.
@@ -143,6 +190,7 @@ export function withKind(inv: Invoice, kind: InvoiceKind, settings: Settings, in
     ...inv,
     kind,
     number,
+    numberManual: undefined,
     variableSymbol: number.replace(/\D/g, '').slice(-10),
     taxableSupplyDate: kind === 'proforma' || inv.vatMode !== 'payer' ? undefined : inv.taxableSupplyDate ?? inv.issueDate,
   }

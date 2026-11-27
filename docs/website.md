@@ -25,13 +25,14 @@ The website is a second build in this repo so that it can import the app's compo
 
 ## Measuring
 
-Google Analytics, property `G-56ZL175GS5`, through the owner's Google tag `GTM-MV25KJ7Z` (the owner, 2026-11-27: "chci google analytics a chci tam sledovat microeventy na webu, nastav všechno, co jde"), decided knowing that [launch.md](launch.md) said no tracking on the website: the owner runs ads and wants conversions. **This is the website only. The app is never measured** (CLAUDE.md).
+Google Analytics, property `G-56ZL175GS5` ("invojka.cz"), through the owner's Tag Manager container **`GTM-NCD56WJ3`** ("invojka weby") (the owner, 2026-11-27: "chci google analytics a chci tam sledovat microeventy na webu, nastav všechno, co jde", then "GTM nastav sám"), decided knowing that [launch.md](launch.md) said no tracking on the website: the owner runs ads and wants conversions. **This is the website only. The app is never measured** (CLAUDE.md).
 
-- **The id starts with `GTM-` but it is not a Tag Manager container of the owner's:** it is not in his Tag Manager account, and Google serves it as a Google tag whose destination is the GA4 property (checked 2026-11-27). So there are no tags or triggers to set up; the page sends events straight to Analytics with `gtag('event', …)` (`track` in `src/website/analytics.ts`; the `SiteEvent` type lists them all). Pushing plain `{event: …}` objects into `dataLayer` was tried first and did not reach Analytics.
+- **The page pushes plain events into `dataLayer`** (`track` in `src/website/analytics.ts`; the `SiteEvent` type lists them all), each with every parameter it doesn't use set to undefined, because the data layer remembers values. **The container turns them into GA4 events:** a Google tag for `G-56ZL175GS5` on "Initialization - All Pages", and one GA4 event tag "GA4 event - web events" (event name `{{Event}}`) fired by the custom-event trigger "Web events", whose regular expression lists the event names; the parameters are the data layer variables `DLV - scene`, `place`, `phase`, `question`, `percent`, `target`. Published as version 2 on 2026-11-27. `scripts/gtm-container.json` is the import file of that setup (Admin → Import Container → Merge).
+- The first id the owner pasted, `GTM-MV25KJ7Z`, is not a container: it is the Google tag of the same property. Sending `gtag('event', …)` through it worked too, but the owner wants the container.
 - **Nothing loads from Google and nothing is sent before consent.** `src/website/Consent.tsx` asks at the bottom of the window; "Odmítnout" and "Povolit měření" are equal buttons; the footer's "Nastavení měření" opens it again. The choice is in `localStorage` (`invojka-web-measuring`). Only `analytics_storage` is granted; the three advertising signals stay denied (change it in `analytics.ts` and in the banner's text together if remarketing is ever wanted).
 - What happens before the visitor answers waits in the page and is sent only after "yes"; after "no" it is dropped and nothing is recorded.
 - The dev server never contacts Google; it prints the events to the console (`[measure]`).
-- Checked on the published site (2026-11-27): no request to Google before consent; after it `page_view` and the batched events go to `G-56ZL175GS5`. Google's own "enhanced measurement" adds `scroll` at 90 % and others next to ours.
+- Checked on the published site (2026-11-27): no request to Google before consent; after it `page_view` and the events go to `G-56ZL175GS5`. Google's own "enhanced measurement" adds `scroll` at 90 % and others next to ours.
 - **Still to do in Analytics itself** (Admin): mark `download_click` as a key event, and register the parameters `scene`, `place`, `phase`, `question`, `percent`, `target` as event-scoped custom dimensions, or they cannot be used in reports.
 
 | Event | Parameters | When |
@@ -45,7 +46,7 @@ Google Analytics, property `G-56ZL175GS5`, through the owner's Google tag `GTM-M
 | `scroll_depth` | `percent`: 25, 50, 75, 100 | How far down the page, once each |
 | `outbound_click` | `target`: `github` | The link to the source code |
 
-When an event or parameter is added or renamed, change `SiteEvent`, this table and the custom dimensions in Analytics together. The FAQ's "Měří se něco na tomto webu?" and the banner's text must stay true to all of this.
+When an event or parameter is added or renamed, change `SiteEvent`, this table, the container (the trigger's list and a variable, then `scripts/gtm-container.json`) and the custom dimensions in Analytics together. The FAQ's "Měří se něco na tomto webu?" and the banner's text must stay true to all of this.
 
 ## Rules
 

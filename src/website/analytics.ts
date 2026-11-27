@@ -8,12 +8,12 @@
    - Events carry only what happened on the page (which scene, which question, which button), never anything typed.
    - Only analytics storage is granted; the advertising signals stay denied.
 
-   TAG is the owner's Google tag. Its id starts with GTM-, but it is not a Tag Manager container of his: Google serves
-   it as a Google tag whose destination is the GA4 property G-56ZL175GS5 (checked 2026-11-27 in the served script), so
-   there are no tags or triggers to set up anywhere. The snippet below is the one Google gave him; events go straight
-   to Analytics with gtag('event', …). */
+   CONTAINER is the owner's Tag Manager container "invojka weby" (2026-11-27). The page pushes plain events into the
+   data layer; the container turns them into GA4 events for the property G-56ZL175GS5 with one Google tag and one event
+   tag for all of them (scripts/gtm-container.json is the import file of that setup). The first id he pasted,
+   GTM-MV25KJ7Z, was not a container but the Google tag of that property; it is no longer loaded. */
 
-const TAG = 'GTM-MV25KJ7Z'
+const CONTAINER = 'GTM-NCD56WJ3'
 const KEY = 'invojka-web-measuring'
 
 export type Consent = 'granted' | 'denied' | undefined
@@ -22,7 +22,7 @@ declare global {
   interface Window { dataLayer?: unknown[] }
 }
 
-/** Every event the page sends; docs/website.md lists them and GA4's custom dimensions are named after the parameters. */
+/** Every event the page sends; docs/website.md lists them, and the container's trigger and variables are named after them. */
 export type SiteEvent =
   | { event: 'download_click'; place: 'masthead' | 'closing' }
   | { event: 'scene_view'; scene: string }
@@ -53,24 +53,28 @@ export function readConsent(): Consent {
 let waiting: SiteEvent[] = []
 let loaded = false
 
-const send = ({ event, ...params }: SiteEvent) => gtag('event', event, params)
+/** Every parameter any event has. The data layer remembers values, so each push clears the ones its event doesn't use;
+ *  otherwise a question's text would ride along with the next scroll event. */
+const BLANK = { scene: undefined, place: undefined, phase: undefined, question: undefined, percent: undefined, target: undefined }
+
+const send = (e: SiteEvent) => (window.dataLayer ??= []).push({ ...BLANK, ...e })
 
 function load() {
   if (loaded) return
   loaded = true
   gtag('consent', 'default', { analytics_storage: 'granted', ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied' })
-  gtag('js', new Date())
+  window.dataLayer!.push({ 'gtm.start': Date.now(), event: 'gtm.js' })
   waiting.forEach(send)
   waiting = []
   // The dev server never talks to Google; the events are printed instead (see `track`).
   if (import.meta.env.DEV) return
   const script = document.createElement('script')
   script.async = true
-  script.src = `https://www.googletagmanager.com/gtm.js?id=${TAG}`
+  script.src = `https://www.googletagmanager.com/gtm.js?id=${CONTAINER}`
   document.head.appendChild(script)
 }
 
-/** Remember the visitor's choice. Allowing loads the tag; refusing after allowing stops the storage at once. */
+/** Remember the visitor's choice. Allowing loads the container; refusing after allowing stops the storage at once. */
 export function setConsent(choice: 'granted' | 'denied') {
   try { localStorage.setItem(KEY, choice) } catch { /* Private windows: the choice lasts for this visit. */ }
   if (choice === 'granted') load()

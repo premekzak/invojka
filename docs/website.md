@@ -6,7 +6,8 @@ The public website presents Invojka's features in **short animated scenes** (the
 
 | Path | What it is |
 |---|---|
-| `website/index.html`, `website/entry.js` | The page template and its entry (the Vite root of the website build) |
+| `website/index.html`, `website/en/index.html`, `website/entry.js` | The Czech and the English page and their shared entry (the Vite root of the website build) |
+| `src/website/locale.ts` | The page's language: `tr()`, the app's texts, money and dates |
 | `src/website/Page.tsx` | The page: header, hero, one section per feature, footer |
 | `src/website/Faq.tsx` | "Časté otázky": the questions and answers, as `<details>` |
 | `src/website/scene/Stage.tsx` | The scene engine: `useScene` (frames, loop, pause), `Stage` (scaling, the pointer), `click` |
@@ -48,6 +49,16 @@ Google Analytics, property `G-56ZL175GS5` ("invojka.cz"), through the owner's Ta
 
 When an event or parameter is added or renamed, change `SiteEvent`, this table, the container (the trigger's list and a variable, then `scripts/gtm-container.json`) and the custom dimensions in Analytics together. The banner's text must stay true to all of this. The FAQ does not mention measuring (the owner, 2026-11-27: measuring a website is normal and has nothing to do with the app).
 
+## Two languages
+
+Czech at the site's root (`website/index.html`) and English in `en/` (`website/en/index.html`), added 2026-11-27 (the owner: "udělej anglickou verzi webu"). Both pages load the same code; the page's `<html lang>` decides the language once, in `src/website/locale.ts`.
+
+- **The website's own sentences are written where they are used,** as `tr('česky', 'in English')`. A new sentence without both halves does not compile, so the two versions cannot drift apart.
+- **The scenes take the app's texts** from `app` in `locale.ts`, which is the app's `cs.ts` or `en.ts`, so a scene reads as the app does in that language; money and dates go through `money()` and `date()` there. The made-up Czech businesses keep their names in both; invoice lines, folder names (Faktury / Invoices) and the Windows folder window are translated.
+- `cz()` (no line break after a one-letter word) leaves English text alone.
+- The footer links to the other language; nothing redirects by itself. Only the Czech title and description were written by the owner's wording; the English ones are a translation to be checked by him.
+- `hreflang` links between the two pages are left out until the site has its final address (they need absolute addresses, and Vite's build fails on a relative link to a folder).
+
 ## Rules
 
 - **Scenes are built from the app's real components** (the owner's choice, 2026-11-27, over screen recordings and over the live app driven by a script): `Steps`, `Button`, `Card`, the `.control` box, and the app's own Czech texts from `src/i18n/cs.ts`. A scene shows only the part of the screen it is about. When the screen it copies changes, change the scene with it; each scene's header comment names its source screen.
@@ -85,5 +96,5 @@ Features alternate: one has its scene on the right on a `tint` block, the next o
 - **Logos of the drives** (the owner, 2026-11-27: "možná bych tam dal i loga google drive, onedrive, dropbox", on the page, not in a scene). Under the files scene there is a row naming Disk Google, OneDrive and Dropbox in words for now. To decide: the real multicolour logos (against the one-hue-family rule above and the owner's own "no multicolour brand logos, plain text" of 2026-10-18; a recorded exception if chosen) or one-colour marks in ink; the official files must come from each company's brand page, used unchanged and without implying endorsement.
 
 - The other scenes and the rest of the page (the owner judges the sample first).
-- English version, hosting and deployment, and the download instructions after the click.
+- The download instructions after the click.
 - The bundle carries all of `cs.ts` (about 100 kB gzipped in total); split the texts the scenes use if it matters.

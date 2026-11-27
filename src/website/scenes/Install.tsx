@@ -1,7 +1,7 @@
 import { ArrowDownToLine, ArrowLeft, ArrowRight, ArrowUp, ChevronDown, ChevronRight, Download, FileText, FolderOpen, House, Image, Monitor, Plus, Search, X } from 'lucide-react'
-import cs from '@/i18n/cs'
 import { Logo, WORDMARK } from '@/ui/Logo'
 import { Button, Card, Choice, cn } from '@/ui/primitives'
+import { app, fileDate, tr } from '../locale'
 import { click, Stage, useScene, type Frame } from '../scene/Stage'
 
 /* The scene "no installation": download one file and open it, choose the data folder, say how you start, and the
@@ -13,14 +13,14 @@ import { click, Stage, useScene, type Frame } from '../scene/Stage'
 
 const SOURCES = ['new', 'fakturoid', 'idoklad', 'other'] as const
 const FOLDERS = [
-  { name: 'Daně', changed: '14. 01. 2026 9:12' },
-  { name: 'Smlouvy', changed: '03. 09. 2026 16:05' },
-  { name: 'Účetnictví', changed: '22. 10. 2026 11:31' },
+  { name: tr('Daně', 'Taxes'), changed: '14. 01. 2026 9:12' },
+  { name: tr('Smlouvy', 'Contracts'), changed: '03. 09. 2026 16:05' },
+  { name: tr('Účetnictví', 'Accounting'), changed: '22. 10. 2026 11:31' },
 ]
 /** The folder the scene makes: a new user has none for the data yet, so the window can't offer one. */
-const NEW_FOLDER = 'Faktury'
+const NEW_FOLDER = tr('Faktury', 'Invoices')
 /** What the system calls a folder until it gets a name. */
-const UNNAMED = 'Nová složka'
+const UNNAMED = tr('Nová složka', 'New folder')
 const noop = () => {}
 
 type State = {
@@ -67,8 +67,8 @@ function SiteScreen({ s }: { s: State }) {
           <Logo className="size-6" />
           <span className="font-display text-xl font-semibold">{WORDMARK}</span>
         </div>
-        <p className="text-base text-fg-muted">{cs.app.tagline}</p>
-        <Button size="lg" data-cue="download"><Download className="size-5" /> Stáhnout zdarma</Button>
+        <p className="text-base text-fg-muted">{app.app.tagline}</p>
+        <Button size="lg" data-cue="download"><Download className="size-5" /> {tr('Stáhnout zdarma', 'Download for free')}</Button>
       </Card>
       {/* The downloaded file; the space is kept so the card doesn't jump when it appears. */}
       <div className="h-16 w-full max-w-md">
@@ -77,7 +77,7 @@ function SiteScreen({ s }: { s: State }) {
             <FileText className="size-8 shrink-0 text-fg-muted" strokeWidth={1.5} />
             <div className="min-w-0">
               <div className="text-sm font-medium">invojka.html</div>
-              <div className="text-xs text-fg-muted">Staženo. Otevřete dvojklikem.</div>
+              <div className="text-xs text-fg-muted">{tr('Staženo. Otevřete dvojklikem.', 'Downloaded. Double-click to open.')}</div>
             </div>
           </Card>
         )}
@@ -97,9 +97,9 @@ export function WinFolder({ className }: { className?: string }) {
 }
 
 const WIN_NAV: { name: string; icon: typeof Monitor | null; current?: boolean }[] = [
-  { name: 'Domů', icon: House }, { name: 'Galerie', icon: Image },
-  { name: 'Plocha', icon: Monitor }, { name: 'Stažené soubory', icon: ArrowDownToLine },
-  { name: 'Dokumenty', icon: null, current: true }, { name: 'Obrázky', icon: Image },
+  { name: tr('Domů', 'Home'), icon: House }, { name: tr('Galerie', 'Gallery'), icon: Image },
+  { name: tr('Plocha', 'Desktop'), icon: Monitor }, { name: tr('Stažené soubory', 'Downloads'), icon: ArrowDownToLine },
+  { name: tr('Dokumenty', 'Documents'), icon: null, current: true }, { name: tr('Obrázky', 'Pictures'), icon: Image },
 ]
 
 /**
@@ -112,18 +112,18 @@ function FolderWindow({ s }: { s: State }) {
     <div className="absolute inset-0 z-10 grid place-items-center">
       <div className="win11 animate-rise flex h-[23.5rem] w-[39rem] flex-col overflow-hidden">
         <div className="flex h-8 items-center justify-between pr-2 pl-3">
-          <span>Vybrat složku</span>
+          <span>{tr('Vybrat složku', 'Select Folder')}</span>
           <X className="size-4" strokeWidth={1.5} />
         </div>
         <div className="flex h-9 items-center gap-2 px-3">
           <ArrowLeft className="win-dim size-4" strokeWidth={1.5} /><ArrowRight className="win-dim size-4 opacity-40" strokeWidth={1.5} /><ArrowUp className="win-dim size-4" strokeWidth={1.5} />
           <div className="win-field flex h-7 flex-1 items-center gap-1 px-2">
-            <WinFolder /><ChevronRight className="win-dim size-3" /> Tento počítač <ChevronRight className="win-dim size-3" /> Dokumenty
+            <WinFolder /><ChevronRight className="win-dim size-3" /> {tr('Tento počítač', 'This PC')} <ChevronRight className="win-dim size-3" /> {tr('Dokumenty', 'Documents')}
           </div>
-          <div className="win-field win-dim flex h-7 w-40 items-center justify-between px-2">Prohledat: Dokumenty <Search className="size-3.5" /></div>
+          <div className="win-field win-dim flex h-7 w-40 items-center justify-between px-2">{tr('Prohledat: Dokumenty', 'Search Documents')} <Search className="size-3.5" /></div>
         </div>
         <div className="flex h-9 items-center gap-5 px-4">
-          <span>Uspořádat <ChevronDown className="inline size-3" /></span><span data-cue="newfolder">{UNNAMED}</span>
+          <span>{tr('Uspořádat', 'Organize')} <ChevronDown className="inline size-3" /></span><span data-cue="newfolder">{UNNAMED}</span>
         </div>
         <div className="win-pane flex min-h-0 flex-1">
           <div className="win-rule w-40 shrink-0 space-y-px border-r py-1.5 pr-1 pl-2">
@@ -135,12 +135,12 @@ function FolderWindow({ s }: { s: State }) {
           </div>
           <div className="min-w-0 flex-1 px-1 py-1">
             <div className="win-dim win-rule grid h-6 grid-cols-[1fr_7.5rem_6.5rem] items-center border-b px-2">
-              <span>Název</span><span>Datum změny</span><span>Typ</span>
+              <span>{tr('Název', 'Name')}</span><span>{tr('Datum změny', 'Date modified')}</span><span>{tr('Typ', 'Type')}</span>
             </div>
             {FOLDERS.map((f) => (
               <div key={f.name} className="grid h-7 grid-cols-[1fr_7.5rem_6.5rem] items-center rounded px-2">
                 <span className="flex items-center gap-2"><WinFolder /> {f.name}</span>
-                <span className="win-dim tabular-nums">{f.changed}</span><span className="win-dim">Složka souborů</span>
+                <span className="win-dim tabular-nums">{fileDate(f.changed)}</span><span className="win-dim">{tr('Složka souborů', 'File folder')}</span>
               </div>
             ))}
             {s.newFolder !== null && (
@@ -155,19 +155,19 @@ function FolderWindow({ s }: { s: State }) {
                     </span>
                   )}
                 </span>
-                <span className="win-dim tabular-nums">27. 11. 2026 19:40</span><span className="win-dim">Složka souborů</span>
+                <span className="win-dim tabular-nums">{fileDate('27. 11. 2026 19:40')}</span><span className="win-dim">{tr('Složka souborů', 'File folder')}</span>
               </div>
             )}
           </div>
         </div>
         <div className="space-y-2.5 px-4 py-3">
           <div className="flex items-center gap-2">
-            <span className="w-24 text-right">Složka:</span>
+            <span className="w-24 text-right">{tr('Složka:', 'Folder:')}</span>
             <div className="win-field flex h-6 flex-1 items-center px-2">{s.folder && s.newFolder}</div>
           </div>
           <div className="flex justify-end gap-2">
-            <span data-cue="choose" className={cn('win-button win-default', !s.folder && 'win-dim')}>Vybrat složku</span>
-            <span className="win-button">Zrušit</span>
+            <span data-cue="choose" className={cn('win-button win-default', !s.folder && 'win-dim')}>{tr('Vybrat složku', 'Select Folder')}</span>
+            <span className="win-button">{tr('Zrušit', 'Cancel')}</span>
           </div>
         </div>
       </div>
@@ -183,12 +183,12 @@ function WelcomeScreen() {
           <Logo className="size-10" />
           <div>
             <div className="font-sans text-4xl font-bold tracking-[-0.02em]">{WORDMARK}</div>
-            <p className="text-sm text-fg-muted">{cs.app.tagline}</p>
+            <p className="text-sm text-fg-muted">{app.app.tagline}</p>
           </div>
         </div>
         <div className="space-y-3">
-          <Button size="lg" className="w-full" data-cue="pick"><FolderOpen className="size-5" /> {cs.welcome.pick}</Button>
-          <p className="text-xs text-fg-muted">{cs.welcome.pickHint}</p>
+          <Button size="lg" className="w-full" data-cue="pick"><FolderOpen className="size-5" /> {app.welcome.pick}</Button>
+          <p className="text-xs text-fg-muted">{app.welcome.pickHint}</p>
         </div>
       </Card>
     </div>
@@ -196,7 +196,7 @@ function WelcomeScreen() {
 }
 
 function StartScreen({ s }: { s: State }) {
-  const o = cs.onboarding
+  const o = app.onboarding
   return (
     <Card className="animate-rise mx-auto w-full max-w-2xl px-8 py-6">
       <div className="mb-5 flex items-center justify-between gap-4">
@@ -225,8 +225,8 @@ function HomeScreen() {
       <div data-cue="tile" className="scheme-feature animate-rise flex size-[17.5rem] flex-col justify-between gap-4 rounded-2xl bg-accent px-6 py-5 text-feature-fg">
         <Plus className="size-11" strokeWidth={2.25} />
         <div>
-          <div className="text-lg font-semibold">{cs.nav.newInvoice}</div>
-          <div className="mt-0.5 text-xs text-feature-fg/90">{cs.home.tileNewHint}</div>
+          <div className="text-lg font-semibold">{app.nav.newInvoice}</div>
+          <div className="mt-0.5 text-xs text-feature-fg/90">{app.home.tileNewHint}</div>
         </div>
       </div>
     </div>

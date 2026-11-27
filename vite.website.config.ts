@@ -9,7 +9,8 @@ export default defineConfig({
   root: 'website',
   base: './',
   plugins: [react(), tailwindcss()],
-  build: { outDir: '../dist-website', emptyOutDir: true },
+  // Two pages from the same code: Czech at the root, English in en/ (src/website/locale.ts reads the page's lang).
+  build: { outDir: '../dist-website', emptyOutDir: true, rollupOptions: { input: { cs: fileURLToPath(new URL('./website/index.html', import.meta.url)), en: fileURLToPath(new URL('./website/en/index.html', import.meta.url)) } } },
   server: { port: 5183 },
   resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) } },
 })

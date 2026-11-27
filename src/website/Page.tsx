@@ -1,12 +1,12 @@
 import { Download, Pause, Play } from 'lucide-react'
 import { useEffect, type ReactNode } from 'react'
-import cs from '@/i18n/cs'
 import { Logo, WORDMARK } from '@/ui/Logo'
 import { cn } from '@/ui/primitives'
 import { track } from './analytics'
 import { ConsentBanner, openConsent } from './Consent'
 import { Faq } from './Faq'
 import { Headline } from './Hero'
+import { app, LANG, tr } from './locale'
 import { FilesScene, useFilesScene } from './scenes/Files'
 import { InstallScene, useInstallScene } from './scenes/Install'
 import { InvoiceStepsScene, useInvoiceStepsScene } from './scenes/InvoiceSteps'
@@ -18,7 +18,7 @@ const DOWNLOAD = 'https://github.com/premekzak/invojka/releases/latest/download/
 const SOURCE = 'https://github.com/premekzak/invojka'
 
 /** Drives that sync a folder on the computer, which is all Invojka needs from them. */
-const DRIVES = ['Disk Google', 'OneDrive', 'Dropbox']
+const DRIVES = [tr('Disk Google', "Google Drive"), 'OneDrive', 'Dropbox']
 
 const focus ='focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-link'
 const container = 'mx-auto w-full max-w-6xl px-4 sm:px-8'
@@ -32,7 +32,7 @@ function DownloadLink({ large, inverse, place }: { large?: boolean; inverse?: bo
       className={cn('inline-flex shrink-0 items-center justify-center gap-2 rounded-lg font-medium whitespace-nowrap transition-colors', focus,
         inverse ? 'bg-brand text-brand-fg hover:bg-fg' : 'bg-accent text-accent-fg hover:bg-accent-deep',
         large ? 'h-12 px-6 text-base' : 'h-9 px-4 text-sm leading-label')}>
-      <Download aria-hidden="true" className={large ? 'size-5' : 'size-4'} /> Stáhnout zdarma
+      <Download aria-hidden="true" className={large ? 'size-5' : 'size-4'} /> {tr('Stáhnout zdarma', "Download for free")}
     </a>
   )
 }
@@ -91,7 +91,7 @@ function Toggle({ playing, onToggle }: { playing: boolean; onToggle: () => void 
   return (
     <button type="button" onClick={onToggle} className={cn('inline-flex h-8 shrink-0 items-center gap-2 rounded-lg px-2 text-sm leading-label text-fg-muted hover:text-fg', focus)}>
       {playing ? <Pause aria-hidden="true" className="size-4" /> : <Play aria-hidden="true" className="size-4" />}
-      {playing ? 'Pozastavit ukázku' : 'Přehrát ukázku'}
+      {playing ? tr('Pozastavit ukázku', "Pause the demo") : tr('Přehrát ukázku', "Play the demo")}
     </button>
   )
 }
@@ -115,13 +115,13 @@ function Masthead() {
       <div className="space-y-6 lg:col-start-1 lg:row-start-2">
         <Captions className="space-y-1" phase={scene.state.phase} onPhase={scene.goTo}
           captions={[
-            { title: 'Vyberete odběratele', text: 'Stačí pár písmen. U každého vidíte poslední fakturu a jestli vám něco dluží.' },
-            { title: 'Položky už tam jsou', text: 'Předvyplní se podle minulé faktury. Změníte jen to, co je tentokrát jinak.' },
-            { title: 'Zkontrolujete a vystavíte', text: 'Uvidíte hotové PDF s QR platbou. Po vystavení se uloží do vaší složky.' },
+            { title: tr('Vyberete odběratele', "Pick the customer"), text: tr('Stačí pár písmen. U každého vidíte poslední fakturu a jestli vám něco dluží.', "A few letters are enough. Each one shows their last invoice and whether they owe you anything.") },
+            { title: tr('Položky už tam jsou', "The lines are already there"), text: tr('Předvyplní se podle minulé faktury. Změníte jen to, co je tentokrát jinak.', "They are prefilled from the last invoice. You change only what is different this time.") },
+            { title: tr('Zkontrolujete a vystavíte', "Check and issue"), text: tr('Uvidíte hotové PDF s QR platbou. Po vystavení se uloží do vaší složky.', "You see the finished PDF with a QR payment code. Once issued, it is saved to your folder.") },
           ]} />
         <div className="flex flex-col items-start gap-2 pl-2">
           <DownloadLink large place="masthead" />
-          <p className="text-sm text-fg-muted">Pro Chrome a Edge na počítači. Bez registrace.</p>
+          <p className="text-sm text-fg-muted">{tr('Pro Chrome a Edge na počítači. Bez registrace.', 'For Chrome and Edge on a computer. No sign-up.')}</p>
         </div>
       </div>
     </section>
@@ -133,12 +133,12 @@ function InstallFeature() {
   return (
     <div ref={scene.ref}>
       <Feature flip
-        title="Žádná instalace, žádná registrace"
-        lead="Invojka je jeden soubor, který otevřete v prohlížeči. Data ukládá do složky, kterou jí ukážete, a nikam jinam."
+        title={tr('Žádná instalace, žádná registrace', "No installation, no sign-up")}
+        lead={tr('Invojka je jeden soubor, který otevřete v prohlížeči. Data ukládá do složky, kterou jí ukážete, a nikam jinam.', "Invojka is one file that you open in your browser. It saves its data to the folder you show it, and nowhere else.")}
         captions={[
-          { title: 'Stáhnete jeden soubor', text: 'Nic se neinstaluje. Soubor otevřete dvojklikem v Chromu nebo Edgi.' },
-          { title: 'Vyberete složku pro data', text: 'Založíte si novou, třeba v Dokumentech. Když ji máte na OneDrivu nebo Disku Google, je to zároveň záloha.' },
-          { title: 'Řeknete, jak začínáte', text: 'Invojka vás provede nastavením a můžete vystavit první fakturu.' },
+          { title: tr('Stáhnete jeden soubor', "Download one file"), text: tr('Nic se neinstaluje. Soubor otevřete dvojklikem v Chromu nebo Edgi.', "Nothing is installed. Double-click the file to open it in Chrome or Edge.") },
+          { title: tr('Vyberete složku pro data', "Choose a folder for the data"), text: tr('Založíte si novou, třeba v Dokumentech. Když ji máte na OneDrivu nebo Disku Google, je to zároveň záloha.', "Make a new one, in Documents for example. If it is on OneDrive or Google Drive, it is your backup too.") },
+          { title: tr('Řeknete, jak začínáte', "Say how you are starting"), text: tr('Invojka vás provede nastavením a můžete vystavit první fakturu.', "Invojka takes you through the setup and you can issue your first invoice.") },
         ]}
         phase={scene.state.phase} onPhase={scene.goTo}
         playing={scene.playing} reduced={scene.reduced} onToggle={scene.playing ? scene.pause : scene.play}>
@@ -153,12 +153,12 @@ function StatsFeature() {
   return (
     <div ref={scene.ref}>
       <Feature
-        title="Víte, jak se vám daří"
-        lead="Statistiky se počítají samy z faktur, které vystavíte. Žádné přepisování do tabulek."
+        title={tr('Víte, jak se vám daří', "Know how you are doing")}
+        lead={tr('Statistiky se počítají samy z faktur, které vystavíte. Žádné přepisování do tabulek.', "The statistics work themselves out from the invoices you issue. No copying into spreadsheets.")}
         captions={[
-          { title: 'Tržby měsíc po měsíci', text: 'Každý měsíc stojí vedle stejného měsíce loni, takže hned vidíte, jestli rostete.' },
-          { title: 'Všechny roky najednou', text: 'Jedním klikem přepnete na roky a máte přehled od první faktury.' },
-          { title: 'Největší odběratelé', text: 'Kdo tvoří jakou část tržeb a za kolik dní obvykle platí.' },
+          { title: tr('Tržby měsíc po měsíci', "Revenue month by month"), text: tr('Každý měsíc stojí vedle stejného měsíce loni, takže hned vidíte, jestli rostete.', "Each month stands beside the same month last year, so you see at once whether you are growing.") },
+          { title: tr('Všechny roky najednou', "All the years at once"), text: tr('Jedním klikem přepnete na roky a máte přehled od první faktury.', "One click switches to years, back to your first invoice.") },
+          { title: tr('Největší odběratelé', "Biggest customers"), text: tr('Kdo tvoří jakou část tržeb a za kolik dní obvykle platí.', "Who makes up what share of your revenue and how many days they usually take to pay.") },
         ]}
         phase={scene.state.phase} onPhase={scene.goTo}
         playing={scene.playing} reduced={scene.reduced} onToggle={scene.playing ? scene.pause : scene.play}>
@@ -173,12 +173,12 @@ function FilesFeature() {
   return (
     <div ref={scene.ref}>
       <Feature flip
-        title="Vaše data jsou vaše soubory"
-        lead="Invojka nemá server ani účet. Faktury leží ve složce ve vašem počítači a nikdo jiný k nim nemá přístup."
+        title={tr('Vaše data jsou vaše soubory', "Your data are your files")}
+        lead={tr('Invojka nemá server ani účet. Faktury leží ve složce ve vašem počítači a nikdo jiný k nim nemá přístup.', "Invojka has no server and no account. The invoices sit in a folder on your computer and nobody else can reach them.")}
         captions={[
-          { title: 'Vystavíte fakturu', text: 'Její PDF se hned uloží do vaší složky.' },
-          { title: 'Váš disk ji zazálohuje', text: 'Když složku máte na Disku Google nebo OneDrivu, synchronizuje se sama. Invojka nic nikam neposílá.' },
-          { title: 'Jsou to obyčejné soubory', text: 'PDF a čitelné soubory s daty. Zůstanou vám, i kdyby Invojka jednou skončila.' },
+          { title: tr('Vystavíte fakturu', "Issue an invoice"), text: tr('Její PDF se hned uloží do vaší složky.', "Its PDF is saved to your folder straight away.") },
+          { title: tr('Váš disk ji zazálohuje', "Your drive backs it up"), text: tr('Když složku máte na Disku Google nebo OneDrivu, synchronizuje se sama. Invojka nic nikam neposílá.', "If the folder is on Google Drive or OneDrive, it syncs by itself. Invojka sends nothing anywhere.") },
+          { title: tr('Jsou to obyčejné soubory', "They are ordinary files"), text: tr('PDF a čitelné soubory s daty. Zůstanou vám, i kdyby Invojka jednou skončila.', "PDFs and readable data files. They stay yours even if Invojka came to an end one day.") },
         ]}
         phase={scene.state.phase} onPhase={scene.goTo}
         playing={scene.playing} reduced={scene.reduced} onToggle={scene.playing ? scene.pause : scene.play}>
@@ -233,11 +233,11 @@ export function Page() {
             <FilesFeature />
             {/* The drives a data folder can live on. Names in words for now; their logos are the owner's open question (docs/website.md). */}
             <div className="flex flex-col items-center gap-3 text-center">
-              <p className="text-sm text-fg-muted">Složku s fakturami můžete mít na disku, který už používáte</p>
+              <p className="text-sm text-fg-muted">{tr('Složku s fakturami můžete mít na disku, který už používáte', "Keep the folder with your invoices on the drive you already use")}</p>
               <ul className="flex flex-wrap items-center justify-center gap-x-10 gap-y-2 text-lg font-semibold">
                 {DRIVES.map((d) => <li key={d}>{d}</li>)}
               </ul>
-              <p className="text-sm text-fg-muted">Nebo jen v počítači, bez jakéhokoli disku.</p>
+              <p className="text-sm text-fg-muted">{tr('Nebo jen v počítači, bez jakéhokoli disku.', "Or only on your computer, with no drive at all.")}</p>
             </div>
           </div>
         </section>
@@ -249,11 +249,11 @@ export function Page() {
         {/* The closing block: the one strong area of the page, in the accent itself. */}
         <section className="bg-accent py-16 text-accent-fg sm:py-20">
           <div className={cn(container, 'flex flex-col items-center gap-5 text-center')}>
-            <h2 className="font-display text-3xl leading-tight font-semibold text-accent-fg sm:text-4xl">Vyzkoušejte Invojku</h2>
-            <p className="max-w-hint text-lg">Jeden soubor, žádná registrace. Když vám nesedne, prostě ho smažete.</p>
+            <h2 className="font-display text-3xl leading-tight font-semibold text-accent-fg sm:text-4xl">{tr('Vyzkoušejte Invojku', "Try Invojka")}</h2>
+            <p className="max-w-hint text-lg">{tr('Jeden soubor, žádná registrace. Když vám nesedne, prostě ho smažete.', "One file, no sign-up. If it is not for you, just delete it.")}</p>
             <div className="flex flex-col items-center gap-2">
               <DownloadLink large inverse place="closing" />
-              <p className="text-sm">Pro Chrome a Edge na počítači.</p>
+              <p className="text-sm">{tr('Pro Chrome a Edge na počítači.', "For Chrome and Edge on a computer.")}</p>
             </div>
           </div>
         </section>
@@ -264,11 +264,13 @@ export function Page() {
           <div className="flex items-center gap-2">
             <Logo className="size-5" />
             <span className="font-display text-lg font-semibold text-footer-fg">{WORDMARK}</span>
-            <span>{cs.app.footerNote}</span>
+            <span>{app.app.footerNote}</span>
           </div>
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
-            <button type="button" onClick={openConsent} className={cn('rounded text-link underline underline-offset-2', focus)}>Nastavení měření</button>
-            <a href={SOURCE} onClick={() => track({ event: 'outbound_click', target: 'github' })} className={cn('rounded text-link underline underline-offset-2', focus)}>Zdrojový kód na GitHubu</a>
+            {/* The other language: the Czech page is the site's root, the English one is in en/. */}
+            <a href={LANG === 'en' ? '../' : 'en/'} lang={LANG === 'en' ? 'cs' : 'en'} className={cn('rounded text-link underline underline-offset-2', focus)}>{LANG === 'en' ? 'Česky' : 'English'}</a>
+            <button type="button" onClick={openConsent} className={cn('rounded text-link underline underline-offset-2', focus)}>{tr('Nastavení měření', "Measuring settings")}</button>
+            <a href={SOURCE} onClick={() => track({ event: 'outbound_click', target: 'github' })} className={cn('rounded text-link underline underline-offset-2', focus)}>{tr('Zdrojový kód na GitHubu', "Source code on GitHub")}</a>
           </div>
         </div>
       </footer>

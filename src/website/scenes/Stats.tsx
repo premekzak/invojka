@@ -1,8 +1,7 @@
-import { formatMoney } from '@/domain/money'
-import cs from '@/i18n/cs'
 import { BarChart } from '@/ui/BarChart'
 import { Card } from '@/ui/primitives'
 import { Segmented } from '@/ui/Segmented'
+import { app, date, LANG, LOCALE, money as minorMoney } from '../locale'
 import { click, Stage, useScene, type Frame } from '../scene/Stage'
 
 /* The scene "statistics": revenue by month against last year, the same by years, then the biggest customers. It
@@ -10,20 +9,22 @@ import { click, Stage, useScene, type Frame } from '../scene/Stage'
    Segmented; when that screen changes, change this with it. All names and numbers are made up; the months add up to
    the year and the customers stay under it. */
 
-const t = cs.stats
+const t = app.stats
 const noop = () => {}
-const compact = new Intl.NumberFormat('cs-CZ', { notation: 'compact', maximumFractionDigits: 1 })
+const compact = new Intl.NumberFormat(LOCALE, { notation: 'compact', maximumFractionDigits: 1 })
 const axis = (minor: number) => compact.format(minor / 100)
-const money = (minor: number) => formatMoney(minor, 'CZK', 'cs')
-const whole = (thousands: number) => formatMoney(thousands * 100_000, 'CZK', 'cs', true)
+const money = (minor: number) => minorMoney(minor)
+const whole = (thousands: number) => minorMoney(thousands * 100_000, true)
 const k = (thousands: (number | null)[]) => thousands.map((v) => (v == null ? null : v * 100_000))
 
-const MONTHS = ['led', 'úno', 'bře', 'dub', 'kvě', 'čvn', 'čvc', 'srp', 'zář', 'říj', 'lis', 'pro']
+const MONTHS = LANG === 'en'
+  ? ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+  : ['led', 'úno', 'bře', 'dub', 'kvě', 'čvn', 'čvc', 'srp', 'zář', 'říj', 'lis', 'pro']
 const THIS = k([74, 69, 85, 92, 78, 104, 61, 58, 97, 112, 89, null])
 const LAST = k([62, 58, 71, 80, 66, 90, 45, 52, 88, 95, 84, 70])
 const YEARS = ['2019', '2020', '2021', '2022', '2023', '2024', '2025', '2026']
 const BY_YEAR = k([310, 420, 515, 560, 640, 720, 861, 919]) as number[]
-const NOTE = cs.home.ytd.replace('{{date}}', '27. 11. 2026')
+const NOTE = app.home.ytd.replace('{{date}}', date(27, 11, 2026))
 
 const TOP = [
   { name: 'Studio Meruňka s.r.o.', revenue: 248, share: 27, days: 12 },
@@ -66,7 +67,7 @@ function Revenue({ s }: { s: State }) {
           <BarChart categories={YEARS} height={260}
             series={[{ key: 'rev', label: t.titleYears, color: 'var(--color-series-1)', end: 'var(--color-series-1-end)', values: BY_YEAR }]}
             formatAxis={axis} formatValue={money} partial={{ indexes: [7], note: NOTE }} labelIndexes={[6, 7]}
-            tableLabel={cs.home.table} chartLabel={cs.home.chart} />
+            tableLabel={app.home.table} chartLabel={app.home.chart} />
         ) : (
           <BarChart categories={MONTHS} height={260}
             series={[
@@ -74,7 +75,7 @@ function Revenue({ s }: { s: State }) {
               { key: 'last', label: '2025', color: 'var(--color-series-2)', end: 'var(--color-series-2-end)', values: LAST },
             ]}
             formatAxis={axis} formatValue={money} partial={{ indexes: [10], note: NOTE }}
-            tableLabel={cs.home.table} chartLabel={cs.home.chart} />
+            tableLabel={app.home.table} chartLabel={app.home.chart} />
         )}
       </Card>
     </>
@@ -89,7 +90,7 @@ function Top() {
         <table className="w-full text-sm leading-label">
           <thead className="text-left text-xs text-fg-muted">
             <tr>
-              <th className="py-2.5 pr-3 pl-6 font-medium">{cs.invoices.customer}</th>
+              <th className="py-2.5 pr-3 pl-6 font-medium">{app.invoices.customer}</th>
               <th className="px-3 py-2.5 text-right font-medium">{t.amount}</th>
               <th className="px-3 py-2.5 text-right font-medium">{t.share}</th>
               <th className="py-2.5 pr-6 pl-3 text-right font-medium">{t.daysToPay}</th>

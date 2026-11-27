@@ -247,4 +247,4 @@ export function InvoiceStepsScene({ scene, maxScale }: { scene: ReturnType<typeo
   )
 }
 
-export const useInvoiceStepsScene = () => useScene(INITIAL, FRAMES)
+export const useInvoiceStepsScene = () => useScene('invoice', INITIAL, FRAMES)

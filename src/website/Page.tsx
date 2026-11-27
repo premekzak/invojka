@@ -1,8 +1,10 @@
 import { Download, Pause, Play } from 'lucide-react'
-import type { ReactNode } from 'react'
+import { useEffect, type ReactNode } from 'react'
 import cs from '@/i18n/cs'
 import { Logo, WORDMARK } from '@/ui/Logo'
 import { cn } from '@/ui/primitives'
+import { track } from './analytics'
+import { ConsentBanner, openConsent } from './Consent'
 import { Faq } from './Faq'
 import { Headline } from './Hero'
 import { FilesScene, useFilesScene } from './scenes/Files'
@@ -23,9 +25,9 @@ const container = 'mx-auto w-full max-w-6xl px-4 sm:px-8'
 const wide = 'mx-auto w-full max-w-7xl px-4 sm:px-8'
 
 /** `inverse`: on the accent-coloured closing block, where the accent button would vanish: the logo's dark pair. */
-function DownloadLink({ large, inverse }: { large?: boolean; inverse?: boolean }) {
+function DownloadLink({ large, inverse, place }: { large?: boolean; inverse?: boolean; /** Where on the page, for the measured event. */ place: 'masthead' | 'closing' }) {
   return (
-    <a href={DOWNLOAD} download
+    <a href={DOWNLOAD} download onClick={() => track({ event: 'download_click', place })}
       className={cn('inline-flex shrink-0 items-center justify-center gap-2 rounded-lg font-medium whitespace-nowrap transition-colors', focus,
         inverse ? 'bg-brand text-brand-fg hover:bg-fg' : 'bg-accent text-accent-fg hover:bg-accent-deep',
         large ? 'h-12 px-6 text-base' : 'h-9 px-4 text-sm leading-label')}>
@@ -117,7 +119,7 @@ function Masthead() {
             { title: 'Zkontrolujete a vystavíte', text: 'Uvidíte hotové PDF s QR platbou. Po vystavení se uloží do vaší složky.' },
           ]} />
         <div className="flex flex-col items-start gap-2 pl-2">
-          <DownloadLink large />
+          <DownloadLink large place="masthead" />
           <p className="text-sm text-fg-muted">Pro Chrome a Edge na počítači. Bez registrace.</p>
         </div>
       </div>
@@ -185,7 +187,23 @@ function FilesFeature() {
   )
 }
 
+/** How far down the page the visitor got, measured once per quarter. */
+function useScrollDepth() {
+  useEffect(() => {
+    const marks = [25, 50, 75, 100] as const
+    let reached = 0
+    const check = () => {
+      const room = document.documentElement.scrollHeight - innerHeight
+      const percent = room <= 0 ? 100 : (scrollY / room) * 100
+      while (reached < marks.length && percent >= marks[reached] - 1) track({ event: 'scroll_depth', percent: marks[reached++] })
+    }
+    addEventListener('scroll', check, { passive: true })
+    return () => removeEventListener('scroll', check)
+  }, [])
+}
+
 export function Page() {
+  useScrollDepth()
   return (
     <div className="flex min-h-screen flex-col text-base">
       <div className="bg-tint">
@@ -233,7 +251,7 @@ export function Page() {
             <h2 className="font-display text-3xl leading-tight font-semibold text-accent-fg sm:text-4xl">Vyzkoušejte Invojku</h2>
             <p className="max-w-hint text-lg">Jeden soubor, žádná registrace. Když vám nesedne, prostě ho smažete.</p>
             <div className="flex flex-col items-center gap-2">
-              <DownloadLink large inverse />
+              <DownloadLink large inverse place="closing" />
               <p className="text-sm">Pro Chrome a Edge na počítači.</p>
             </div>
           </div>
@@ -247,9 +265,13 @@ export function Page() {
             <span className="font-display text-lg font-semibold text-footer-fg">{WORDMARK}</span>
             <span>{cs.app.footerNote}</span>
           </div>
-          <a href={SOURCE} className={cn('rounded text-link underline underline-offset-2', focus)}>Zdrojový kód na GitHubu</a>
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+            <button type="button" onClick={openConsent} className={cn('rounded text-link underline underline-offset-2', focus)}>Nastavení měření</button>
+            <a href={SOURCE} onClick={() => track({ event: 'outbound_click', target: 'github' })} className={cn('rounded text-link underline underline-offset-2', focus)}>Zdrojový kód na GitHubu</a>
+          </div>
         </div>
       </footer>
+      <ConsentBanner />
     </div>
   )
 }

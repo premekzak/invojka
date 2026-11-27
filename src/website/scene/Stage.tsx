@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { track } from '../analytics'
 
 /**
  * A scene is a short looping sequence that shows one feature, built from the app's own components on made-up data.
@@ -32,8 +33,9 @@ function useReducedMotion() {
 /**
  * Plays the frames in a loop while `ref` is on screen. The first frame's `wait` is the pause before the loop starts again.
  * With reduced motion nothing plays: the scene shows the last frame of a phase, and `goTo` switches phases.
+ * `name` is the scene's name in the measured events (../analytics.ts): seen, played to the end, paused, a caption chosen.
  */
-export function useScene<S extends { phase: number }>(initial: S, frames: Frame<S>[]) {
+export function useScene<S extends { phase: number }>(name: string, initial: S, frames: Frame<S>[]) {
   const ref = useRef<HTMLDivElement>(null)
   const reduced = useReducedMotion()
   const states = useMemo(() => {
@@ -57,15 +59,29 @@ export function useScene<S extends { phase: number }>(initial: S, frames: Frame<
   useEffect(() => {
     if (!playing) return
     const next = (index + 1) % frames.length
-    const timer = setTimeout(() => setIndex(next), frames[next].wait)
+    const timer = setTimeout(() => {
+      // Back at the first frame: the visitor has watched the whole story once.
+      if (next === 0 && !done.current) { done.current = true; track({ event: 'scene_complete', scene: name }) }
+      setIndex(next)
+    }, frames[next].wait)
     return () => clearTimeout(timer)
-  }, [playing, index, frames])
+  }, [playing, index, frames, name])
+
+  // Measured once per visit: the scene came on screen.
+  const seen = useRef(false), done = useRef(false)
+  useEffect(() => {
+    if (visible && !seen.current) { seen.current = true; track({ event: 'scene_view', scene: name }) }
+  }, [visible, name])
 
   return {
     ref, state: states[index], playing, reduced,
-    pause: () => setPaused(true), play: () => setPaused(false),
+    pause: () => { setPaused(true); track({ event: 'scene_pause', scene: name, phase: states[index].phase }) },
+    play: () => { setPaused(false); track({ event: 'scene_resume', scene: name, phase: states[index].phase }) },
     /** Jump to a phase: its first frame when playing, its last (the finished picture) with reduced motion. */
-    goTo: (phase: number) => setIndex(reduced ? lastOf(phase) : Math.max(0, states.findIndex((s) => s.phase === phase))),
+    goTo: (phase: number) => {
+      track({ event: 'scene_caption_click', scene: name, phase: phase + 1 })
+      setIndex(reduced ? lastOf(phase) : Math.max(0, states.findIndex((s) => s.phase === phase)))
+    },
   }
 }
 

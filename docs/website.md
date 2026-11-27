@@ -23,12 +23,34 @@ The website is a second build in this repo so that it can import the app's compo
 - **Not launched yet:** `noindex` in `website/index.html` and `robots.txt` from the script keep search engines away until [launch.md](launch.md) is done (privacy page, contact, instructions after the download). Remove both together.
 - **The domain:** invojka.cz is registered and its DNS is at Cloudflare (2026-11-27, still propagating). When it points at GitHub Pages (four `A` records of GitHub Pages for the apex, or a flattened `CNAME` to `premekzak.github.io`; "DNS only" at Cloudflare until GitHub has issued the certificate), set `DOMAIN` in the script: every deploy replaces the whole repository, so the `CNAME` file must be in each build. Asset paths are relative (`base: './'`), so the site works under `/invojka-web/` and at the domain's root alike.
 
+## Measuring
+
+Google Tag Manager, container `GTM-MV25KJ7Z` (the owner, 2026-11-27: "chci google analytics a chci tam sledovat microeventy na webu, nastav všechno, co jde"), decided knowing that [launch.md](launch.md) said no tracking on the website: the owner runs ads and wants conversions. **This is the website only. The app is never measured** (CLAUDE.md).
+
+- **Nothing loads from Google and nothing is sent before consent.** `src/website/Consent.tsx` asks at the bottom of the window; "Odmítnout" and "Povolit měření" are equal buttons; the footer's "Nastavení měření" opens it again. The choice is in `localStorage` (`invojka-web-measuring`). Only `analytics_storage` is granted; the three advertising signals stay denied (change it in `analytics.ts` and in the banner's text together if remarketing is ever wanted).
+- **The page only pushes events into `dataLayer`** (`track` in `src/website/analytics.ts`, the `SiteEvent` type lists them all). Turning them into GA4 events is done in the GTM container: a GA4 configuration tag, and one GA4 event tag fired by a custom-event trigger for each name below, with the parameters read as data layer variables.
+- Events wait in the data layer until a choice is made, so a "yes" given late still counts the visit; after "no" nothing is recorded.
+- The dev server never contacts Google; it prints the events to the console (`[measure]`).
+
+| Event | Parameters | When |
+|---|---|---|
+| `download_click` | `place`: `masthead`, `closing` | A click on "Stáhnout zdarma" (the conversion) |
+| `scene_view` | `scene`: `invoice`, `install`, `stats`, `files` | A scene came on screen, once per visit |
+| `scene_complete` | `scene` | A scene played to its end while on screen, once per visit |
+| `scene_pause`, `scene_resume` | `scene`, `phase` (0-based part of the story) | "Pozastavit ukázku" / "Přehrát ukázku" |
+| `scene_caption_click` | `scene`, `phase` (1 to 3, as numbered on the page) | A click on a caption beside a scene |
+| `faq_open` | `question` (its text) | A question was opened |
+| `scroll_depth` | `percent`: 25, 50, 75, 100 | How far down the page, once each |
+| `outbound_click` | `target`: `github` | The link to the source code |
+
+When an event is added or renamed, change `SiteEvent`, this table and the container together. The FAQ's "Měří se něco na tomto webu?" and the banner's text must stay true to all of this.
+
 ## Rules
 
 - **Scenes are built from the app's real components** (the owner's choice, 2026-11-27, over screen recordings and over the live app driven by a script): `Steps`, `Button`, `Card`, the `.control` box, and the app's own Czech texts from `src/i18n/cs.ts`. A scene shows only the part of the screen it is about. When the screen it copies changes, change the scene with it; each scene's header comment names its source screen.
 - **The site wears the app's default scheme** (Terakota; the owner, 2026-11-27), so scenes and the page are one piece. Role utilities only, as in the app. White sections alternate with pale blocks in `tint`; one hue family.
 - **Made-up data only.** Names, IČ (with a wrong check digit, so they belong to nobody) and amounts are invented. Never the owner's clients.
-- **No tracking, no CDN, no third-party requests** on the site either ([launch.md](launch.md)): fonts and scripts are served from the site itself.
+- **No CDN and no third-party requests, with one recorded exception: measuring, after consent** (see [Measuring](#measuring)). Fonts and scripts are served from the site itself.
 - **A scene is an illustration, not a control:** the stage is `inert` and `aria-hidden`; the captions beside it say the same in words. Scenes play only while on screen, have a pause button, and with reduced motion don't play at all (the captions switch between finished pictures).
 - A stage is drawn at a fixed size and scaled down like a video, so it looks the same on a phone. On phones the scene goes above its captions.
 - **Recorded exception: the folder windows are Windows 11's own** (the owner, 2026-11-27: "chtělo by to aby ten výběr složky byl opravdový, třeba z windows 11"), because that is the window a visitor will meet. It is not built from the app's components, it has a shadow, and its blue, yellow and greys are outside the scheme (`.win11` and the `--win-*` values in `site.css`). Nothing else on the site may use them. Chrome's own questions after the folder is chosen (may the site see and change the files) are left out of the scene.

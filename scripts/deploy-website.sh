@@ -26,6 +26,10 @@ cp -r dist-website/. "$WORK/"
 touch "$WORK/.nojekyll"
 printf 'User-agent: *\nDisallow: /\n' > "$WORK/robots.txt"
 if [ -n "$DOMAIN" ]; then printf '%s\n' "$DOMAIN" > "$WORK/CNAME"; fi
+# For Cloudflare, which serves the site from this repository (Workers with static assets, connected to Git): its deploy
+# command `npx wrangler deploy` reads this file. No script, only the files; the name must stay the Cloudflare project's.
+printf '{\n  "name": "%s",\n  "compatibility_date": "2025-09-01",\n  "assets": { "directory": "." }\n}\n' "${REPO#*/}" > "$WORK/wrangler.jsonc"
+printf 'wrangler.jsonc\n.assetsignore\n.git\n.nojekyll\nCNAME\n' > "$WORK/.assetsignore"
 
 cd "$WORK"
 git init -q -b main

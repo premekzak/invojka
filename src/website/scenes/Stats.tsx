@@ -129,4 +129,4 @@ export function StatsScene({ scene }: { scene: ReturnType<typeof useStatsScene> 
   )
 }
 
-export const useStatsScene = () => useScene(INITIAL, FRAMES)
+export const useStatsScene = () => useScene('stats', INITIAL, FRAMES)

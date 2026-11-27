@@ -146,4 +146,4 @@ export function FilesScene({ scene }: { scene: ReturnType<typeof useFilesScene> 
   )
 }
 
-export const useFilesScene = () => useScene(INITIAL, FRAMES)
+export const useFilesScene = () => useScene('files', INITIAL, FRAMES)

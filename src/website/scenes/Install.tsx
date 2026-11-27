@@ -249,4 +249,4 @@ export function InstallScene({ scene }: { scene: ReturnType<typeof useInstallSce
   )
 }
 
-export const useInstallScene = () => useScene(INITIAL, FRAMES)
+export const useInstallScene = () => useScene('install', INITIAL, FRAMES)

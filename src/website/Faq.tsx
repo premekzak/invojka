@@ -1,4 +1,5 @@
 import { Plus } from 'lucide-react'
+import { track } from './analytics'
 
 /* The questions a visitor asks before downloading. The first three come from the website mockup of October 2026; the
    rest are topics docs/launch.md asks for (another computer, updating) and the honest limits from docs/product.md.
@@ -15,6 +16,11 @@ const QUESTIONS: { q: string; a: string }[] = [
   {
     q: 'Kdo vidí moje faktury?',
     a: 'Jen vy. Faktury a odběratelé se ukládají do složky ve vašem počítači a nikam se neposílají. Na internet jde Invojka jen pro kurzy měn (pošle měnu a datum) a do registru ARES, když v něm sami hledáte firmu podle názvu nebo IČ.',
+  },
+  {
+    // Must stay true to src/website/analytics.ts and the consent banner.
+    q: 'Měří se něco na tomto webu?',
+    a: 'Jen když to povolíte: pak web Google Analytics řekne, které části stránky jste viděli a jestli jste klikli na stažení. Bez povolení se nic neměří a nic se z Googlu nenačítá. Samotná aplikace Invojka neměří nic nikdy.',
   },
   {
     q: 'Co když se mi rozbije počítač?',
@@ -44,7 +50,7 @@ export function Faq() {
       <h2 className="mb-6 font-display text-3xl leading-tight font-semibold">Časté otázky</h2>
       <div className="border-t border-line-strong/30">
         {QUESTIONS.map(({ q, a }) => (
-          <details key={q} className="group border-b border-line-strong/30">
+          <details key={q} className="group border-b border-line-strong/30" onToggle={(e) => { if (e.currentTarget.open) track({ event: 'faq_open', question: q }) }}>
             <summary className="flex cursor-pointer list-none items-center justify-between gap-4 rounded-lg py-4 text-lg font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-link [&::-webkit-details-marker]:hidden">
               {q}
               <Plus aria-hidden="true" className="size-5 shrink-0 text-link transition-transform group-open:rotate-45" />

@@ -61,7 +61,7 @@ An invoicing tool that prints an invalid invoice harms its user.
 - [ ] **FAQ on the website** (first version in `src/website/Faq.tsx`, 2026-11-27; the 10 years are not stated until checked and recorded in czech-rules.md)**:** backup, moving to another computer, updating, what happens if the project ends (plain JSON stays readable), keeping invoices for 10 years (the PDFs are in the folder)
 - [ ] **Yearly calendar for the owner:** tax and insurance rates for the new year in `src/domain/taxes.ts` every January ([czech-rules.md](czech-rules.md#sole-traders-taxes-and-insurance)), VAT limits, law changes
 - [ ] **Version 1.0:** decide what "stable" means; from then on no data format change without a migration
-- [ ] **No tracking on the website** either, or only cookie-free statistics: Google Analytics would undercut the main argument
+- [x] ~~No tracking on the website~~ **Overridden by the owner on 2026-11-27:** the website is measured with Google Analytics through Tag Manager, only after consent, because he runs ads and wants conversions ([website.md](website.md#measuring)). The app itself stays unmeasured. Was: "or only cookie-free statistics: Google Analytics would undercut the main argument"
 
 ## Suggested order
 

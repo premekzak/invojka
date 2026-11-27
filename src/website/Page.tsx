@@ -11,6 +11,7 @@ import { FilesScene, useFilesScene } from './scenes/Files'
 import { InstallScene, useInstallScene } from './scenes/Install'
 import { InvoiceStepsScene, useInvoiceStepsScene } from './scenes/InvoiceSteps'
 import { StatsScene, useStatsScene } from './scenes/Stats'
+import { cz } from './text'
 
 /** Always the newest release (docs/development.md). */
 const DOWNLOAD = 'https://github.com/premekzak/invojka/releases/latest/download/invojka.html'
@@ -51,8 +52,8 @@ function Feature({ title, lead, captions, phase, onPhase, playing, reduced, onTo
     <div className={cn('grid items-center gap-x-12 gap-y-8', flip ? 'lg:grid-cols-[minmax(0,1fr)_22rem]' : 'lg:grid-cols-[22rem_minmax(0,1fr)]')}>
       <div className="space-y-6">
         <div className="space-y-3">
-          <h2 className="font-display text-3xl leading-tight font-semibold">{title}</h2>
-          <p className="max-w-hint text-base text-fg-muted">{lead}</p>
+          <h2 className="font-display text-3xl leading-tight font-semibold">{cz(title)}</h2>
+          <p className="max-w-hint text-base text-fg-muted">{cz(lead)}</p>
         </div>
         <Captions captions={captions} phase={phase} onPhase={onPhase} className="space-y-1" />
       </div>
@@ -75,8 +76,8 @@ function Captions({ captions, phase, onPhase, className }: { captions: { title: 
             <span className={cn('mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full text-xs font-semibold tabular-nums transition-colors',
               i === phase ? 'bg-accent text-accent-fg' : 'bg-surface text-fg-muted ring-1 ring-rule')}>{i + 1}</span>
             <span className="space-y-0.5">
-              <span className={cn('block text-base', i === phase ? 'font-semibold text-fg' : 'font-medium text-fg-muted')}>{c.title}</span>
-              <span className="block max-w-hint text-sm text-fg-muted">{c.text}</span>
+              <span className={cn('block text-base', i === phase ? 'font-semibold text-fg' : 'font-medium text-fg-muted')}>{cz(c.title)}</span>
+              <span className="block max-w-hint text-sm text-fg-muted">{cz(c.text)}</span>
             </span>
           </button>
         </li>

@@ -1,5 +1,6 @@
 import { Plus } from 'lucide-react'
 import { track } from './analytics'
+import { cz } from './text'
 
 /* The questions a visitor asks before downloading. The first three come from the website mockup of October 2026; the
    rest are topics docs/launch.md asks for (another computer, updating) and the honest limits from docs/product.md.
@@ -27,6 +28,12 @@ const QUESTIONS: { q: string; a: string }[] = [
     a: 'Mějte složku s fakturami na Disku Google, OneDrivu nebo Dropboxu, ten ji zálohuje sám. Na novém počítači stáhnete Invojku, vyberete stejnou složku a pokračujete, kde jste skončili.',
   },
   {
+    // The import is in onboarding ("Jak začínáte?") and in Settings → Aplikace → Import z jiné služby. The agent part is
+    // the owner's wording (2026-11-27); the data folder carries AGENTS.md, a guide to the files for AI agents.
+    q: 'Jak do Invojky dostanu faktury odjinud?',
+    a: 'Z Fakturoidu a iDokladu je načtete přímo: při prvním spuštění zvolíte, odkud přecházíte, a nahrajete jejich export. Jde to i později v Nastavení. Když fakturujete jinde, zadáte číslo poslední faktury a Invojka v řadě naváže. A protože data jsou obyčejné čitelné soubory s přiloženým popisem, s čímkoli dalším vám pomůže váš AI agent.',
+  },
+  {
     q: 'Můžu fakturovat na dvou počítačích?',
     a: 'Ano, když je složka na disku, který se synchronizuje mezi nimi. Na obou otevřete Invojku a vyberete stejnou složku. Pracujte ale vždy jen na jednom a nechte disk dosynchronizovat.',
   },
@@ -52,10 +59,10 @@ export function Faq() {
         {QUESTIONS.map(({ q, a }) => (
           <details key={q} className="group border-b border-line-strong/30" onToggle={(e) => { if (e.currentTarget.open) track({ event: 'faq_open', question: q }) }}>
             <summary className="flex cursor-pointer list-none items-center justify-between gap-4 rounded-lg py-4 text-lg font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-link [&::-webkit-details-marker]:hidden">
-              {q}
+              {cz(q)}
               <Plus aria-hidden="true" className="size-5 shrink-0 text-link transition-transform group-open:rotate-45" />
             </summary>
-            <p className="max-w-prose pb-5 text-base text-fg-muted">{a}</p>
+            <p className="max-w-prose pb-5 text-base text-fg-muted">{cz(a)}</p>
           </details>
         ))}
       </div>

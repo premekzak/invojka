@@ -26,7 +26,9 @@ html { scroll-behavior: smooth; }
 /* The headline's changing advantage rises in, in the colour of links (a deeper step of the accent). No underline,
    marker stroke or stamp: the owner turned those down (2026-11-27). */
 @keyframes hero-in { from { opacity: 0; transform: translateY(0.2em); } }
-.hero-swap { display: block; color: var(--color-link); animation: hero-in 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+/* --site-spot: the page's one spot colour outside the scheme, used on the headline's advantage only (on trial, see Hero.tsx). */
+:root { --site-spot: oklch(0.45 0.27 268); }
+.hero-swap { display: block; color: var(--site-spot); animation: hero-in 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
 @media (prefers-reduced-motion: reduce) { .hero-swap { animation: none; } }
 
 /* The text caret of a scene's field while it is being "typed" into. */

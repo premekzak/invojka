@@ -1,4 +1,4 @@
-import { Download, Pause, Play } from 'lucide-react'
+import { Download } from 'lucide-react'
 import { useEffect, type ReactNode } from 'react'
 import { Logo, WORDMARK } from '@/ui/Logo'
 import { cn } from '@/ui/primitives'
@@ -54,10 +54,9 @@ function DemoLink({ place, className }: { place: 'masthead' | 'closing'; classNa
  * One feature: what it does in words on one side, its scene on the other. The captions are the scene's parts; the
  * current one is marked as the scene plays, and choosing one jumps there.
  */
-function Feature({ title, lead, captions, phase, onPhase, playing, reduced, onToggle, flip, children }: {
+function Feature({ title, lead, captions, phase, onPhase, flip, children }: {
   title: string; lead: string; captions: { title: string; text: string }[]
   phase: number; onPhase: (phase: number) => void
-  playing: boolean; reduced: boolean; onToggle: () => void
   /** The scene on the left, so neighbouring features alternate. On phones the scene is always first. */
   flip?: boolean; children: ReactNode
 }) {
@@ -70,10 +69,7 @@ function Feature({ title, lead, captions, phase, onPhase, playing, reduced, onTo
         </div>
         <Captions captions={captions} phase={phase} onPhase={onPhase} className="space-y-1" />
       </div>
-      <div className={cn('min-w-0 space-y-2', flip ? 'order-first' : 'max-lg:order-first')}>
-        <div className="overflow-hidden rounded-2xl ring-1 ring-rule">{children}</div>
-        {!reduced && <Toggle playing={playing} onToggle={onToggle} />}
-      </div>
+      <div className={cn('min-w-0 overflow-hidden rounded-2xl ring-1 ring-rule', flip ? 'order-first' : 'max-lg:order-first')}>{children}</div>
     </div>
   )
 }
@@ -99,16 +95,6 @@ function Captions({ captions, phase, onPhase, className }: { captions: { title: 
   )
 }
 
-/** Anything that moves by itself for more than a few seconds needs a way to stop it. */
-function Toggle({ playing, onToggle }: { playing: boolean; onToggle: () => void }) {
-  return (
-    <button type="button" onClick={onToggle} className={cn('inline-flex h-8 shrink-0 items-center gap-2 rounded-lg px-2 text-sm leading-label text-fg-muted hover:text-fg', focus)}>
-      {playing ? <Pause aria-hidden="true" className="size-4" /> : <Play aria-hidden="true" className="size-4" />}
-      {playing ? tr('Pozastavit ukázku', "Pause the demo") : tr('Přehrát ukázku', "Play the demo")}
-    </button>
-  )
-}
-
 /**
  * The top of the page (the owner, 2026-11-27): the product itself as the masthead. The invoice scene, a little larger
  * than in a feature, sits on the right of a tinted band; on the left the headline with the changing advantage, the
@@ -121,9 +107,8 @@ function Masthead() {
   return (
     <section ref={scene.ref} className={cn(wide, 'grid items-start gap-x-12 gap-y-6 pt-6 pb-14 sm:pb-16 lg:grid-cols-[21rem_minmax(0,1fr)] lg:grid-rows-[auto_1fr]')}>
       <Headline />
-      <div className="min-w-0 space-y-2 lg:col-start-2 lg:row-span-2 lg:row-start-1">
-        <div className="overflow-hidden rounded-2xl ring-1 ring-rule"><InvoiceStepsScene scene={scene} maxScale={1.25} /></div>
-        {!scene.reduced && <Toggle playing={scene.playing} onToggle={scene.playing ? scene.pause : scene.play} />}
+      <div className="min-w-0 overflow-hidden rounded-2xl ring-1 ring-rule lg:col-start-2 lg:row-span-2 lg:row-start-1">
+        <InvoiceStepsScene scene={scene} maxScale={1.25} />
       </div>
       <div className="space-y-6 lg:col-start-1 lg:row-start-2">
         <Captions className="space-y-1" phase={scene.state.phase} onPhase={scene.goTo}
@@ -154,8 +139,7 @@ function InstallFeature() {
           { title: tr('Vyberete složku pro data', "Choose a folder for the data"), text: tr('Založíte si novou, třeba v Dokumentech. Když ji máte na OneDrivu nebo Disku Google, je to zároveň záloha.', "Make a new one, in Documents for example. If it is on OneDrive or Google Drive, it is your backup too.") },
           { title: tr('Řeknete, jak začínáte', "Say how you are starting"), text: tr('Invojka vás provede nastavením a můžete vystavit první fakturu.', "Invojka takes you through the setup and you can issue your first invoice.") },
         ]}
-        phase={scene.state.phase} onPhase={scene.goTo}
-        playing={scene.playing} reduced={scene.reduced} onToggle={scene.playing ? scene.pause : scene.play}>
+        phase={scene.state.phase} onPhase={scene.goTo}>
         <InstallScene scene={scene} />
       </Feature>
     </div>
@@ -174,8 +158,7 @@ function StatsFeature() {
           { title: tr('Všechny roky najednou', "All the years at once"), text: tr('Jedním klikem přepnete na roky a máte přehled od první faktury.', "One click switches to years, back to your first invoice.") },
           { title: tr('Největší odběratelé', "Biggest customers"), text: tr('Kdo tvoří jakou část tržeb a za kolik dní obvykle platí.', "Who makes up what share of your revenue and how many days they usually take to pay.") },
         ]}
-        phase={scene.state.phase} onPhase={scene.goTo}
-        playing={scene.playing} reduced={scene.reduced} onToggle={scene.playing ? scene.pause : scene.play}>
+        phase={scene.state.phase} onPhase={scene.goTo}>
         <StatsScene scene={scene} />
       </Feature>
     </div>
@@ -194,8 +177,7 @@ function FilesFeature() {
           { title: tr('Váš disk ji zazálohuje', "Your drive backs it up"), text: tr('Když složku máte na Disku Google nebo OneDrivu, synchronizuje se sama. Invojka nic nikam neposílá.', "If the folder is on Google Drive or OneDrive, it syncs by itself. Invojka sends nothing anywhere.") },
           { title: tr('Jsou to obyčejné soubory', "They are ordinary files"), text: tr('PDF a čitelné soubory s daty. Zůstanou vám, i kdyby Invojka jednou skončila.', "PDFs and readable data files. They stay yours even if Invojka came to an end one day.") },
         ]}
-        phase={scene.state.phase} onPhase={scene.goTo}
-        playing={scene.playing} reduced={scene.reduced} onToggle={scene.playing ? scene.pause : scene.play}>
+        phase={scene.state.phase} onPhase={scene.goTo}>
         <FilesScene scene={scene} />
       </Feature>
     </div>

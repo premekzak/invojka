@@ -8,6 +8,10 @@ import { track } from '../analytics'
  */
 export type Frame<S> = { wait: number; set: Partial<S> }
 
+/** Every wait is stretched by this: the scenes were written at a brisk pace and the owner asked for a slower one
+ *  (2026-11-27: "animace by měla být pomalejší"). Change the pace of all scenes here, not frame by frame. */
+const PACE = 1.5
+
 type Pointer = { cursor: string | null; press: boolean }
 
 /** A click in a scene: the pointer travels to the element marked `data-cue={cue}`, presses, lets go. */
@@ -31,7 +35,8 @@ function useReducedMotion() {
 }
 
 /**
- * Plays the frames in a loop while `ref` is on screen. The first frame's `wait` is the pause before the loop starts again.
+ * Plays the frames in a loop while `ref` is on screen, with no control to stop it (the owner took the pause button out,
+ * 2026-11-27); it stops by itself when scrolled away. The first frame's `wait` is the pause before the loop starts again.
  * With reduced motion nothing plays: the scene shows the last frame of a phase, and `goTo` switches phases.
  * `name` is the scene's name in the measured events (../analytics.ts): seen, played to the end, paused, a caption chosen.
  */
@@ -45,7 +50,6 @@ export function useScene<S extends { phase: number }>(name: string, initial: S, 
   const lastOf = (phase: number) => states.reduce((at, s, i) => (s.phase === phase ? i : at), 0)
   const [index, setIndex] = useState(0)
   const [visible, setVisible] = useState(false)
-  const [paused, setPaused] = useState(false)
 
   useEffect(() => {
     const io = new IntersectionObserver(([e]) => setVisible(e.isIntersecting), { threshold: 0.35 })
@@ -55,7 +59,7 @@ export function useScene<S extends { phase: number }>(name: string, initial: S, 
 
   useEffect(() => { if (reduced) setIndex(lastOf(0)) }, [reduced]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const playing = visible && !paused && !reduced
+  const playing = visible && !reduced
   useEffect(() => {
     if (!playing) return
     const next = (index + 1) % frames.length
@@ -63,7 +67,7 @@ export function useScene<S extends { phase: number }>(name: string, initial: S, 
       // Back at the first frame: the visitor has watched the whole story once.
       if (next === 0 && !done.current) { done.current = true; track({ event: 'scene_complete', scene: name }) }
       setIndex(next)
-    }, frames[next].wait)
+    }, frames[next].wait * PACE)
     return () => clearTimeout(timer)
   }, [playing, index, frames, name])
 
@@ -74,9 +78,7 @@ export function useScene<S extends { phase: number }>(name: string, initial: S, 
   }, [visible, name])
 
   return {
-    ref, state: states[index], playing, reduced,
-    pause: () => { setPaused(true); track({ event: 'scene_pause', scene: name, phase: states[index].phase }) },
-    play: () => { setPaused(false); track({ event: 'scene_resume', scene: name, phase: states[index].phase }) },
+    ref, state: states[index],
     /** Jump to a phase: its first frame when playing, its last (the finished picture) with reduced motion. */
     goTo: (phase: number) => {
       track({ event: 'scene_caption_click', scene: name, phase: phase + 1 })
@@ -123,7 +125,7 @@ export function Stage({ width, height, cursor, press, sceneKey, maxScale = 1, ch
       <div ref={inner} inert className="absolute top-0 left-0 origin-top-left" style={{ width, height, transform: `scale(${scale})` }}>
         {children}
         {at && (
-          <svg viewBox="0 0 24 24" className="pointer-events-none absolute top-0 left-0 z-30 size-6 transition-transform duration-500 ease-out motion-reduce:hidden"
+          <svg viewBox="0 0 24 24" className="pointer-events-none absolute top-0 left-0 z-30 size-6 transition-transform duration-700 ease-out motion-reduce:hidden"
             style={{ transform: `translate(${at.x - 4}px, ${at.y - 3}px) scale(${press ? 0.82 : 1})`, transformOrigin: '4px 3px' }}>
             <path d="M4 3l14.5 7.2-6.2 1.9-2 6.3z" className="fill-fg stroke-surface" strokeWidth="1.5" strokeLinejoin="round" />
           </svg>

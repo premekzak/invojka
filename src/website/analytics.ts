@@ -27,8 +27,6 @@ export type SiteEvent =
   | { event: 'download_click'; place: 'masthead' | 'closing' }
   | { event: 'scene_view'; scene: string }
   | { event: 'scene_complete'; scene: string }
-  | { event: 'scene_pause'; scene: string; phase: number }
-  | { event: 'scene_resume'; scene: string; phase: number }
   | { event: 'scene_caption_click'; scene: string; phase: number }
   | { event: 'faq_open'; question: string }
   | { event: 'scroll_depth'; percent: 25 | 50 | 75 | 100 }

@@ -36,7 +36,7 @@ Invojka is a local-first invoicing and analytics app in the browser. It is distr
 - `npm test` runs Vitest. For one file: `npx vitest run src/domain/vat.test.ts`, and add `-t "<name>"` for one test.
 - `npm run typecheck`
 - `npm run testdata` writes made-up test businesses as data folders into `testdata/` (git-ignored); open each once in the app, the business switcher keeps them ([development](docs/development.md)).
-- `npm run dev:web` runs the website (invojka.cz) on port 5183; `npm run build:web` builds it into `dist-website/`; `bash scripts/deploy-website.sh` publishes it to https://premekzak.github.io/invojka-web/ (separate repo, later invojka.cz). Redeploy only when the owner asks.
+- `npm run dev:web` runs the website (invojka.cz) on port 5183; `npm run build:web` builds it into `dist-website/`; `bash scripts/deploy-website.sh` publishes it to https://invojka.cz/ (through the separate repo `premekzak/invojka-web`, which Cloudflare serves). Redeploy only when the owner asks.
 - `npm run build:showcase` builds the public showcase on made-up data; `bash scripts/deploy-showcase.sh` publishes it to https://premekzak.github.io/invojka-demo/ (separate repo). Redeploy only when the owner asks.
 
 ## Rules that are easy to break

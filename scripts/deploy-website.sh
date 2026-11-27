@@ -3,8 +3,8 @@
 # the built pages; the source stays here. Run it only when the owner asks.
 # Usage: scripts/deploy-website.sh [owner/repo]
 #
-# DOMAIN below is empty until invojka.cz points at GitHub Pages. Each deploy replaces the whole repository, so the
-# domain has to be written into every build (the CNAME file): set it here once the DNS works, not in GitHub's settings.
+# invojka.cz is served by Cloudflare, which follows this repository (see wrangler.jsonc below), so a push here is the
+# deploy. DOMAIN is only for a custom domain of GitHub Pages' own copy and stays empty.
 # While the site is not launched (docs/launch.md), search engines are told to stay away: robots.txt here and the
 # noindex tag in website/index.html. Remove both together at launch.
 set -euo pipefail

@@ -19,10 +19,10 @@ The website is a second build in this repo so that it can import the app's compo
 
 ## Publishing
 
-`bash scripts/deploy-website.sh` builds the site and force-pushes only the built pages to the separate public repository `premekzak/invojka-web` (GitHub Pages from `main`), the same way as the showcase; the source stays in this repository (the owner's choice, 2026-11-27, over publishing from this repository with GitHub Actions). **Run it only when the owner asks.** First published 2026-11-27 at https://premekzak.github.io/invojka-web/.
+`bash scripts/deploy-website.sh` builds the site and force-pushes only the built pages to the separate public repository `premekzak/invojka-web` (GitHub Pages from `main`), the same way as the showcase; the source stays in this repository (the owner's choice, 2026-11-27, over publishing from this repository with GitHub Actions). **Run it only when the owner asks.** First published 2026-11-27; it is at https://invojka.cz/ (English: https://invojka.cz/en/) and, as GitHub Pages' copy, at https://premekzak.github.io/invojka-web/.
 
 - **Not launched yet:** `noindex` in `website/index.html` and `robots.txt` from the script keep search engines away until [launch.md](launch.md) is done (privacy page, contact, instructions after the download). Remove both together.
-- **The domain:** invojka.cz is registered and its DNS is at Cloudflare (2026-11-27, still propagating). When it points at GitHub Pages (four `A` records of GitHub Pages for the apex, or a flattened `CNAME` to `premekzak.github.io`; "DNS only" at Cloudflare until GitHub has issued the certificate), set `DOMAIN` in the script: every deploy replaces the whole repository, so the `CNAME` file must be in each build. Asset paths are relative (`base: './'`), so the site works under `/invojka-web/` and at the domain's root alike.
+- **The domain:** https://invojka.cz/ is served by Cloudflare (since 2026-11-27): a Cloudflare Workers project `invojka-web` is connected to the `premekzak/invojka-web` repository and runs `npx wrangler deploy` on every push, reading the `wrangler.jsonc` the deploy script writes (static files only, no script). So the deploy script publishes to both addresses at once; Cloudflare follows within a minute or two. `www.invojka.cz` is not set up. `DOMAIN` in the script is for GitHub Pages' own custom domain and stays empty. Asset paths are relative (`base: './'`), so the site works under `/invojka-web/` and at the domain's root alike.
 
 ## Measuring
 

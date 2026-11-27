@@ -1,6 +1,6 @@
-/* Measuring the website with Google Tag Manager (the owner's decision, 2026-11-27, knowing it goes against "no
-   tracking on the website" in docs/launch.md: he runs ads and wants conversions and micro-events). The rules that keep
-   it honest (docs/website.md#measuring):
+/* Measuring the website with Google Analytics (the owner's decision, 2026-11-27, knowing it goes against "no tracking
+   on the website" in docs/launch.md: he runs ads and wants conversions and micro-events). The rules that keep it
+   honest (docs/website.md#measuring):
 
    - Nothing is loaded from Google and nothing is sent until the visitor allows it in the banner. Refusing is as easy as
      allowing, and the choice can be changed from the footer.
@@ -8,9 +8,12 @@
    - Events carry only what happened on the page (which scene, which question, which button), never anything typed.
    - Only analytics storage is granted; the advertising signals stay denied.
 
-   The page pushes events into `dataLayer`; what is done with them (GA4 tags) is set up in the GTM container. */
+   TAG is the owner's Google tag. Its id starts with GTM-, but it is not a Tag Manager container of his: Google serves
+   it as a Google tag whose destination is the GA4 property G-56ZL175GS5 (checked 2026-11-27 in the served script), so
+   there are no tags or triggers to set up anywhere. The snippet below is the one Google gave him; events go straight
+   to Analytics with gtag('event', …). */
 
-const GTM_ID = 'GTM-MV25KJ7Z'
+const TAG = 'GTM-MV25KJ7Z'
 const KEY = 'invojka-web-measuring'
 
 export type Consent = 'granted' | 'denied' | undefined
@@ -19,7 +22,7 @@ declare global {
   interface Window { dataLayer?: unknown[] }
 }
 
-/** Every event the page sends, so the list in docs/website.md and the GTM container can be kept in step with it. */
+/** Every event the page sends; docs/website.md lists them and GA4's custom dimensions are named after the parameters. */
 export type SiteEvent =
   | { event: 'download_click'; place: 'masthead' | 'closing' }
   | { event: 'scene_view'; scene: string }
@@ -31,12 +34,10 @@ export type SiteEvent =
   | { event: 'scroll_depth'; percent: 25 | 50 | 75 | 100 }
   | { event: 'outbound_click'; target: string }
 
-const layer = () => (window.dataLayer ??= [])
-
-/** Google's consent calls need the `arguments` object itself in the data layer, not an array. */
+/** Google's commands must be the `arguments` object itself in the data layer, not an array. */
 function gtag(..._args: unknown[]) {
   // eslint-disable-next-line prefer-rest-params
-  layer().push(arguments)
+  (window.dataLayer ??= []).push(arguments)
 }
 
 export function readConsent(): Consent {
@@ -48,25 +49,35 @@ export function readConsent(): Consent {
   }
 }
 
+/** What happened before the visitor answered the banner: sent if they allow, dropped if they refuse. */
+let waiting: SiteEvent[] = []
 let loaded = false
+
+const send = ({ event, ...params }: SiteEvent) => gtag('event', event, params)
+
 function load() {
   if (loaded) return
   loaded = true
   gtag('consent', 'default', { analytics_storage: 'granted', ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied' })
-  layer().push({ 'gtm.start': Date.now(), event: 'gtm.js' })
+  gtag('js', new Date())
+  waiting.forEach(send)
+  waiting = []
   // The dev server never talks to Google; the events are printed instead (see `track`).
   if (import.meta.env.DEV) return
   const script = document.createElement('script')
   script.async = true
-  script.src = `https://www.googletagmanager.com/gtm.js?id=${GTM_ID}`
+  script.src = `https://www.googletagmanager.com/gtm.js?id=${TAG}`
   document.head.appendChild(script)
 }
 
-/** Remember the visitor's choice. Allowing loads the container; refusing after allowing takes effect on the next visit. */
+/** Remember the visitor's choice. Allowing loads the tag; refusing after allowing stops the storage at once. */
 export function setConsent(choice: 'granted' | 'denied') {
   try { localStorage.setItem(KEY, choice) } catch { /* Private windows: the choice lasts for this visit. */ }
   if (choice === 'granted') load()
-  else if (loaded) gtag('consent', 'update', { analytics_storage: 'denied' })
+  else {
+    waiting = []
+    if (loaded) gtag('consent', 'update', { analytics_storage: 'denied' })
+  }
 }
 
 /** Call once at start: a visitor who allowed measuring before is measured from the first moment. */
@@ -74,12 +85,11 @@ export function startMeasuring() {
   if (readConsent() === 'granted') load()
 }
 
-/**
- * Record something the visitor did. Events wait in the data layer; they leave the browser only once the container is
- * loaded, which needs the visitor's consent. Before a choice they are kept, so a later "yes" still counts the visit.
- */
+/** Record something the visitor did. Nothing leaves the browser without consent. */
 export function track(e: SiteEvent) {
-  if (readConsent() === 'denied') return
-  layer().push(e)
+  const consent = readConsent()
+  if (consent === 'denied') return
   if (import.meta.env.DEV) console.debug('[measure]', e)
+  if (loaded) send(e)
+  else if (consent === undefined) waiting.push(e)
 }
